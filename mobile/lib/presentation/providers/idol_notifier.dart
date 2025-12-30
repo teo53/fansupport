@@ -157,19 +157,28 @@ final idolDetailProvider = StateNotifierProvider.family<
 /// 인기 아이돌 Provider
 final popularIdolsProvider = FutureProvider<List<IdolSummary>>((ref) async {
   final result = await ref.read(idolRepositoryProvider).getPopularIdols();
-  return result.data ?? [];
+  return result.fold(
+    onSuccess: (idols) => idols,
+    onFailure: (failure) => throw Exception(failure.message),
+  );
 });
 
 /// 아이돌 랭킹 Provider
 final idolRankingProvider = FutureProvider.family<List<IdolRanking>, RankingType>(
   (ref, type) async {
     final result = await ref.read(idolRepositoryProvider).getIdolRanking(type: type);
-    return result.data ?? [];
+    return result.fold(
+      onSuccess: (rankings) => rankings,
+      onFailure: (failure) => throw Exception(failure.message),
+    );
   },
 );
 
 /// 팔로잉 아이돌 Provider
 final followingIdolsProvider = FutureProvider<List<IdolSummary>>((ref) async {
   final result = await ref.read(idolRepositoryProvider).getFollowingIdols();
-  return result.data ?? [];
+  return result.fold(
+    onSuccess: (idols) => idols,
+    onFailure: (failure) => throw Exception(failure.message),
+  );
 });

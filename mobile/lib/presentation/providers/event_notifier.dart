@@ -144,25 +144,37 @@ final calendarProvider =
 /// 오늘의 이벤트 Provider
 final todayEventsProvider = FutureProvider<List<EventEntity>>((ref) async {
   final result = await ref.read(eventRepositoryProvider).getTodayEvents();
-  return result.data ?? [];
+  return result.fold(
+    onSuccess: (events) => events,
+    onFailure: (failure) => throw Exception(failure.message),
+  );
 });
 
 /// 다가오는 이벤트 Provider
 final upcomingEventsProvider = FutureProvider<List<EventEntity>>((ref) async {
   final result = await ref.read(eventRepositoryProvider).getUpcomingEvents();
-  return result.data ?? [];
+  return result.fold(
+    onSuccess: (events) => events,
+    onFailure: (failure) => throw Exception(failure.message),
+  );
 });
 
 /// 이벤트 상세 Provider
 final eventDetailProvider =
     FutureProvider.family<EventEntity?, String>((ref, eventId) async {
   final result = await ref.read(eventRepositoryProvider).getEventById(eventId);
-  return result.data;
+  return result.fold(
+    onSuccess: (event) => event,
+    onFailure: (failure) => throw Exception(failure.message),
+  );
 });
 
 /// 특정 날짜 이벤트 Provider
 final dateEventsProvider =
     FutureProvider.family<List<EventEntity>, DateTime>((ref, date) async {
   final result = await ref.read(eventRepositoryProvider).getEventsByDate(date);
-  return result.data ?? [];
+  return result.fold(
+    onSuccess: (events) => events,
+    onFailure: (failure) => throw Exception(failure.message),
+  );
 });

@@ -9,7 +9,7 @@ sealed class Result<T> {
   bool get isSuccess => this is Success<T>;
 
   /// 실패 여부
-  bool get isFailure => this is Failure;
+  bool get isFailure => this is Fail<T>;
 
   /// 성공 시 데이터 반환, 실패 시 null
   T? get data => isSuccess ? (this as Success<T>).value : null;

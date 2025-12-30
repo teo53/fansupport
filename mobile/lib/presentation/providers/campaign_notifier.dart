@@ -149,7 +149,10 @@ final campaignDetailProvider = StateNotifierProvider.family<
 final popularCampaignsProvider =
     FutureProvider<List<CampaignSummary>>((ref) async {
   final result = await ref.read(campaignRepositoryProvider).getPopularCampaigns();
-  return result.data ?? [];
+  return result.fold(
+    onSuccess: (campaigns) => campaigns,
+    onFailure: (failure) => throw Exception(failure.message),
+  );
 });
 
 /// 마감 임박 캠페인 Provider
@@ -157,7 +160,10 @@ final endingSoonCampaignsProvider =
     FutureProvider<List<CampaignSummary>>((ref) async {
   final result =
       await ref.read(campaignRepositoryProvider).getEndingSoonCampaigns();
-  return result.data ?? [];
+  return result.fold(
+    onSuccess: (campaigns) => campaigns,
+    onFailure: (failure) => throw Exception(failure.message),
+  );
 });
 
 /// 참여한 캠페인 Provider
@@ -165,5 +171,8 @@ final participatedCampaignsProvider =
     FutureProvider<List<CampaignSummary>>((ref) async {
   final result =
       await ref.read(campaignRepositoryProvider).getParticipatedCampaigns();
-  return result.data ?? [];
+  return result.fold(
+    onSuccess: (campaigns) => campaigns,
+    onFailure: (failure) => throw Exception(failure.message),
+  );
 });

@@ -159,12 +159,18 @@ final popularFeedProvider =
 final postDetailProvider =
     FutureProvider.family<PostEntity?, String>((ref, postId) async {
   final result = await ref.read(postRepositoryProvider).getPostById(postId);
-  return result.data;
+  return result.fold(
+    onSuccess: (post) => post,
+    onFailure: (failure) => throw Exception(failure.message),
+  );
 });
 
 /// 댓글 목록 Provider
 final commentsProvider =
     FutureProvider.family<List<CommentEntity>, String>((ref, postId) async {
   final result = await ref.read(postRepositoryProvider).getComments(postId: postId);
-  return result.data ?? [];
+  return result.fold(
+    onSuccess: (comments) => comments,
+    onFailure: (failure) => throw Exception(failure.message),
+  );
 });
