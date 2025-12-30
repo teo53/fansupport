@@ -1,3 +1,5 @@
+import '../../core/constants/app_constants.dart';
+import '../../core/errors/exceptions.dart';
 import '../../core/errors/failures.dart';
 import '../../core/errors/result.dart';
 import '../../domain/entities/post_entity.dart';
@@ -20,7 +22,7 @@ class PostRepositoryImpl implements PostRepository {
       final posts = await _dataSource.getPosts(page: page, limit: limit);
       return Success(posts);
     } catch (e) {
-      return Fail(ServerFailure(message: e.toString()));
+      return Fail(_mapException(e));
     }
   }
 
@@ -30,7 +32,7 @@ class PostRepositoryImpl implements PostRepository {
       final post = await _dataSource.getPostById(id);
       return Success(post);
     } catch (e) {
-      return Fail(ServerFailure(message: '게시물을 불러올 수 없습니다'));
+      return Fail(_mapException(e, '게시물을 불러올 수 없습니다'));
     }
   }
 
@@ -41,10 +43,12 @@ class PostRepositoryImpl implements PostRepository {
     int limit = 20,
   }) async {
     try {
-      final posts = await _dataSource.getPosts(page: page, limit: limit);
-      return Success(posts);
+      final allPosts = await _dataSource.getPosts(page: page, limit: limit);
+      // 사용자 ID로 필터링
+      final userPosts = allPosts.where((p) => p.author.id == userId).toList();
+      return Success(userPosts);
     } catch (e) {
-      return Fail(ServerFailure(message: e.toString()));
+      return Fail(_mapException(e));
     }
   }
 
@@ -55,10 +59,14 @@ class PostRepositoryImpl implements PostRepository {
     int limit = 20,
   }) async {
     try {
-      final posts = await _dataSource.getPosts(page: page, limit: limit);
-      return Success(posts);
+      final allPosts = await _dataSource.getPosts(page: page, limit: limit);
+      // 아이돌 ID로 필터링 (isIdol이 true인 게시물)
+      final idolPosts = allPosts.where((p) =>
+        p.author.id == idolId || p.author.isIdol
+      ).toList();
+      return Success(idolPosts);
     } catch (e) {
-      return Fail(ServerFailure(message: e.toString()));
+      return Fail(_mapException(e));
     }
   }
 
@@ -69,14 +77,14 @@ class PostRepositoryImpl implements PostRepository {
     String? videoUrl,
   }) async {
     // Demo: 새 게시물 생성 시뮬레이션
-    await Future.delayed(const Duration(milliseconds: 500));
+    await Future.delayed(UIConstants.mockDelay);
 
     final newPost = PostEntity(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
-      author: const PostAuthor(
-        id: 'demo_user',
-        name: '데모 유저',
-        profileImage: 'https://picsum.photos/100',
+      author: PostAuthor(
+        id: DemoCredentials.userId,
+        name: DemoCredentials.nickname,
+        profileImage: AvatarUrls.generate('demouser'),
       ),
       content: content,
       images: images ?? [],
@@ -100,13 +108,13 @@ class PostRepositoryImpl implements PostRepository {
         updatedAt: DateTime.now(),
       ));
     } catch (e) {
-      return Fail(ServerFailure(message: '게시물 수정에 실패했습니다'));
+      return Fail(_mapException(e, '게시물 수정에 실패했습니다'));
     }
   }
 
   @override
   Future<Result<void>> deletePost(String id) async {
-    await Future.delayed(const Duration(milliseconds: 300));
+    await Future.delayed(UIConstants.mockDelay);
     return const Success(null);
   }
 
@@ -116,7 +124,7 @@ class PostRepositoryImpl implements PostRepository {
       final post = await _dataSource.toggleLikePost(id);
       return Success(post);
     } catch (e) {
-      return Fail(ServerFailure(message: '좋아요에 실패했습니다'));
+      return Fail(_mapException(e, '좋아요에 실패했습니다'));
     }
   }
 
@@ -126,7 +134,7 @@ class PostRepositoryImpl implements PostRepository {
       final post = await _dataSource.toggleLikePost(id);
       return Success(post);
     } catch (e) {
-      return Fail(ServerFailure(message: '좋아요 취소에 실패했습니다'));
+      return Fail(_mapException(e, '좋아요 취소에 실패했습니다'));
     }
   }
 
@@ -136,7 +144,7 @@ class PostRepositoryImpl implements PostRepository {
       final post = await _dataSource.toggleBookmarkPost(id);
       return Success(post);
     } catch (e) {
-      return Fail(ServerFailure(message: '북마크에 실패했습니다'));
+      return Fail(_mapException(e, '북마크에 실패했습니다'));
     }
   }
 
@@ -146,7 +154,7 @@ class PostRepositoryImpl implements PostRepository {
       final post = await _dataSource.toggleBookmarkPost(id);
       return Success(post);
     } catch (e) {
-      return Fail(ServerFailure(message: '북마크 취소에 실패했습니다'));
+      return Fail(_mapException(e, '북마크 취소에 실패했습니다'));
     }
   }
 
@@ -157,9 +165,11 @@ class PostRepositoryImpl implements PostRepository {
   }) async {
     try {
       final posts = await _dataSource.getPosts(page: 1, limit: 5);
-      return Success(posts);
+      // 북마크된 게시물만 필터링
+      final bookmarked = posts.where((p) => p.isBookmarked).toList();
+      return Success(bookmarked);
     } catch (e) {
-      return Fail(ServerFailure(message: e.toString()));
+      return Fail(_mapException(e));
     }
   }
 
@@ -170,7 +180,7 @@ class PostRepositoryImpl implements PostRepository {
     int limit = 20,
   }) async {
     // Demo: 댓글 목록 시뮬레이션
-    await Future.delayed(const Duration(milliseconds: 300));
+    await Future.delayed(UIConstants.mockDelay);
 
     final comments = List.generate(5, (i) => CommentEntity(
       id: 'comment_$i',
@@ -178,7 +188,7 @@ class PostRepositoryImpl implements PostRepository {
       author: PostAuthor(
         id: 'user_$i',
         name: '사용자 ${i + 1}',
-        profileImage: 'https://picsum.photos/100?random=$i',
+        profileImage: AvatarUrls.generate('user$i'),
       ),
       content: '멋진 게시물이네요! 😊',
       likeCount: i * 3,
@@ -195,14 +205,15 @@ class PostRepositoryImpl implements PostRepository {
     required String content,
     String? parentId,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 300));
+    await Future.delayed(UIConstants.mockDelay);
 
     final comment = CommentEntity(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       postId: postId,
-      author: const PostAuthor(
-        id: 'demo_user',
-        name: '데모 유저',
+      author: PostAuthor(
+        id: DemoCredentials.userId,
+        name: DemoCredentials.nickname,
+        profileImage: AvatarUrls.generate('demouser'),
       ),
       content: content,
       parentId: parentId,
@@ -214,18 +225,22 @@ class PostRepositoryImpl implements PostRepository {
 
   @override
   Future<Result<void>> deleteComment(String commentId) async {
-    await Future.delayed(const Duration(milliseconds: 300));
+    await Future.delayed(UIConstants.mockDelay);
     return const Success(null);
   }
 
   @override
   Future<Result<CommentEntity>> likeComment(String commentId) async {
-    await Future.delayed(const Duration(milliseconds: 200));
+    await Future.delayed(UIConstants.shortMockDelay);
 
     final comment = CommentEntity(
       id: commentId,
       postId: 'post_1',
-      author: const PostAuthor(id: 'user', name: '사용자'),
+      author: PostAuthor(
+        id: 'user',
+        name: '사용자',
+        profileImage: AvatarUrls.generate('user'),
+      ),
       content: '댓글 내용',
       isLiked: true,
       likeCount: 1,
@@ -240,7 +255,23 @@ class PostRepositoryImpl implements PostRepository {
     required String postId,
     required String reason,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 300));
+    await Future.delayed(UIConstants.mockDelay);
     return const Success(null);
+  }
+
+  /// 예외를 Failure로 변환
+  Failure _mapException(dynamic e, [String? fallbackMessage]) {
+    if (e is NetworkException) {
+      return ServerFailure(
+        message: e.message,
+        code: e.code,
+        statusCode: e.statusCode,
+      );
+    } else if (e is AuthException) {
+      return AuthFailure(message: e.message, code: e.code);
+    } else if (e is AppException) {
+      return ServerFailure(message: e.message, code: e.code);
+    }
+    return ServerFailure(message: fallbackMessage ?? ErrorMessages.generic);
   }
 }
