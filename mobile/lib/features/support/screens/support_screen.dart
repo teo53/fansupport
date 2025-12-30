@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
+import '../../../core/utils/formatters.dart';
 import '../../../core/mock/mock_data.dart';
 import '../../../shared/widgets/custom_button.dart';
 import '../../../shared/widgets/custom_text_field.dart';
@@ -35,13 +36,7 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
   }
 
   String _getCategoryName(String? category) {
-    final names = {
-      'UNDERGROUND_IDOL': '지하 아이돌',
-      'MAID_CAFE': '메이드카페',
-      'COSPLAYER': '코스플레이어',
-      'VTuber': 'VTuber',
-    };
-    return names[category] ?? '아이돌';
+    return CategoryMapper.getCategoryName(category);
   }
 
   @override
@@ -301,10 +296,7 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
   }
 
   String _formatNumber(int number) {
-    return number.toString().replaceAllMapped(
-          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-          (Match m) => '${m[1]},',
-        );
+    return NumberFormatter.formatWithComma(number);
   }
 
   void _handleSupport(BuildContext context) async {

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
+import '../../../core/utils/formatters.dart';
 import '../../../core/mock/mock_data.dart';
 import '../../auth/providers/auth_provider.dart';
 
@@ -44,30 +45,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   }
 
   String _formatTimeAgo(String dateStr) {
-    final date = DateTime.parse(dateStr);
-    final now = DateTime.now();
-    final diff = now.difference(date);
-
-    if (diff.inMinutes < 1) {
-      return '방금 전';
-    } else if (diff.inMinutes < 60) {
-      return '${diff.inMinutes}분 전';
-    } else if (diff.inHours < 24) {
-      return '${diff.inHours}시간 전';
-    } else if (diff.inDays < 7) {
-      return '${diff.inDays}일 전';
-    } else {
-      return '${date.month}월 ${date.day}일';
-    }
+    return TimeFormatter.formatRelative(DateTime.parse(dateStr));
   }
 
   String _formatNumber(int number) {
-    if (number >= 10000) {
-      return '${(number / 10000).toStringAsFixed(1)}만';
-    } else if (number >= 1000) {
-      return '${(number / 1000).toStringAsFixed(1)}천';
-    }
-    return number.toString();
+    return NumberFormatter.formatKorean(number);
   }
 
   Future<void> _onRefresh() async {
@@ -725,18 +707,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   }
 
   String _getCategoryLabel(String? category) {
-    switch (category) {
-      case 'UNDERGROUND_IDOL':
-        return '지하 아이돌';
-      case 'MAID_CAFE':
-        return '메이드카페';
-      case 'COSPLAYER':
-        return '코스플레이어';
-      case 'VTUBER':
-        return 'VTuber';
-      default:
-        return '';
-    }
+    if (category == null) return '';
+    return CategoryMapper.getCategoryName(category);
   }
 
   void _showPostOptions(BuildContext context, Map<String, dynamic> post) {

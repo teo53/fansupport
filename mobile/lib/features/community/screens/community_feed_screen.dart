@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
+import '../../../core/utils/formatters.dart';
 import '../../../core/mock/mock_data.dart';
 
 class CommunityFeedScreen extends ConsumerStatefulWidget {
@@ -17,19 +18,7 @@ class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen> {
   final Set<String> _bookmarkedPosts = {};
 
   String _formatTimeAgo(String dateStr) {
-    final date = DateTime.parse(dateStr);
-    final now = DateTime.now();
-    final diff = now.difference(date);
-
-    if (diff.inMinutes < 60) {
-      return '${diff.inMinutes}분 전';
-    } else if (diff.inHours < 24) {
-      return '${diff.inHours}시간 전';
-    } else if (diff.inDays < 7) {
-      return '${diff.inDays}일 전';
-    } else {
-      return '${date.month}/${date.day}';
-    }
+    return TimeFormatter.formatRelative(DateTime.parse(dateStr));
   }
 
   @override

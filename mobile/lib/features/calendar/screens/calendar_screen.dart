@@ -5,6 +5,7 @@ import 'package:table_calendar/table_calendar.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
+import '../../../core/utils/formatters.dart';
 import '../../../core/mock/mock_data.dart';
 
 class CalendarScreen extends ConsumerStatefulWidget {
@@ -646,27 +647,14 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   }
 
   String _getCategoryName(String? category) {
-    final names = {
-      'LIVE': '라이브',
-      'CONCERT': '콘서트',
-      'FAN_MEETING': '팬미팅',
-      'BIRTHDAY': '생일파티',
-      'SPECIAL': '스페셜',
-    };
-    return names[category] ?? '이벤트';
+    return CategoryMapper.getEventCategoryName(category);
   }
 
   String _formatNumber(int number) {
-    return number.toString().replaceAllMapped(
-          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-          (Match m) => '${m[1]},',
-        );
+    return NumberFormatter.formatWithComma(number);
   }
 
   String _formatDate(String? dateStr) {
-    if (dateStr == null) return '';
-    final parts = dateStr.split('-');
-    if (parts.length != 3) return dateStr;
-    return '${parts[0]}년 ${int.parse(parts[1])}월 ${int.parse(parts[2])}일';
+    return TimeFormatter.formatDateString(dateStr);
   }
 }
