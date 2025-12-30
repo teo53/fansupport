@@ -102,7 +102,7 @@ class _CampaignDetailScreenState extends ConsumerState<CampaignDetailScreen> {
                           child: Icon(
                             Icons.campaign,
                             size: Responsive.sp(60),
-                            color: Colors.white.withOpacity(0.5),
+                            color: Colors.white.withValues(alpha: 0.5),
                           ),
                         ),
                       ),
@@ -114,7 +114,7 @@ class _CampaignDetailScreenState extends ConsumerState<CampaignDetailScreen> {
                           child: Icon(
                             Icons.campaign,
                             size: Responsive.sp(60),
-                            color: Colors.white.withOpacity(0.5),
+                            color: Colors.white.withValues(alpha: 0.5),
                           ),
                         ),
                       ),
@@ -127,7 +127,7 @@ class _CampaignDetailScreenState extends ConsumerState<CampaignDetailScreen> {
                         child: Icon(
                           Icons.campaign,
                           size: Responsive.sp(60),
-                          color: Colors.white.withOpacity(0.5),
+                          color: Colors.white.withValues(alpha: 0.5),
                         ),
                       ),
                     ),
@@ -154,7 +154,7 @@ class _CampaignDetailScreenState extends ConsumerState<CampaignDetailScreen> {
                     children: [
                       CircleAvatar(
                         radius: Responsive.wp(5),
-                        backgroundColor: AppColors.primary.withOpacity(0.1),
+                        backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                         backgroundImage: creator?['profileImage'] != null
                             ? CachedNetworkImageProvider(creator!['profileImage'])
                             : null,
@@ -219,8 +219,8 @@ class _CampaignDetailScreenState extends ConsumerState<CampaignDetailScreen> {
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          AppColors.primary.withOpacity(0.1),
-                          AppColors.secondary.withOpacity(0.1),
+                          AppColors.primary.withValues(alpha: 0.1),
+                          AppColors.secondary.withValues(alpha: 0.1),
                         ],
                       ),
                       borderRadius: BorderRadius.circular(16),
@@ -350,7 +350,7 @@ class _CampaignDetailScreenState extends ConsumerState<CampaignDetailScreen> {
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 10,
               offset: const Offset(0, -2),
             ),
@@ -474,7 +474,7 @@ class _CampaignDetailScreenState extends ConsumerState<CampaignDetailScreen> {
                             vertical: Responsive.hp(0.5),
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.error.withOpacity(0.1),
+                            color: AppColors.error.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
@@ -796,7 +796,7 @@ class _CampaignDetailScreenState extends ConsumerState<CampaignDetailScreen> {
               width: Responsive.wp(20),
               height: Responsive.wp(20),
               decoration: BoxDecoration(
-                color: AppColors.success.withOpacity(0.1),
+                color: AppColors.success.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(Icons.check_circle, color: AppColors.success, size: Responsive.sp(50)),

@@ -79,7 +79,7 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
                       backgroundImage: idol != null
                           ? CachedNetworkImageProvider(idol['profileImage'])
                           : null,
-                      backgroundColor: AppColors.primary.withOpacity(0.1),
+                      backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                     ),
                     SizedBox(width: Responsive.wp(4)),
                     Expanded(
@@ -145,7 +145,7 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
                             ? AppColors.primary
                             : canAfford
                                 ? AppColors.border
-                                : AppColors.border.withOpacity(0.5),
+                                : AppColors.border.withValues(alpha: 0.5),
                       ),
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -329,7 +329,7 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
               width: Responsive.wp(20),
               height: Responsive.wp(20),
               decoration: BoxDecoration(
-                color: AppColors.success.withOpacity(0.1),
+                color: AppColors.success.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(Icons.check_circle, color: AppColors.success, size: Responsive.sp(50)),

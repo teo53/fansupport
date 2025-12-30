@@ -202,14 +202,14 @@ class _CampaignListScreenState extends ConsumerState<CampaignListScreen> {
                         child: Icon(
                           Icons.campaign,
                           size: Responsive.sp(50),
-                          color: Colors.white.withOpacity(0.5),
+                          color: Colors.white.withValues(alpha: 0.5),
                         ),
                       ),
                       errorWidget: (context, url, error) => Center(
                         child: Icon(
                           Icons.campaign,
                           size: Responsive.sp(50),
-                          color: Colors.white.withOpacity(0.5),
+                          color: Colors.white.withValues(alpha: 0.5),
                         ),
                       ),
                     )
@@ -218,7 +218,7 @@ class _CampaignListScreenState extends ConsumerState<CampaignListScreen> {
                       child: Icon(
                         Icons.campaign,
                         size: Responsive.sp(50),
-                        color: Colors.white.withOpacity(0.5),
+                        color: Colors.white.withValues(alpha: 0.5),
                       ),
                     ),
                   if (daysLeft <= 7 && daysLeft > 0)
@@ -280,7 +280,7 @@ class _CampaignListScreenState extends ConsumerState<CampaignListScreen> {
                     children: [
                       CircleAvatar(
                         radius: Responsive.wp(3.5),
-                        backgroundColor: AppColors.primary.withOpacity(0.1),
+                        backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                         backgroundImage: creator?['profileImage'] != null
                             ? CachedNetworkImageProvider(creator!['profileImage'])
                             : null,

@@ -58,7 +58,7 @@ class IdolDetailScreen extends ConsumerWidget {
                     imageUrl: idol['profileImage'],
                     fit: BoxFit.cover,
                     placeholder: (context, url) => Container(
-                      color: AppColors.primary.withOpacity(0.2),
+                      color: AppColors.primary.withValues(alpha: 0.2),
                     ),
                     errorWidget: (context, url, error) => Container(
                       decoration: const BoxDecoration(
@@ -73,7 +73,7 @@ class IdolDetailScreen extends ConsumerWidget {
                         end: Alignment.bottomCenter,
                         colors: [
                           Colors.transparent,
-                          Colors.black.withOpacity(0.6),
+                          Colors.black.withValues(alpha: 0.6),
                         ],
                       ),
                     ),
@@ -106,7 +106,7 @@ class IdolDetailScreen extends ConsumerWidget {
                       border: Border.all(color: Colors.white, width: 4),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
+                          color: Colors.black.withValues(alpha: 0.1),
                           blurRadius: 8,
                         ),
                       ],
@@ -663,7 +663,7 @@ class IdolDetailScreen extends ConsumerWidget {
         decoration: BoxDecoration(
           border: Border.all(color: isPopular ? color : AppColors.border),
           borderRadius: BorderRadius.circular(12),
-          color: isPopular ? color.withOpacity(0.05) : null,
+          color: isPopular ? color.withValues(alpha: 0.05) : null,
         ),
         child: Row(
           children: [
@@ -869,7 +869,7 @@ class IdolDetailScreen extends ConsumerWidget {
       decoration: BoxDecoration(
         border: Border.all(color: isPopular ? color : AppColors.border),
         borderRadius: BorderRadius.circular(12),
-        color: isPopular ? color.withOpacity(0.05) : null,
+        color: isPopular ? color.withValues(alpha: 0.05) : null,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

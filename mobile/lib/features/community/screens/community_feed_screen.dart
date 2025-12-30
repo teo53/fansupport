@@ -125,7 +125,7 @@ class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen> {
               children: [
                 CircleAvatar(
                   radius: Responsive.wp(5),
-                  backgroundColor: AppColors.primary.withOpacity(0.1),
+                  backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                   backgroundImage: author?['profileImage'] != null
                       ? CachedNetworkImageProvider(author!['profileImage'])
                       : null,
@@ -181,7 +181,7 @@ class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen> {
                       vertical: Responsive.hp(0.5),
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.secondary.withOpacity(0.1),
+                      color: AppColors.secondary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
@@ -225,8 +225,8 @@ class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen> {
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          AppColors.primary.withOpacity(0.3),
-                          AppColors.secondary.withOpacity(0.3),
+                          AppColors.primary.withValues(alpha: 0.3),
+                          AppColors.secondary.withValues(alpha: 0.3),
                         ],
                       ),
                     ),
@@ -234,7 +234,7 @@ class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen> {
                       child: Icon(
                         Icons.image,
                         size: Responsive.sp(50),
-                        color: Colors.white.withOpacity(0.5),
+                        color: Colors.white.withValues(alpha: 0.5),
                       ),
                     ),
                   ),
@@ -243,8 +243,8 @@ class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen> {
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          AppColors.primary.withOpacity(0.3),
-                          AppColors.secondary.withOpacity(0.3),
+                          AppColors.primary.withValues(alpha: 0.3),
+                          AppColors.secondary.withValues(alpha: 0.3),
                         ],
                       ),
                     ),
@@ -252,7 +252,7 @@ class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen> {
                       child: Icon(
                         Icons.image,
                         size: Responsive.sp(50),
-                        color: Colors.white.withOpacity(0.5),
+                        color: Colors.white.withValues(alpha: 0.5),
                       ),
                     ),
                   ),

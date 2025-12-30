@@ -48,7 +48,7 @@ class ProfileScreen extends ConsumerWidget {
                       border: Border.all(color: AppColors.primary, width: 3),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.primary.withOpacity(0.3),
+                          color: AppColors.primary.withValues(alpha: 0.3),
                           blurRadius: 15,
                           spreadRadius: 2,
                         ),
@@ -376,7 +376,7 @@ class ProfileScreen extends ConsumerWidget {
         contentPadding: EdgeInsets.all(Responsive.wp(3)),
         leading: CircleAvatar(
           radius: Responsive.wp(6),
-          backgroundColor: AppColors.primary.withOpacity(0.1),
+          backgroundColor: AppColors.primary.withValues(alpha: 0.1),
           child: Icon(Icons.person, color: AppColors.primary, size: Responsive.sp(24)),
         ),
         title: Row(
@@ -481,7 +481,7 @@ class ProfileScreen extends ConsumerWidget {
           width: Responsive.wp(10),
           height: Responsive.wp(10),
           decoration: BoxDecoration(
-            color: (color ?? AppColors.primary).withOpacity(0.1),
+            color: (color ?? AppColors.primary).withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(icon, color: color ?? AppColors.primary, size: Responsive.sp(22)),

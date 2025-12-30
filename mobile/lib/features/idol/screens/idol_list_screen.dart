@@ -193,7 +193,7 @@ class _IdolListScreenState extends ConsumerState<IdolListScreen>
                     height: double.infinity,
                     fit: BoxFit.cover,
                     placeholder: (context, url) => Container(
-                      color: color.withOpacity(0.2),
+                      color: color.withValues(alpha: 0.2),
                       child: Center(
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
@@ -202,7 +202,7 @@ class _IdolListScreenState extends ConsumerState<IdolListScreen>
                       ),
                     ),
                     errorWidget: (context, url, error) => Container(
-                      color: color.withOpacity(0.2),
+                      color: color.withValues(alpha: 0.2),
                       child: Icon(Icons.person, size: 50, color: color),
                     ),
                   ),
@@ -213,7 +213,7 @@ class _IdolListScreenState extends ConsumerState<IdolListScreen>
                         end: Alignment.bottomCenter,
                         colors: [
                           Colors.transparent,
-                          Colors.black.withOpacity(0.3),
+                          Colors.black.withValues(alpha: 0.3),
                         ],
                       ),
                     ),
@@ -251,7 +251,7 @@ class _IdolListScreenState extends ConsumerState<IdolListScreen>
                     child: Container(
                       padding: EdgeInsets.all(Responsive.wp(1.5)),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withValues(alpha: 0.9),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
