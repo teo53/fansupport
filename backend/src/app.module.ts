@@ -10,6 +10,7 @@ import { CampaignModule } from './campaign/campaign.module';
 import { BookingModule } from './booking/booking.module';
 import { CommunityModule } from './community/community.module';
 import { PaymentModule } from './payment/payment.module';
+import { NotificationModule } from './notification/notification.module';
 import { DatabaseModule } from './database/database.module';
 
 @Module({
@@ -32,6 +33,7 @@ import { DatabaseModule } from './database/database.module';
     BookingModule,
     CommunityModule,
     PaymentModule,
+    NotificationModule,
   ],
 })
 export class AppModule {}
