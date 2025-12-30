@@ -1,0 +1,53 @@
+# Flutter/Dart
+.dart_tool/
+.packages
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+*.iml
+
+# Android
+mobile/android/.gradle/
+mobile/android/app/debug/
+mobile/android/app/profile/
+mobile/android/app/release/
+mobile/android/local.properties
+mobile/android/**/GeneratedPluginRegistrant.*
+
+# iOS
+mobile/ios/.symlinks/
+mobile/ios/Pods/
+mobile/ios/Flutter/Flutter.framework
+mobile/ios/Flutter/Flutter.podspec
+mobile/ios/Flutter/Generated.xcconfig
+mobile/ios/Flutter/ephemeral/
+mobile/ios/Flutter/flutter_export_environment.sh
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Coverage
+coverage/
+*.lcov
+
+# Logs
+*.log
+
+# APK files (too large for git)
+*.apk
+*.aab
+
+# Generated files
+*.g.dart
+*.freezed.dart
+
+# Secrets
+.env
+.env.*
+credentials.json
+google-services.json
+GoogleService-Info.plist

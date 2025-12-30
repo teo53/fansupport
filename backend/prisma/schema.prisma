@@ -1,0 +1,453 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==================== USER & AUTH ====================
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  password      String?
+  nickname      String
+  profileImage  String?
+  role          UserRole  @default(FAN)
+  provider      AuthProvider @default(LOCAL)
+  providerId    String?
+  isVerified    Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  wallet        Wallet?
+  supports      Support[]        @relation("SupporterSupports")
+  receivedSupports Support[]     @relation("ReceivedSupports")
+  subscriptions Subscription[]   @relation("SubscriberSubscriptions")
+  subscribers   Subscription[]   @relation("CreatorSubscriptions")
+  campaigns     Campaign[]
+  contributions CampaignContribution[]
+  bookings      Booking[]
+  posts         Post[]
+  comments      Comment[]
+  likes         Like[]
+  idolProfile   IdolProfile?
+  notifications Notification[]
+  refreshTokens RefreshToken[]
+
+  @@index([email])
+  @@index([role])
+}
+
+enum UserRole {
+  FAN
+  IDOL
+  MAID
+  ADMIN
+}
+
+enum AuthProvider {
+  LOCAL
+  GOOGLE
+  APPLE
+  KAKAO
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+// ==================== IDOL/MAID PROFILE ====================
+
+model IdolProfile {
+  id              String   @id @default(uuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stageName       String
+  introduction    String?
+  category        IdolCategory
+  cafeName        String?
+  cafeAddress     String?
+  headerImage     String?
+  galleryImages   String[]
+  socialLinks     Json?
+  isVerified      Boolean  @default(false)
+  totalSupport    Decimal  @default(0) @db.Decimal(15, 2)
+  supporterCount  Int      @default(0)
+  ranking         Int?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  schedules       Schedule[]
+  tiers           SubscriptionTier[]
+
+  @@index([category])
+  @@index([ranking])
+}
+
+enum IdolCategory {
+  UNDERGROUND_IDOL
+  MAID_CAFE
+  COSPLAYER
+  VTuber
+  OTHER
+}
+
+model Schedule {
+  id            String   @id @default(uuid())
+  idolProfileId String
+  idolProfile   IdolProfile @relation(fields: [idolProfileId], references: [id], onDelete: Cascade)
+  title         String
+  description   String?
+  location      String?
+  startTime     DateTime
+  endTime       DateTime
+  isPublic      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+
+  @@index([idolProfileId])
+  @@index([startTime])
+}
+
+// ==================== WALLET & PAYMENT ====================
+
+model Wallet {
+  id           String   @id @default(uuid())
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  balance      Decimal  @default(0) @db.Decimal(15, 2)
+  currency     String   @default("KRW")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  transactions Transaction[]
+}
+
+model Transaction {
+  id            String          @id @default(uuid())
+  walletId      String
+  wallet        Wallet          @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  type          TransactionType
+  amount        Decimal         @db.Decimal(15, 2)
+  balanceBefore Decimal         @db.Decimal(15, 2)
+  balanceAfter  Decimal         @db.Decimal(15, 2)
+  description   String?
+  referenceId   String?
+  referenceType String?
+  status        TransactionStatus @default(COMPLETED)
+  createdAt     DateTime        @default(now())
+
+  @@index([walletId])
+  @@index([createdAt])
+}
+
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  SUPPORT_SENT
+  SUPPORT_RECEIVED
+  SUBSCRIPTION_PAYMENT
+  CAMPAIGN_CONTRIBUTION
+  REFUND
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+model Payment {
+  id              String        @id @default(uuid())
+  userId          String
+  amount          Decimal       @db.Decimal(15, 2)
+  currency        String        @default("KRW")
+  provider        PaymentProvider
+  providerPaymentId String?
+  status          PaymentStatus @default(PENDING)
+  type            PaymentType
+  referenceId     String?
+  referenceType   String?
+  metadata        Json?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([userId])
+  @@index([providerPaymentId])
+  @@index([status])
+}
+
+enum PaymentProvider {
+  STRIPE
+  GOOGLE_PLAY
+  APP_STORE
+  TOSS
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  REFUNDED
+  CANCELLED
+}
+
+enum PaymentType {
+  WALLET_CHARGE
+  SUBSCRIPTION
+  CAMPAIGN
+  DIRECT_SUPPORT
+}
+
+// ==================== SUPPORT (후원) ====================
+
+model Support {
+  id          String   @id @default(uuid())
+  supporterId String
+  supporter   User     @relation("SupporterSupports", fields: [supporterId], references: [id])
+  receiverId  String
+  receiver    User     @relation("ReceivedSupports", fields: [receiverId], references: [id])
+  amount      Decimal  @db.Decimal(15, 2)
+  message     String?
+  isAnonymous Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@index([supporterId])
+  @@index([receiverId])
+  @@index([createdAt])
+}
+
+// ==================== SUBSCRIPTION (구독) ====================
+
+model SubscriptionTier {
+  id            String   @id @default(uuid())
+  idolProfileId String
+  idolProfile   IdolProfile @relation(fields: [idolProfileId], references: [id], onDelete: Cascade)
+  name          String
+  price         Decimal  @db.Decimal(15, 2)
+  benefits      String[]
+  maxSubscribers Int?
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  subscriptions Subscription[]
+
+  @@index([idolProfileId])
+}
+
+model Subscription {
+  id           String             @id @default(uuid())
+  subscriberId String
+  subscriber   User               @relation("SubscriberSubscriptions", fields: [subscriberId], references: [id])
+  creatorId    String
+  creator      User               @relation("CreatorSubscriptions", fields: [creatorId], references: [id])
+  tierId       String
+  tier         SubscriptionTier   @relation(fields: [tierId], references: [id])
+  status       SubscriptionStatus @default(ACTIVE)
+  startDate    DateTime           @default(now())
+  endDate      DateTime?
+  renewalDate  DateTime?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  @@unique([subscriberId, creatorId])
+  @@index([subscriberId])
+  @@index([creatorId])
+  @@index([status])
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAUSED
+  CANCELLED
+  EXPIRED
+}
+
+// ==================== CAMPAIGN (펀딩) ====================
+
+model Campaign {
+  id            String         @id @default(uuid())
+  creatorId     String
+  creator       User           @relation(fields: [creatorId], references: [id])
+  title         String
+  description   String
+  coverImage    String?
+  goalAmount    Decimal        @db.Decimal(15, 2)
+  currentAmount Decimal        @default(0) @db.Decimal(15, 2)
+  startDate     DateTime
+  endDate       DateTime
+  status        CampaignStatus @default(DRAFT)
+  rewards       Json?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  contributions CampaignContribution[]
+
+  @@index([creatorId])
+  @@index([status])
+  @@index([endDate])
+}
+
+enum CampaignStatus {
+  DRAFT
+  ACTIVE
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+model CampaignContribution {
+  id          String   @id @default(uuid())
+  campaignId  String
+  campaign    Campaign @relation(fields: [campaignId], references: [id])
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  amount      Decimal  @db.Decimal(15, 2)
+  rewardTier  String?
+  message     String?
+  isAnonymous Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@index([campaignId])
+  @@index([userId])
+}
+
+// ==================== BOOKING (메이드카페 예약) ====================
+
+model Booking {
+  id            String        @id @default(uuid())
+  userId        String
+  user          User          @relation(fields: [userId], references: [id])
+  cafeName      String
+  cafeAddress   String?
+  date          DateTime
+  timeSlot      String
+  numberOfGuests Int          @default(1)
+  specialRequest String?
+  status        BookingStatus @default(PENDING)
+  confirmationCode String?    @unique
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([userId])
+  @@index([date])
+  @@index([status])
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+  NO_SHOW
+}
+
+// ==================== COMMUNITY ====================
+
+model Post {
+  id          String   @id @default(uuid())
+  authorId    String
+  author      User     @relation(fields: [authorId], references: [id])
+  title       String?
+  content     String
+  images      String[]
+  visibility  PostVisibility @default(PUBLIC)
+  isPinned    Boolean  @default(false)
+  likeCount   Int      @default(0)
+  commentCount Int     @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  comments    Comment[]
+  likes       Like[]
+
+  @@index([authorId])
+  @@index([createdAt])
+  @@index([visibility])
+}
+
+enum PostVisibility {
+  PUBLIC
+  SUBSCRIBERS_ONLY
+  TIER_SPECIFIC
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+  content   String
+  parentId  String?
+  parent    Comment? @relation("CommentReplies", fields: [parentId], references: [id])
+  replies   Comment[] @relation("CommentReplies")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  @@index([postId])
+  @@index([authorId])
+  @@index([parentId])
+}
+
+model Like {
+  id        String   @id @default(uuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([postId, userId])
+  @@index([postId])
+  @@index([userId])
+}
+
+// ==================== NOTIFICATION ====================
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType
+  title     String
+  message   String
+  data      Json?
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+enum NotificationType {
+  SUPPORT_RECEIVED
+  NEW_SUBSCRIBER
+  SUBSCRIPTION_RENEWED
+  CAMPAIGN_UPDATE
+  CAMPAIGN_GOAL_REACHED
+  BOOKING_CONFIRMED
+  BOOKING_REMINDER
+  NEW_POST
+  NEW_COMMENT
+  SYSTEM
+}

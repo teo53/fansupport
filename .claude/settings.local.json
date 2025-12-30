@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(flutter doctor:*)",
+      "Bash(where:*)",
+      "Bash(cmd /c \"where flutter\")",
+      "Bash(cmd /c \"flutter --version\")",
+      "Bash(powershell -Command:*)",
+      "Bash(\"C:\\Users\\mapdr\\Desktop\\flutter_windows_3.32.7-stable\\flutter\\bin\\flutter.bat\" create . --project-name idol_support --org com.idolsupport --platforms android)",
+      "Bash(\"C:\\Users\\mapdr\\Desktop\\flutter_windows_3.32.7-stable\\flutter\\bin\\flutter.bat\" pub get)",
+      "Bash(\"C:\\Users\\mapdr\\Desktop\\flutter_windows_3.32.7-stable\\flutter\\bin\\flutter.bat\" pub upgrade --major-versions)",
+      "Bash(\"C:\\Users\\mapdr\\Desktop\\flutter_windows_3.32.7-stable\\flutter\\bin\\flutter.bat\" build apk --release)",
+      "Bash(\"C:\\Users\\mapdr\\Desktop\\flutter_windows_3.32.7-stable\\flutter\\bin\\flutter.bat\" clean)",
+      "Bash(\"C:\\Users\\mapdr\\Desktop\\flutter_windows_3.32.7-stable\\flutter\\bin\\flutter.bat\" build apk --debug)",
+      "Bash(\"C:\\Users\\mapdr\\Desktop\\flutter_windows_3.32.7-stable\\flutter\\bin\\flutter.bat\" build apk --debug --no-enable-impeller)",
+      "Bash(xcopy:*)",
+      "Bash(if not exist \"C:\\Users\\mapdr\\Desktop\\idol_support_app\" mkdir \"C:\\Users\\mapdr\\Desktop\\idol_support_app\")",
+      "Bash(set:*)",
+      "Bash(\"C:\\Users\\mapdr\\Desktop\\flutter_windows_3.32.7-stable\\flutter\\bin\\flutter.bat\" build apk --debug --no-tree-shake-icons)",
+      "Bash(cmd /c:*)",
+      "Bash(git init:*)",
+      "Bash(git remote add:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}
