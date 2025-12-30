@@ -20,6 +20,7 @@ import '../../features/bubble/screens/bubble_list_screen.dart';
 import '../../features/date_ticket/screens/date_ticket_screen.dart';
 import '../../features/advertisement/screens/ad_shop_screen.dart';
 import '../../features/crm/screens/idol_registration_screen.dart';
+import '../../features/calendar/screens/calendar_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authStateProvider);
@@ -88,6 +89,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/community',
             builder: (context, state) => const CommunityFeedScreen(),
+          ),
+          GoRoute(
+            path: '/calendar',
+            builder: (context, state) => const CalendarScreen(),
           ),
           GoRoute(
             path: '/wallet',
