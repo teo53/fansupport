@@ -352,7 +352,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                       ),
                       child: Container(
                         padding: const EdgeInsets.all(2),
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                           color: Colors.white,
                           shape: BoxShape.circle,
                         ),

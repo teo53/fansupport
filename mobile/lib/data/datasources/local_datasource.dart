@@ -1,3 +1,5 @@
+import '../../core/constants/app_constants.dart';
+import '../../core/errors/exceptions.dart';
 import '../../core/mock/mock_data.dart';
 import '../../domain/entities/entities.dart';
 
@@ -15,12 +17,14 @@ class LocalDataSource {
 
   Future<AuthenticatedUser> login(String email, String password) async {
     await _simulateNetworkDelay();
-    // 데모용 검증
-    if (email == 'demo@test.com' || password == 'password') {
+    // 데모용 검증 - 상수 사용
+    if (email == DemoCredentials.testEmail ||
+        email == DemoCredentials.email ||
+        password == DemoCredentials.password) {
       _currentUser = _createDemoUser();
       return _currentUser!;
     }
-    throw Exception('Invalid credentials');
+    throw AuthException.invalidCredentials();
   }
 
   Future<AuthenticatedUser> loginAsDemo() async {
@@ -36,11 +40,11 @@ class LocalDataSource {
 
   AuthenticatedUser _createDemoUser() {
     return AuthenticatedUser(
-      id: 'demo_user_1',
-      email: 'demo@fansupport.com',
-      nickname: '열혈팬',
-      profileImage: 'https://picsum.photos/200',
-      bio: '아이돌을 사랑하는 팬입니다 💕',
+      id: DemoCredentials.userId,
+      email: DemoCredentials.email,
+      nickname: DemoCredentials.nickname,
+      profileImage: AvatarUrls.generate('demouser'),
+      bio: DemoCredentials.bio,
       followersCount: 128,
       followingCount: 45,
       postsCount: 32,
@@ -84,7 +88,7 @@ class LocalDataSource {
 
     final idol = MockData.idols.firstWhere(
       (i) => i['id'] == id,
-      orElse: () => throw Exception('Idol not found'),
+      orElse: () => throw NetworkException.notFound(resource: 'Idol'),
     );
 
     return _mapToIdolEntity(idol);
@@ -129,7 +133,7 @@ class LocalDataSource {
 
     final post = _posts.firstWhere(
       (p) => p['id'] == id,
-      orElse: () => throw Exception('Post not found'),
+      orElse: () => throw NetworkException.notFound(resource: 'Post'),
     );
 
     return _mapToPostEntity(post);
@@ -139,7 +143,7 @@ class LocalDataSource {
     await _simulateNetworkDelay(ms: 200);
 
     final index = _posts.indexWhere((p) => p['id'] == id);
-    if (index == -1) throw Exception('Post not found');
+    if (index == -1) throw NetworkException.notFound(resource: 'Post');
 
     final post = _posts[index];
     final isLiked = post['isLiked'] ?? false;
@@ -156,7 +160,7 @@ class LocalDataSource {
     await _simulateNetworkDelay(ms: 200);
 
     final index = _posts.indexWhere((p) => p['id'] == id);
-    if (index == -1) throw Exception('Post not found');
+    if (index == -1) throw NetworkException.notFound(resource: 'Post');
 
     final post = _posts[index];
     _posts[index] = {
@@ -193,7 +197,7 @@ class LocalDataSource {
 
     final campaign = MockData.campaigns.firstWhere(
       (c) => c['id'] == id,
-      orElse: () => throw Exception('Campaign not found'),
+      orElse: () => throw NetworkException.notFound(resource: 'Campaign'),
     );
 
     return _mapToCampaignEntity(campaign);
