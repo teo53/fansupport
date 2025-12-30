@@ -29,8 +29,12 @@ class ProfileScreen extends ConsumerWidget {
         ),
         actions: [
           IconButton(
+            icon: Icon(Icons.notifications_outlined, size: Responsive.sp(24)),
+            onPressed: () => context.push('/notifications'),
+          ),
+          IconButton(
             icon: Icon(Icons.settings_outlined, size: Responsive.sp(24)),
-            onPressed: () => _showSettingsSheet(context),
+            onPressed: () => context.push('/settings'),
           ),
         ],
       ),
@@ -100,7 +104,7 @@ class ProfileScreen extends ConsumerWidget {
                   ),
                   SizedBox(height: Responsive.hp(2)),
                   OutlinedButton.icon(
-                    onPressed: () {},
+                    onPressed: () => context.push('/profile/edit'),
                     icon: Icon(Icons.edit, size: Responsive.sp(18)),
                     label: Text(
                       '프로필 수정',
@@ -264,58 +268,6 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  void _showSettingsSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        padding: EdgeInsets.all(Responsive.wp(4)),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: Responsive.wp(10),
-              height: 4,
-              decoration: BoxDecoration(
-                color: AppColors.border,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            SizedBox(height: Responsive.hp(2)),
-            ListTile(
-              leading: const Icon(Icons.dark_mode),
-              title: const Text('다크 모드'),
-              trailing: Switch(
-                value: false,
-                onChanged: (value) {},
-                activeColor: AppColors.primary,
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.language),
-              title: const Text('언어'),
-              trailing: const Text('한국어'),
-              onTap: () {},
-            ),
-            ListTile(
-              leading: const Icon(Icons.notifications_outlined),
-              title: const Text('푸시 알림'),
-              trailing: Switch(
-                value: true,
-                onChanged: (value) {},
-                activeColor: AppColors.primary,
-              ),
-            ),
-            SizedBox(height: Responsive.hp(2)),
-          ],
-        ),
-      ),
-    );
-  }
 
   void _showSubscriptionList(BuildContext context) {
     showModalBottomSheet(

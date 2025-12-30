@@ -6,7 +6,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../core/mock/mock_data.dart';
-import '../../auth/providers/auth_provider.dart';
 
 class EditProfileScreen extends ConsumerStatefulWidget {
   const EditProfileScreen({super.key});
@@ -55,12 +54,16 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   Widget build(BuildContext context) {
     Responsive.init(context);
 
-    return WillPopScope(
-      onWillPop: () async {
+    return PopScope(
+      canPop: !_hasChanges,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
         if (_hasChanges) {
-          return await _showDiscardDialog() ?? false;
+          final discard = await _showDiscardDialog();
+          if (discard == true && context.mounted) {
+            Navigator.of(context).pop();
+          }
         }
-        return true;
       },
       child: Scaffold(
         backgroundColor: AppColors.background,

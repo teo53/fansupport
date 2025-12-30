@@ -426,7 +426,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             child: GestureDetector(
               onTap: () {
                 HapticFeedback.selectionClick();
-                // TODO: Navigate to forgot password
+                context.push('/forgot-password');
               },
               child: Text(
                 '비밀번호를 잊으셨나요?',
