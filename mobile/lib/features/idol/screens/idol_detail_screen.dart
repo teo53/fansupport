@@ -6,6 +6,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
+import '../../../core/utils/formatters.dart';
 import '../../../core/mock/mock_data.dart';
 import '../../../shared/widgets/custom_button.dart';
 
@@ -84,11 +85,15 @@ class IdolDetailScreen extends ConsumerWidget {
             actions: [
               IconButton(
                 icon: Icon(Icons.share, size: Responsive.sp(22)),
-                onPressed: () {},
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('공유 기능은 준비 중입니다')),
+                  );
+                },
               ),
               IconButton(
                 icon: Icon(Icons.more_vert, size: Responsive.sp(22)),
-                onPressed: () {},
+                onPressed: () => _showMoreOptions(context),
               ),
             ],
           ),
@@ -311,7 +316,11 @@ class IdolDetailScreen extends ConsumerWidget {
                                     ),
                                   ),
                                   TextButton(
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('갤러리 전체보기는 준비 중입니다')),
+                                      );
+                                    },
                                     child: Text(
                                       '전체 보기',
                                       style: TextStyle(fontSize: Responsive.sp(14)),
@@ -561,7 +570,11 @@ class IdolDetailScreen extends ConsumerWidget {
                                   ),
                                 ),
                                 TextButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('서포터 목록은 준비 중입니다')),
+                                    );
+                                  },
                                   child: Text(
                                     '전체 보기',
                                     style: TextStyle(fontSize: Responsive.sp(14)),
@@ -590,13 +603,65 @@ class IdolDetailScreen extends ConsumerWidget {
   }
 
   String _getCategoryName(String category) {
-    final names = {
-      'UNDERGROUND_IDOL': '지하 아이돌',
-      'MAID_CAFE': '메이드카페',
-      'COSPLAYER': '코스플레이어',
-      'VTuber': 'VTuber',
-    };
-    return names[category] ?? '기타';
+    return CategoryMapper.getCategoryName(category);
+  }
+
+  void _showMoreOptions(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              margin: EdgeInsets.symmetric(vertical: Responsive.hp(1.5)),
+              width: Responsive.wp(10),
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.border,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.report_outlined),
+              title: const Text('신고하기'),
+              onTap: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('신고 기능은 준비 중입니다')),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.block_outlined),
+              title: const Text('차단하기'),
+              onTap: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('차단 기능은 준비 중입니다')),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.link),
+              title: const Text('프로필 링크 복사'),
+              onTap: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('링크가 복사되었습니다')),
+                );
+              },
+            ),
+            SizedBox(height: Responsive.hp(2)),
+          ],
+        ),
+      ),
+    );
   }
 
   void _showSubscriptionModal(BuildContext context) {

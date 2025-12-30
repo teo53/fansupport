@@ -7,6 +7,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/mock/mock_data.dart';
+import '../../../shared/widgets/comment_sheet.dart';
 import '../../auth/providers/auth_provider.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -110,12 +111,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
               actions: [
                 _buildAppBarButton(
                   icon: Icons.search_rounded,
-                  onTap: () {},
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('검색 기능은 준비 중입니다')),
+                    );
+                  },
                 ),
                 _buildAppBarButton(
                   icon: Icons.notifications_none_rounded,
                   badge: 3,
-                  onTap: () {},
+                  onTap: () => context.push('/notifications'),
                 ),
                 SizedBox(width: Responsive.wp(2)),
               ],
@@ -541,6 +546,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   label: _formatNumber(post['commentCount'] ?? 0),
                   onTap: () {
                     HapticFeedback.lightImpact();
+                    CommentSheet.show(
+                      context,
+                      postId: post['id'] ?? '',
+                    );
                   },
                 ),
                 SizedBox(width: Responsive.wp(6)),
@@ -549,6 +558,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   label: '',
                   onTap: () {
                     HapticFeedback.lightImpact();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('리트윗 기능은 준비 중입니다')),
+                    );
                   },
                 ),
                 SizedBox(width: Responsive.wp(6)),
@@ -557,14 +569,26 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   label: '',
                   onTap: () {
                     HapticFeedback.lightImpact();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('공유 기능은 준비 중입니다')),
+                    );
                   },
                 ),
                 const Spacer(),
                 _buildActionButton(
-                  icon: Icons.bookmark_border,
+                  icon: post['isBookmarked'] == true ? Icons.bookmark : Icons.bookmark_border,
                   label: '',
                   onTap: () {
                     HapticFeedback.lightImpact();
+                    setState(() {
+                      post['isBookmarked'] = !(post['isBookmarked'] ?? false);
+                    });
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(post['isBookmarked'] == true ? '북마크에 추가되었습니다' : '북마크가 해제되었습니다'),
+                        duration: const Duration(seconds: 1),
+                      ),
+                    );
                   },
                 ),
               ],

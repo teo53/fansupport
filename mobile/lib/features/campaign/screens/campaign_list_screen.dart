@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
+import '../../../core/utils/formatters.dart';
 import '../../../core/mock/mock_data.dart';
 
 class CampaignListScreen extends ConsumerStatefulWidget {
@@ -17,16 +18,11 @@ class _CampaignListScreenState extends ConsumerState<CampaignListScreen> {
   String _selectedFilter = 'all';
 
   String _formatNumber(int number) {
-    return number.toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]},',
-    );
+    return NumberFormatter.formatWithComma(number);
   }
 
   int _calculateDaysLeft(String endDateStr) {
-    final endDate = DateTime.parse(endDateStr);
-    final now = DateTime.now();
-    return endDate.difference(now).inDays;
+    return TimeFormatter.calculateDaysLeft(endDateStr);
   }
 
   List<Map<String, dynamic>> get _filteredCampaigns {

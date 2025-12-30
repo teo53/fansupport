@@ -522,19 +522,32 @@ class _BubbleListScreenState extends ConsumerState<BubbleListScreen>
                       : Icons.favorite_border_rounded,
                   label: _formatCount(message.likeCount),
                   isActive: message.isLiked,
-                  onTap: () {},
+                  onTap: () {
+                    HapticFeedback.lightImpact();
+                    setState(() {
+                      message.isLiked = !message.isLiked;
+                      message.likeCount += message.isLiked ? 1 : -1;
+                    });
+                  },
                 ),
                 const SizedBox(width: 16),
                 _buildActionButton(
                   icon: Icons.visibility_outlined,
                   label: _formatCount(message.viewCount),
-                  onTap: () {},
+                  onTap: () {
+                    // View count is just informational
+                  },
                 ),
                 const Spacer(),
                 _buildActionButton(
                   icon: Icons.share_outlined,
                   label: '공유',
-                  onTap: () {},
+                  onTap: () {
+                    HapticFeedback.lightImpact();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('공유 기능은 준비 중입니다')),
+                    );
+                  },
                 ),
               ],
             ),

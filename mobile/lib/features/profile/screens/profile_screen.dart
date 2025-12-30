@@ -193,21 +193,25 @@ class ProfileScreen extends ConsumerWidget {
                     icon: Icons.favorite,
                     title: '후원 내역',
                     subtitle: '보낸 후원 확인',
-                    onTap: () {},
+                    onTap: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('후원 내역 페이지는 준비 중입니다')),
+                      );
+                    },
                   ),
                   _buildMenuItem(
                     context,
                     icon: Icons.campaign,
                     title: '참여한 펀딩',
                     subtitle: '펀딩 참여 내역',
-                    onTap: () {},
+                    onTap: () => context.push('/campaigns'),
                   ),
                   _buildMenuItem(
                     context,
                     icon: Icons.calendar_today,
                     title: '예약 내역',
                     subtitle: '메이드카페 예약 확인',
-                    onTap: () {},
+                    onTap: () => context.push('/booking'),
                   ),
                   SizedBox(height: Responsive.hp(3)),
                   Text(
@@ -223,32 +227,40 @@ class ProfileScreen extends ConsumerWidget {
                     context,
                     icon: Icons.notifications,
                     title: '알림 설정',
-                    onTap: () {},
+                    onTap: () => context.push('/settings'),
                   ),
                   _buildMenuItem(
                     context,
                     icon: Icons.payment,
                     title: '결제 수단',
-                    onTap: () {},
+                    onTap: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('결제 수단 설정은 준비 중입니다')),
+                      );
+                    },
                   ),
                   _buildMenuItem(
                     context,
                     icon: Icons.security,
                     title: '보안 설정',
-                    onTap: () {},
+                    onTap: () => context.push('/settings/change-password'),
                   ),
                   _buildMenuItem(
                     context,
                     icon: Icons.help,
                     title: '고객센터',
-                    onTap: () {},
+                    onTap: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('고객센터는 준비 중입니다')),
+                      );
+                    },
                   ),
                   _buildMenuItem(
                     context,
                     icon: Icons.info,
                     title: '앱 정보',
                     subtitle: '버전 1.0.0',
-                    onTap: () {},
+                    onTap: () => _showAppInfo(context),
                   ),
                   SizedBox(height: Responsive.hp(2)),
                   _buildMenuItem(
@@ -375,7 +387,11 @@ class ProfileScreen extends ConsumerWidget {
           ],
         ),
         trailing: TextButton(
-          onPressed: () {},
+          onPressed: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('구독 관리 기능은 준비 중입니다')),
+            );
+          },
           child: Text(
             '관리',
             style: TextStyle(fontSize: Responsive.sp(13)),
@@ -498,6 +514,76 @@ class ProfileScreen extends ConsumerWidget {
             child: Text(
               '로그아웃',
               style: TextStyle(fontSize: Responsive.sp(14)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAppInfo(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            Icon(Icons.info_outline, color: AppColors.primary),
+            SizedBox(width: Responsive.wp(2)),
+            Text(
+              '앱 정보',
+              style: TextStyle(fontSize: Responsive.sp(18)),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildInfoRow('앱 이름', 'FanSupport'),
+            _buildInfoRow('버전', '1.0.0'),
+            _buildInfoRow('빌드', '2024.12.30'),
+            SizedBox(height: Responsive.hp(2)),
+            Text(
+              '© 2024 FanSupport. All rights reserved.',
+              style: TextStyle(
+                fontSize: Responsive.sp(12),
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              '확인',
+              style: TextStyle(fontSize: Responsive.sp(14)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: Responsive.hp(0.5)),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: Responsive.sp(14),
+              color: AppColors.textSecondary,
+            ),
+          ),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: Responsive.sp(14),
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],
