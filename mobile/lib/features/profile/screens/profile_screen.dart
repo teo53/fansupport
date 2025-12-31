@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
+import '../../../core/utils/demo_feedback.dart';
 import '../../auth/providers/auth_provider.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -194,9 +195,7 @@ class ProfileScreen extends ConsumerWidget {
                     title: '후원 내역',
                     subtitle: '보낸 후원 확인',
                     onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('후원 내역 페이지는 준비 중입니다')),
-                      );
+                      DemoFeedback.showComingSoon(context, '후원 내역');
                     },
                   ),
                   _buildMenuItem(
@@ -234,9 +233,7 @@ class ProfileScreen extends ConsumerWidget {
                     icon: Icons.payment,
                     title: '결제 수단',
                     onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('결제 수단 설정은 준비 중입니다')),
-                      );
+                      DemoFeedback.showComingSoon(context, '결제 수단 관리');
                     },
                   ),
                   _buildMenuItem(
@@ -250,9 +247,7 @@ class ProfileScreen extends ConsumerWidget {
                     icon: Icons.help,
                     title: '고객센터',
                     onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('고객센터는 준비 중입니다')),
-                      );
+                      DemoFeedback.showComingSoon(context, '고객센터');
                     },
                   ),
                   _buildMenuItem(
@@ -388,9 +383,7 @@ class ProfileScreen extends ConsumerWidget {
         ),
         trailing: TextButton(
           onPressed: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('구독 관리 기능은 준비 중입니다')),
-            );
+            DemoFeedback.showComingSoon(context, '구독 관리');
           },
           child: Text(
             '관리',

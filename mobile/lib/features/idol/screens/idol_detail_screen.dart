@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../core/utils/formatters.dart';
+import '../../../core/utils/demo_feedback.dart';
 import '../../../core/mock/mock_data.dart';
 import '../../../shared/widgets/custom_button.dart';
 
@@ -86,9 +87,7 @@ class IdolDetailScreen extends ConsumerWidget {
               IconButton(
                 icon: Icon(Icons.share, size: Responsive.sp(22)),
                 onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('공유 기능은 준비 중입니다')),
-                  );
+                  DemoFeedback.showShareDemo(context, idol['stageName'] ?? '아이돌');
                 },
               ),
               IconButton(
@@ -317,9 +316,7 @@ class IdolDetailScreen extends ConsumerWidget {
                                   ),
                                   TextButton(
                                     onPressed: () {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(content: Text('갤러리 전체보기는 준비 중입니다')),
-                                      );
+                                      DemoFeedback.showComingSoon(context, '갤러리');
                                     },
                                     child: Text(
                                       '전체 보기',
@@ -571,9 +568,7 @@ class IdolDetailScreen extends ConsumerWidget {
                                 ),
                                 TextButton(
                                   onPressed: () {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('서포터 목록은 준비 중입니다')),
-                                    );
+                                    DemoFeedback.showComingSoon(context, '서포터 목록');
                                   },
                                   child: Text(
                                     '전체 보기',
@@ -632,9 +627,7 @@ class IdolDetailScreen extends ConsumerWidget {
               title: const Text('신고하기'),
               onTap: () {
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('신고 기능은 준비 중입니다')),
-                );
+                DemoFeedback.showReportDemo(context, '신고가 접수');
               },
             ),
             ListTile(
@@ -642,9 +635,7 @@ class IdolDetailScreen extends ConsumerWidget {
               title: const Text('차단하기'),
               onTap: () {
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('차단 기능은 준비 중입니다')),
-                );
+                DemoFeedback.showSuccess(context, DemoMessages.userBlocked);
               },
             ),
             ListTile(
@@ -652,9 +643,7 @@ class IdolDetailScreen extends ConsumerWidget {
               title: const Text('프로필 링크 복사'),
               onTap: () {
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('링크가 복사되었습니다')),
-                );
+                DemoFeedback.showSuccess(context, '링크가 복사되었습니다', icon: Icons.copy);
               },
             ),
             SizedBox(height: Responsive.hp(2)),

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
+import '../../../core/utils/demo_feedback.dart';
 import '../../../shared/widgets/custom_button.dart';
 import '../../../shared/widgets/custom_text_field.dart';
 import '../providers/auth_provider.dart';
@@ -82,15 +83,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   }
 
   Future<void> _handleSocialLogin(String provider) async {
-    HapticFeedback.lightImpact();
-    // TODO: Implement social login
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('$provider 로그인 준비 중입니다'),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-    );
+    DemoFeedback.showSocialLoginDemo(context, provider);
+    // 데모에서는 소셜 로그인도 데모 로그인으로 처리
+    await Future.delayed(const Duration(milliseconds: 500));
+    await ref.read(authStateProvider.notifier).loginAsDemo();
   }
 
   @override

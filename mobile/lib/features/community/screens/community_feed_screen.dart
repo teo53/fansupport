@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../core/utils/formatters.dart';
+import '../../../core/utils/demo_feedback.dart';
 import '../../../core/mock/mock_data.dart';
 
 class CommunityFeedScreen extends ConsumerStatefulWidget {
@@ -33,9 +34,7 @@ class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen> {
           IconButton(
             icon: Icon(Icons.search, size: Responsive.sp(24)),
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('검색 기능은 준비 중입니다')),
-              );
+              DemoFeedback.showSearchDemo(context);
             },
           ),
         ],
@@ -73,9 +72,7 @@ class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen> {
             ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('글 작성 기능은 준비 중입니다')),
-          );
+          DemoFeedback.showSuccess(context, DemoMessages.postCreated);
         },
         backgroundColor: AppColors.primary,
         child: Icon(Icons.edit, color: Colors.white, size: Responsive.sp(24)),
@@ -274,9 +271,7 @@ class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen> {
                   icon: Icons.chat_bubble_outline,
                   label: '${post['comments'] ?? 0}',
                   onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('댓글 기능은 준비 중입니다')),
-                    );
+                    DemoFeedback.showSuccess(context, DemoMessages.commentAdded);
                   },
                 ),
                 SizedBox(width: Responsive.wp(4)),
@@ -285,9 +280,7 @@ class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen> {
                   icon: Icons.share_outlined,
                   label: '공유',
                   onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('공유 기능은 준비 중입니다')),
-                    );
+                    DemoFeedback.showShareDemo(context, '게시물');
                   },
                 ),
                 const Spacer(),
@@ -304,12 +297,7 @@ class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen> {
                         _bookmarkedPosts.add(postId);
                       }
                     });
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(isBookmarked ? '북마크가 해제되었습니다' : '북마크에 추가되었습니다'),
-                        duration: const Duration(seconds: 1),
-                      ),
-                    );
+                    DemoFeedback.showBookmarkDemo(context, !isBookmarked);
                   },
                   color: isBookmarked ? AppColors.primary : AppColors.textSecondary,
                 ),
@@ -380,9 +368,7 @@ class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen> {
               title: Text('신고하기', style: TextStyle(fontSize: Responsive.sp(15))),
               onTap: () {
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('신고 기능은 준비 중입니다')),
-                );
+                DemoFeedback.showReportDemo(context, '신고가 접수');
               },
             ),
             ListTile(
@@ -390,9 +376,7 @@ class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen> {
               title: Text('이 사용자 숨기기', style: TextStyle(fontSize: Responsive.sp(15))),
               onTap: () {
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('사용자 숨기기 기능은 준비 중입니다')),
-                );
+                DemoFeedback.showSuccess(context, DemoMessages.userBlocked);
               },
             ),
             ListTile(
@@ -400,9 +384,7 @@ class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen> {
               title: Text('링크 복사', style: TextStyle(fontSize: Responsive.sp(15))),
               onTap: () {
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('링크가 복사되었습니다')),
-                );
+                DemoFeedback.showSuccess(context, '링크가 복사되었습니다', icon: Icons.copy);
               },
             ),
             SizedBox(height: Responsive.hp(2)),

@@ -6,6 +6,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../core/utils/formatters.dart';
+import '../../../core/utils/demo_feedback.dart';
 import '../../../core/mock/mock_data.dart';
 import '../../../shared/widgets/comment_sheet.dart';
 import '../../auth/providers/auth_provider.dart';
@@ -112,9 +113,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                 _buildAppBarButton(
                   icon: Icons.search_rounded,
                   onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('검색 기능은 준비 중입니다')),
-                    );
+                    DemoFeedback.showSearchDemo(context);
                   },
                 ),
                 _buildAppBarButton(
@@ -557,10 +556,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   icon: Icons.repeat,
                   label: '',
                   onTap: () {
-                    HapticFeedback.lightImpact();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('리트윗 기능은 준비 중입니다')),
-                    );
+                    DemoFeedback.showSuccess(context, DemoMessages.reposted, icon: Icons.repeat);
                   },
                 ),
                 SizedBox(width: Responsive.wp(6)),
@@ -568,10 +564,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   icon: Icons.share_outlined,
                   label: '',
                   onTap: () {
-                    HapticFeedback.lightImpact();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('공유 기능은 준비 중입니다')),
-                    );
+                    DemoFeedback.showShareDemo(context, '게시물');
                   },
                 ),
                 const Spacer(),
@@ -579,16 +572,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   icon: post['isBookmarked'] == true ? Icons.bookmark : Icons.bookmark_border,
                   label: '',
                   onTap: () {
-                    HapticFeedback.lightImpact();
                     setState(() {
                       post['isBookmarked'] = !(post['isBookmarked'] ?? false);
                     });
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(post['isBookmarked'] == true ? '북마크에 추가되었습니다' : '북마크가 해제되었습니다'),
-                        duration: const Duration(seconds: 1),
-                      ),
-                    );
+                    DemoFeedback.showBookmarkDemo(context, post['isBookmarked'] == true);
                   },
                 ),
               ],
@@ -860,9 +847,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   TextButton(
                     onPressed: () {
                       Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('게시물이 작성되었습니다 (데모)')),
-                      );
+                      DemoFeedback.showSuccess(context, DemoMessages.postCreated);
                     },
                     child: Text(
                       '게시',

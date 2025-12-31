@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
+import '../../../core/utils/demo_feedback.dart';
 import '../../auth/providers/auth_provider.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -100,9 +101,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 value: _darkMode,
                 onChanged: (v) {
                   setState(() => _darkMode = v);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('다크 모드 기능은 준비 중입니다')),
-                  );
+                  DemoFeedback.showSettingChanged(context, '다크 모드', v);
                 },
               ),
               _buildDivider(),
@@ -443,9 +442,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     setState(() => _language = lang);
                     Navigator.pop(context);
                     if (lang != '한국어') {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('다국어 지원은 준비 중입니다')),
-                      );
+                      DemoFeedback.showComingSoon(context, '다국어 지원');
+                    } else {
+                      DemoFeedback.showSuccess(context, '언어가 변경되었습니다');
                     }
                   },
                 )),
@@ -457,21 +456,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   void _showPrivacySettings() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('개인정보 보호 설정은 준비 중입니다')),
-    );
+    DemoFeedback.showComingSoon(context, '개인정보 보호 설정');
   }
 
   void _showDeviceManagement() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('기기 관리 기능은 준비 중입니다')),
-    );
+    DemoFeedback.showComingSoon(context, '기기 관리');
   }
 
   void _showFAQ() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('FAQ 페이지는 준비 중입니다')),
-    );
+    DemoFeedback.showComingSoon(context, 'FAQ');
   }
 
   void _showCustomerService() {
@@ -543,21 +536,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   void _showBugReport() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('버그 신고 기능은 준비 중입니다')),
-    );
+    DemoFeedback.showSuccess(context, '버그 신고가 접수되었습니다', icon: Icons.bug_report);
   }
 
   void _showTerms() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('이용약관 페이지는 준비 중입니다')),
-    );
+    DemoFeedback.showComingSoon(context, '이용약관');
   }
 
   void _showPrivacyPolicy() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('개인정보 처리방침 페이지는 준비 중입니다')),
-    );
+    DemoFeedback.showComingSoon(context, '개인정보 처리방침');
   }
 
   void _showLogoutDialog() {
@@ -617,9 +604,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('회원 탈퇴 기능은 준비 중입니다')),
-              );
+              DemoFeedback.showComingSoon(context, '회원 탈퇴');
             },
             child: Text(
               '탈퇴하기',
