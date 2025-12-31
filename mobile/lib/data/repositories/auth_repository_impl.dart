@@ -1,3 +1,5 @@
+import '../../core/constants/app_constants.dart';
+import '../../core/errors/exceptions.dart';
 import '../../core/errors/failures.dart';
 import '../../core/errors/result.dart';
 import '../../domain/entities/user_entity.dart';
@@ -19,7 +21,7 @@ class AuthRepositoryImpl implements AuthRepository {
       final user = await _dataSource.login(email, password);
       return Success(user);
     } catch (e) {
-      return Fail(AuthFailure.invalidCredentials());
+      return Fail(_mapException(e, ErrorMessages.invalidCredentials));
     }
   }
 
@@ -29,7 +31,7 @@ class AuthRepositoryImpl implements AuthRepository {
       final user = await _dataSource.loginAsDemo();
       return Success(user);
     } catch (e) {
-      return Fail(ServerFailure(message: e.toString()));
+      return Fail(_mapException(e));
     }
   }
 
@@ -41,13 +43,14 @@ class AuthRepositoryImpl implements AuthRepository {
   }) async {
     // Demo: 회원가입은 항상 성공
     try {
+      await Future.delayed(UIConstants.mockDelay);
       final user = await _dataSource.loginAsDemo();
       return Success(user.copyWith(
         email: email,
         nickname: nickname,
       ));
     } catch (e) {
-      return Fail(ServerFailure(message: e.toString()));
+      return Fail(_mapException(e));
     }
   }
 
@@ -58,10 +61,11 @@ class AuthRepositoryImpl implements AuthRepository {
   }) async {
     // Demo: 소셜 로그인은 데모 유저로 처리
     try {
+      await Future.delayed(UIConstants.mockDelay);
       final user = await _dataSource.loginAsDemo();
       return Success(user);
     } catch (e) {
-      return Fail(ServerFailure(message: '$provider 로그인 실패'));
+      return Fail(_mapException(e, '$provider 로그인 실패'));
     }
   }
 
@@ -71,7 +75,7 @@ class AuthRepositoryImpl implements AuthRepository {
       await _dataSource.logout();
       return const Success(null);
     } catch (e) {
-      return Fail(ServerFailure(message: e.toString()));
+      return Fail(_mapException(e));
     }
   }
 
@@ -81,7 +85,7 @@ class AuthRepositoryImpl implements AuthRepository {
       final user = await _dataSource.getCurrentUser();
       return Success(user);
     } catch (e) {
-      return Fail(CacheFailure());
+      return Fail(const CacheFailure());
     }
   }
 
@@ -91,6 +95,7 @@ class AuthRepositoryImpl implements AuthRepository {
       final user = await _dataSource.getCurrentUser();
       return Success(user);
     } catch (e) {
+      // 자동 로그인 실패는 조용히 처리
       return const Success(null);
     }
   }
@@ -112,7 +117,7 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Result<void>> sendPasswordResetEmail(String email) async {
     // Demo: 항상 성공
-    await Future.delayed(const Duration(milliseconds: 500));
+    await Future.delayed(UIConstants.mockDelay);
     return const Success(null);
   }
 
@@ -122,7 +127,7 @@ class AuthRepositoryImpl implements AuthRepository {
     required String newPassword,
   }) async {
     // Demo: 항상 성공
-    await Future.delayed(const Duration(milliseconds: 500));
+    await Future.delayed(UIConstants.mockDelay);
     return const Success(null);
   }
 
@@ -132,7 +137,25 @@ class AuthRepositoryImpl implements AuthRepository {
       await _dataSource.logout();
       return const Success(null);
     } catch (e) {
-      return Fail(ServerFailure(message: e.toString()));
+      return Fail(_mapException(e));
     }
+  }
+
+  /// 예외를 Failure로 변환
+  Failure _mapException(dynamic e, [String? fallbackMessage]) {
+    if (e is AuthException) {
+      return AuthFailure(message: e.message, code: e.code);
+    } else if (e is NetworkException) {
+      return ServerFailure(
+        message: e.message,
+        code: e.code,
+        statusCode: e.statusCode,
+      );
+    } else if (e is AppException) {
+      return ServerFailure(message: e.message, code: e.code);
+    }
+    return AuthFailure(
+      message: fallbackMessage ?? ErrorMessages.generic,
+    );
   }
 }
