@@ -1,3 +1,5 @@
+import '../../core/constants/app_constants.dart';
+import '../../core/errors/exceptions.dart';
 import '../../core/errors/failures.dart';
 import '../../core/errors/result.dart';
 import '../../domain/entities/event_entity.dart';
@@ -33,7 +35,7 @@ class EventRepositoryImpl implements EventRepository {
 
       return Success(events);
     } catch (e) {
-      return Fail(ServerFailure(message: e.toString()));
+      return Fail(_mapException(e));
     }
   }
 
@@ -43,7 +45,7 @@ class EventRepositoryImpl implements EventRepository {
       final events = await _dataSource.getEventsByDate(date);
       return Success(events);
     } catch (e) {
-      return Fail(ServerFailure(message: e.toString()));
+      return Fail(_mapException(e));
     }
   }
 
@@ -58,12 +60,12 @@ class EventRepositoryImpl implements EventRepository {
 
       final event = events.firstWhere(
         (e) => e.id == id,
-        orElse: () => throw Exception('Event not found'),
+        orElse: () => throw NetworkException.notFound(resource: 'Event'),
       );
 
       return Success(event);
     } catch (e) {
-      return Fail(ServerFailure(message: '이벤트를 찾을 수 없습니다'));
+      return Fail(_mapException(e, '이벤트를 찾을 수 없습니다'));
     }
   }
 
@@ -87,7 +89,7 @@ class EventRepositoryImpl implements EventRepository {
 
       return Success(events.take(limit).toList());
     } catch (e) {
-      return Fail(ServerFailure(message: e.toString()));
+      return Fail(_mapException(e));
     }
   }
 
@@ -97,7 +99,7 @@ class EventRepositoryImpl implements EventRepository {
       final events = await _dataSource.getEventsByDate(DateTime.now());
       return Success(events);
     } catch (e) {
-      return Fail(ServerFailure(message: e.toString()));
+      return Fail(_mapException(e));
     }
   }
 
@@ -123,7 +125,7 @@ class EventRepositoryImpl implements EventRepository {
 
       return Success(eventsMap);
     } catch (e) {
-      return Fail(ServerFailure(message: e.toString()));
+      return Fail(_mapException(e));
     }
   }
 
@@ -131,9 +133,10 @@ class EventRepositoryImpl implements EventRepository {
   Future<Result<EventEntity>> setReminder(String eventId) async {
     try {
       final result = await getEventById(eventId);
+      await Future.delayed(UIConstants.shortMockDelay);
       return result.map((event) => event.copyWith(hasReminder: true));
     } catch (e) {
-      return Fail(ServerFailure(message: '리마인더 설정에 실패했습니다'));
+      return Fail(_mapException(e, '리마인더 설정에 실패했습니다'));
     }
   }
 
@@ -141,9 +144,10 @@ class EventRepositoryImpl implements EventRepository {
   Future<Result<EventEntity>> removeReminder(String eventId) async {
     try {
       final result = await getEventById(eventId);
+      await Future.delayed(UIConstants.shortMockDelay);
       return result.map((event) => event.copyWith(hasReminder: false));
     } catch (e) {
-      return Fail(ServerFailure(message: '리마인더 해제에 실패했습니다'));
+      return Fail(_mapException(e, '리마인더 해제에 실패했습니다'));
     }
   }
 
@@ -159,7 +163,7 @@ class EventRepositoryImpl implements EventRepository {
       final reminderEvents = events.where((e) => e.hasReminder).toList();
       return Success(reminderEvents);
     } catch (e) {
-      return Fail(ServerFailure(message: e.toString()));
+      return Fail(_mapException(e));
     }
   }
 
@@ -179,7 +183,23 @@ class EventRepositoryImpl implements EventRepository {
 
       return Success(filtered);
     } catch (e) {
-      return Fail(ServerFailure(message: e.toString()));
+      return Fail(_mapException(e));
     }
+  }
+
+  /// 예외를 Failure로 변환
+  Failure _mapException(dynamic e, [String? fallbackMessage]) {
+    if (e is NetworkException) {
+      return ServerFailure(
+        message: e.message,
+        code: e.code,
+        statusCode: e.statusCode,
+      );
+    } else if (e is AuthException) {
+      return AuthFailure(message: e.message, code: e.code);
+    } else if (e is AppException) {
+      return ServerFailure(message: e.message, code: e.code);
+    }
+    return ServerFailure(message: fallbackMessage ?? ErrorMessages.generic);
   }
 }

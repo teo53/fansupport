@@ -1,3 +1,5 @@
+import '../../core/constants/app_constants.dart';
+import '../../core/errors/exceptions.dart';
 import '../../core/errors/failures.dart';
 import '../../core/errors/result.dart';
 import '../../domain/entities/idol_entity.dart';
@@ -26,7 +28,7 @@ class IdolRepositoryImpl implements IdolRepository {
       );
       return Success(idols);
     } catch (e) {
-      return Fail(ServerFailure(message: e.toString()));
+      return Fail(_mapException(e));
     }
   }
 
@@ -36,7 +38,7 @@ class IdolRepositoryImpl implements IdolRepository {
       final idol = await _dataSource.getIdolById(id);
       return Success(idol);
     } catch (e) {
-      return Fail(ServerFailure(message: '아이돌 정보를 불러올 수 없습니다'));
+      return Fail(_mapException(e, '아이돌 정보를 불러올 수 없습니다'));
     }
   }
 
@@ -46,7 +48,7 @@ class IdolRepositoryImpl implements IdolRepository {
       final idols = await _dataSource.getIdols(limit: limit);
       return Success(idols);
     } catch (e) {
-      return Fail(ServerFailure(message: e.toString()));
+      return Fail(_mapException(e));
     }
   }
 
@@ -54,12 +56,13 @@ class IdolRepositoryImpl implements IdolRepository {
   Future<Result<IdolEntity>> followIdol(String id) async {
     try {
       final idol = await _dataSource.getIdolById(id);
+      await Future.delayed(UIConstants.shortMockDelay);
       return Success(idol.copyWith(
         isFollowing: true,
         followerCount: idol.followerCount + 1,
       ));
     } catch (e) {
-      return Fail(ServerFailure(message: '팔로우에 실패했습니다'));
+      return Fail(_mapException(e, '팔로우에 실패했습니다'));
     }
   }
 
@@ -67,12 +70,13 @@ class IdolRepositoryImpl implements IdolRepository {
   Future<Result<IdolEntity>> unfollowIdol(String id) async {
     try {
       final idol = await _dataSource.getIdolById(id);
+      await Future.delayed(UIConstants.shortMockDelay);
       return Success(idol.copyWith(
         isFollowing: false,
         followerCount: (idol.followerCount - 1).clamp(0, idol.followerCount),
       ));
     } catch (e) {
-      return Fail(ServerFailure(message: '언팔로우에 실패했습니다'));
+      return Fail(_mapException(e, '언팔로우에 실패했습니다'));
     }
   }
 
@@ -86,7 +90,7 @@ class IdolRepositoryImpl implements IdolRepository {
       final allIdols = await _dataSource.getIdols(page: 1, limit: 5);
       return Success(allIdols);
     } catch (e) {
-      return Fail(ServerFailure(message: e.toString()));
+      return Fail(_mapException(e));
     }
   }
 
@@ -100,7 +104,7 @@ class IdolRepositoryImpl implements IdolRepository {
       final rankings = await _dataSource.getIdolRanking(limit: limit);
       return Success(rankings);
     } catch (e) {
-      return Fail(ServerFailure(message: e.toString()));
+      return Fail(_mapException(e));
     }
   }
 
@@ -110,7 +114,23 @@ class IdolRepositoryImpl implements IdolRepository {
       final idols = await _dataSource.getIdols(searchQuery: query);
       return Success(idols);
     } catch (e) {
-      return Fail(ServerFailure(message: e.toString()));
+      return Fail(_mapException(e));
     }
+  }
+
+  /// 예외를 Failure로 변환
+  Failure _mapException(dynamic e, [String? fallbackMessage]) {
+    if (e is NetworkException) {
+      return ServerFailure(
+        message: e.message,
+        code: e.code,
+        statusCode: e.statusCode,
+      );
+    } else if (e is AuthException) {
+      return AuthFailure(message: e.message, code: e.code);
+    } else if (e is AppException) {
+      return ServerFailure(message: e.message, code: e.code);
+    }
+    return ServerFailure(message: fallbackMessage ?? ErrorMessages.generic);
   }
 }

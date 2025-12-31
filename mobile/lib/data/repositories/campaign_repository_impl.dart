@@ -1,3 +1,5 @@
+import '../../core/constants/app_constants.dart';
+import '../../core/errors/exceptions.dart';
 import '../../core/errors/failures.dart';
 import '../../core/errors/result.dart';
 import '../../domain/entities/campaign_entity.dart';
@@ -26,7 +28,7 @@ class CampaignRepositoryImpl implements CampaignRepository {
       );
       return Success(campaigns);
     } catch (e) {
-      return Fail(ServerFailure(message: e.toString()));
+      return Fail(_mapException(e));
     }
   }
 
@@ -36,7 +38,7 @@ class CampaignRepositoryImpl implements CampaignRepository {
       final campaign = await _dataSource.getCampaignById(id);
       return Success(campaign);
     } catch (e) {
-      return Fail(ServerFailure(message: '캠페인 정보를 불러올 수 없습니다'));
+      return Fail(_mapException(e, '캠페인 정보를 불러올 수 없습니다'));
     }
   }
 
@@ -48,7 +50,7 @@ class CampaignRepositoryImpl implements CampaignRepository {
       final campaigns = await _dataSource.getCampaigns(limit: limit);
       return Success(campaigns);
     } catch (e) {
-      return Fail(ServerFailure(message: e.toString()));
+      return Fail(_mapException(e));
     }
   }
 
@@ -61,7 +63,7 @@ class CampaignRepositoryImpl implements CampaignRepository {
       // 마감 임박 순으로 정렬된 것으로 가정
       return Success(campaigns);
     } catch (e) {
-      return Fail(ServerFailure(message: e.toString()));
+      return Fail(_mapException(e));
     }
   }
 
@@ -73,19 +75,20 @@ class CampaignRepositoryImpl implements CampaignRepository {
   }) async {
     try {
       final campaign = await _dataSource.getCampaignById(campaignId);
+      await Future.delayed(UIConstants.mockDelay);
       return Success(campaign.copyWith(
         currentAmount: campaign.currentAmount + amount,
         participantCount: campaign.participantCount + 1,
         isParticipating: true,
       ));
     } catch (e) {
-      return Fail(ServerFailure(message: '참여에 실패했습니다'));
+      return Fail(_mapException(e, '참여에 실패했습니다'));
     }
   }
 
   @override
   Future<Result<void>> cancelParticipation(String campaignId) async {
-    await Future.delayed(const Duration(milliseconds: 300));
+    await Future.delayed(UIConstants.mockDelay);
     return const Success(null);
   }
 
@@ -98,7 +101,7 @@ class CampaignRepositoryImpl implements CampaignRepository {
       final campaigns = await _dataSource.getCampaigns(page: 1, limit: 5);
       return Success(campaigns);
     } catch (e) {
-      return Fail(ServerFailure(message: e.toString()));
+      return Fail(_mapException(e));
     }
   }
 
@@ -111,7 +114,7 @@ class CampaignRepositoryImpl implements CampaignRepository {
       ).toList();
       return Success(filtered);
     } catch (e) {
-      return Fail(ServerFailure(message: e.toString()));
+      return Fail(_mapException(e));
     }
   }
 
@@ -128,15 +131,15 @@ class CampaignRepositoryImpl implements CampaignRepository {
     List<String>? images,
     String? location,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 500));
+    await Future.delayed(UIConstants.mockDelay);
 
     final campaign = CampaignEntity(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       title: title,
       description: description,
       type: type,
-      organizerId: 'demo_user',
-      organizerName: '데모 유저',
+      organizerId: DemoCredentials.userId,
+      organizerName: DemoCredentials.nickname,
       thumbnailImage: thumbnailImage,
       images: images ?? [],
       targetAmount: targetAmount,
@@ -147,5 +150,21 @@ class CampaignRepositoryImpl implements CampaignRepository {
     );
 
     return Success(campaign);
+  }
+
+  /// 예외를 Failure로 변환
+  Failure _mapException(dynamic e, [String? fallbackMessage]) {
+    if (e is NetworkException) {
+      return ServerFailure(
+        message: e.message,
+        code: e.code,
+        statusCode: e.statusCode,
+      );
+    } else if (e is AuthException) {
+      return AuthFailure(message: e.message, code: e.code);
+    } else if (e is AppException) {
+      return ServerFailure(message: e.message, code: e.code);
+    }
+    return ServerFailure(message: fallbackMessage ?? ErrorMessages.generic);
   }
 }
