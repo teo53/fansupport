@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../core/theme/app_colors.dart';
-import '../../core/utils/responsive.dart';
 
 /// 기본 커스텀 버튼
 class CustomButton extends StatefulWidget {
