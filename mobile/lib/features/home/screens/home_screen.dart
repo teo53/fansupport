@@ -3,10 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'dart:ui';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
+import '../../../core/utils/formatters.dart';
+import '../../../core/utils/demo_feedback.dart';
 import '../../../core/mock/mock_data.dart';
+import '../../../shared/widgets/comment_sheet.dart';
 import '../../auth/providers/auth_provider.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -19,43 +21,44 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen>
     with TickerProviderStateMixin {
   late ScrollController _scrollController;
-  late AnimationController _fadeController;
-  double _scrollOffset = 0;
+  late TabController _tabController;
+  final List<Map<String, dynamic>> _posts = [];
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _scrollController = ScrollController()
-      ..addListener(() {
-        setState(() => _scrollOffset = _scrollController.offset);
-      });
-    _fadeController = AnimationController(
-      duration: const Duration(milliseconds: 800),
-      vsync: this,
-    )..forward();
+    _scrollController = ScrollController();
+    _tabController = TabController(length: 3, vsync: this);
+    _loadPosts();
+  }
+
+  void _loadPosts() {
+    // Mock 데이터에서 포스트 로드
+    _posts.clear();
+    _posts.addAll(MockData.posts);
   }
 
   @override
   void dispose() {
     _scrollController.dispose();
-    _fadeController.dispose();
+    _tabController.dispose();
     super.dispose();
   }
 
-  String _formatCurrency(int amount) {
-    return amount.toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]},',
-    );
+  String _formatTimeAgo(String dateStr) {
+    return TimeFormatter.formatRelative(DateTime.parse(dateStr));
   }
 
-  String _formatCompact(int amount) {
-    if (amount >= 1000000) {
-      return '${(amount / 1000000).toStringAsFixed(1)}M';
-    } else if (amount >= 1000) {
-      return '${(amount / 1000).toStringAsFixed(0)}K';
-    }
-    return amount.toString();
+  String _formatNumber(int number) {
+    return NumberFormatter.formatKorean(number);
+  }
+
+  Future<void> _onRefresh() async {
+    setState(() => _isLoading = true);
+    await Future.delayed(const Duration(milliseconds: 800));
+    _loadPosts();
+    setState(() => _isLoading = false);
   }
 
   @override
@@ -67,200 +70,117 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       value: SystemUiOverlayStyle.dark,
       child: Scaffold(
         backgroundColor: AppColors.background,
-        body: Stack(
-          children: [
-            // Background Gradient
-            Positioned(
-              top: -100,
-              left: -50,
-              child: Container(
-                width: 300,
-                height: 300,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      AppColors.primary.withValues(alpha: 0.15),
-                      AppColors.primary.withValues(alpha: 0),
-                    ],
+        body: NestedScrollView(
+          controller: _scrollController,
+          headerSliverBuilder: (context, innerBoxIsScrolled) => [
+            // App Bar
+            SliverAppBar(
+              floating: true,
+              snap: true,
+              backgroundColor: Colors.white,
+              elevation: 0,
+              toolbarHeight: Responsive.hp(7),
+              title: Row(
+                children: [
+                  GestureDetector(
+                    onTap: () => context.go('/profile'),
+                    child: CircleAvatar(
+                      radius: Responsive.wp(5),
+                      backgroundColor: AppColors.primarySoft,
+                      backgroundImage: user?.profileImage != null
+                          ? CachedNetworkImageProvider(user!.profileImage!)
+                          : null,
+                      child: user?.profileImage == null
+                          ? Icon(Icons.person, color: AppColors.primary, size: Responsive.sp(20))
+                          : null,
+                    ),
                   ),
-                ),
-              ),
-            ),
-            Positioned(
-              top: 200,
-              right: -100,
-              child: Container(
-                width: 250,
-                height: 250,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      AppColors.secondary.withValues(alpha: 0.1),
-                      AppColors.secondary.withValues(alpha: 0),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-
-            // Main Content
-            CustomScrollView(
-              controller: _scrollController,
-              physics: const BouncingScrollPhysics(),
-              slivers: [
-                // Custom App Bar
-                SliverToBoxAdapter(
-                  child: _buildHeader(context, user),
-                ),
-
-                // Wallet Card
-                SliverToBoxAdapter(
-                  child: _buildWalletCard(context, user),
-                ),
-
-                // Quick Actions
-                SliverToBoxAdapter(
-                  child: _buildQuickActions(context),
-                ),
-
-                // Hot Idols Section
-                SliverToBoxAdapter(
-                  child: _buildSectionHeader(
-                    context,
-                    'HOT 아이돌',
-                    'TOP 10',
-                    onTap: () => context.go('/ranking'),
-                  ),
-                ),
-                SliverToBoxAdapter(
-                  child: _buildHotIdolsList(context),
-                ),
-
-                // Trending Campaigns
-                SliverToBoxAdapter(
-                  child: _buildSectionHeader(
-                    context,
-                    '인기 펀딩',
-                    '전체보기',
-                    onTap: () => context.go('/campaigns'),
-                  ),
-                ),
-                SliverToBoxAdapter(
-                  child: _buildCampaignsList(context),
-                ),
-
-                // Premium Services
-                SliverToBoxAdapter(
-                  child: _buildSectionHeader(context, '프리미엄 서비스', null),
-                ),
-                SliverToBoxAdapter(
-                  child: _buildPremiumServices(context),
-                ),
-
-                // Categories
-                SliverToBoxAdapter(
-                  child: _buildSectionHeader(context, '카테고리', null),
-                ),
-                SliverToBoxAdapter(
-                  child: _buildCategories(context),
-                ),
-
-                // Recent Posts
-                SliverToBoxAdapter(
-                  child: _buildSectionHeader(
-                    context,
-                    '최근 소식',
-                    '더보기',
-                    onTap: () => context.go('/community'),
-                  ),
-                ),
-                SliverToBoxAdapter(
-                  child: _buildRecentPosts(context),
-                ),
-
-                // Bottom Spacing
-                SliverToBoxAdapter(
-                  child: SizedBox(height: Responsive.hp(12)),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHeader(BuildContext context, user) {
-    return FadeTransition(
-      opacity: _fadeController,
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(
-          Responsive.wp(5),
-          Responsive.hp(6),
-          Responsive.wp(5),
-          Responsive.hp(2),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '안녕하세요,',
-                  style: TextStyle(
-                    fontSize: Responsive.sp(14),
-                    color: AppColors.textSecondary,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                SizedBox(height: Responsive.hp(0.5)),
-                Row(
-                  children: [
-                    Text(
-                      user?.nickname ?? '팬',
+                  SizedBox(width: Responsive.wp(3)),
+                  Expanded(
+                    child: Text(
+                      'FanSupport',
                       style: TextStyle(
-                        fontSize: Responsive.sp(24),
+                        fontSize: Responsive.sp(22),
                         fontWeight: FontWeight.w800,
-                        color: AppColors.textPrimary,
+                        color: AppColors.primary,
                         letterSpacing: -0.5,
                       ),
                     ),
-                    Text(
-                      '님',
-                      style: TextStyle(
-                        fontSize: Responsive.sp(24),
-                        fontWeight: FontWeight.w400,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                  ],
+                  ),
+                ],
+              ),
+              actions: [
+                _buildAppBarButton(
+                  icon: Icons.search_rounded,
+                  onTap: () {
+                    DemoFeedback.showSearchDemo(context);
+                  },
                 ),
-              ],
-            ),
-            Row(
-              children: [
-                _buildHeaderButton(
+                _buildAppBarButton(
                   icon: Icons.notifications_none_rounded,
                   badge: 3,
-                  onTap: () {},
+                  onTap: () => context.push('/notifications'),
                 ),
                 SizedBox(width: Responsive.wp(2)),
-                _buildHeaderButton(
-                  icon: Icons.search_rounded,
-                  onTap: () {},
-                ),
               ],
+              bottom: PreferredSize(
+                preferredSize: Size.fromHeight(Responsive.hp(5.5)),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border(
+                      bottom: BorderSide(
+                        color: AppColors.divider,
+                        width: 0.5,
+                      ),
+                    ),
+                  ),
+                  child: TabBar(
+                    controller: _tabController,
+                    labelColor: AppColors.textPrimary,
+                    unselectedLabelColor: AppColors.textSecondary,
+                    labelStyle: TextStyle(
+                      fontSize: Responsive.sp(14),
+                      fontWeight: FontWeight.w700,
+                    ),
+                    unselectedLabelStyle: TextStyle(
+                      fontSize: Responsive.sp(14),
+                      fontWeight: FontWeight.w500,
+                    ),
+                    indicatorColor: AppColors.primary,
+                    indicatorWeight: 3,
+                    tabs: const [
+                      Tab(text: '추천'),
+                      Tab(text: '팔로잉'),
+                      Tab(text: '인기'),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ],
+          body: TabBarView(
+            controller: _tabController,
+            children: [
+              _buildFeedTab(),
+              _buildFeedTab(followingOnly: true),
+              _buildFeedTab(sortByPopular: true),
+            ],
+          ),
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            HapticFeedback.lightImpact();
+            _showCreatePostSheet(context);
+          },
+          backgroundColor: AppColors.primary,
+          child: Icon(Icons.edit, color: Colors.white, size: Responsive.sp(24)),
         ),
       ),
     );
   }
 
-  Widget _buildHeaderButton({
+  Widget _buildAppBarButton({
     required IconData icon,
     int? badge,
     required VoidCallback onTap,
@@ -271,12 +191,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
         onTap();
       },
       child: Container(
-        width: Responsive.wp(11),
-        height: Responsive.wp(11),
+        width: Responsive.wp(10),
+        height: Responsive.wp(10),
+        margin: EdgeInsets.symmetric(horizontal: Responsive.wp(1)),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
-          boxShadow: AppColors.cardShadow(opacity: 0.06),
+          color: AppColors.background,
+          shape: BoxShape.circle,
         ),
         child: Stack(
           alignment: Alignment.center,
@@ -284,8 +204,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
             Icon(icon, size: Responsive.sp(22), color: AppColors.textPrimary),
             if (badge != null)
               Positioned(
-                top: 8,
-                right: 8,
+                top: 6,
+                right: 6,
                 child: Container(
                   width: 16,
                   height: 16,
@@ -311,721 +231,193 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     );
   }
 
-  Widget _buildWalletCard(BuildContext context, user) {
-    final balance = user?.walletBalance ?? 0;
+  Widget _buildFeedTab({bool followingOnly = false, bool sortByPopular = false}) {
+    List<Map<String, dynamic>> filteredPosts = List.from(_posts);
 
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: Responsive.wp(5),
-        vertical: Responsive.hp(1),
-      ),
-      child: GestureDetector(
-        onTap: () => context.go('/wallet'),
-        child: Container(
-          padding: EdgeInsets.all(Responsive.wp(5)),
-          decoration: BoxDecoration(
-            gradient: AppColors.premiumGradient,
-            borderRadius: BorderRadius.circular(24),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.primary.withValues(alpha: 0.35),
-                blurRadius: 25,
-                offset: const Offset(0, 12),
-                spreadRadius: -5,
-              ),
-            ],
+    if (sortByPopular) {
+      filteredPosts.sort((a, b) => (b['likeCount'] as int).compareTo(a['likeCount'] as int));
+    }
+
+    return RefreshIndicator(
+      onRefresh: _onRefresh,
+      color: AppColors.primary,
+      child: CustomScrollView(
+        slivers: [
+          // 스토리/하이라이트 섹션
+          SliverToBoxAdapter(
+            child: _buildStoriesSection(),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Icon(
-                          Icons.account_balance_wallet_rounded,
-                          color: Colors.white,
-                          size: Responsive.sp(20),
-                        ),
-                      ),
-                      SizedBox(width: Responsive.wp(3)),
-                      Text(
-                        '내 지갑',
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.9),
-                          fontSize: Responsive.sp(15),
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: Responsive.wp(3),
-                      vertical: Responsive.hp(0.8),
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.add,
-                          size: Responsive.sp(16),
-                          color: AppColors.primary,
-                        ),
-                        SizedBox(width: Responsive.wp(1)),
-                        Text(
-                          '충전',
-                          style: TextStyle(
-                            color: AppColors.primary,
-                            fontSize: Responsive.sp(13),
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: Responsive.hp(2.5)),
-              Text(
-                '${_formatCurrency(balance)}',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: Responsive.sp(36),
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: -1,
-                ),
-              ),
-              Text(
-                '원',
-                style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.8),
-                  fontSize: Responsive.sp(18),
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 
-  Widget _buildQuickActions(BuildContext context) {
-    final actions = [
-      {'icon': Icons.star_rounded, 'label': '아이돌', 'route': '/idols', 'color': AppColors.idolCategory},
-      {'icon': Icons.chat_bubble_rounded, 'label': '버블', 'route': '/bubble', 'color': AppColors.neonPink},
-      {'icon': Icons.restaurant_rounded, 'label': '데이트권', 'route': '/date-tickets', 'color': AppColors.secondary},
-      {'icon': Icons.campaign_rounded, 'label': '광고', 'route': '/ad-shop', 'color': AppColors.gold},
-    ];
-
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: Responsive.wp(5),
-        vertical: Responsive.hp(2.5),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: actions.map((action) {
-          return GestureDetector(
-            onTap: () {
-              HapticFeedback.lightImpact();
-              context.go(action['route'] as String);
-            },
-            child: Column(
-              children: [
-                Container(
-                  width: Responsive.wp(16),
-                  height: Responsive.wp(16),
-                  decoration: BoxDecoration(
-                    color: (action['color'] as Color).withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Icon(
-                    action['icon'] as IconData,
-                    color: action['color'] as Color,
-                    size: Responsive.sp(26),
-                  ),
-                ),
-                SizedBox(height: Responsive.hp(1)),
-                Text(
-                  action['label'] as String,
-                  style: TextStyle(
-                    fontSize: Responsive.sp(12),
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-              ],
-            ),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  Widget _buildSectionHeader(
-    BuildContext context,
-    String title,
-    String? actionText, {
-    VoidCallback? onTap,
-  }) {
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        Responsive.wp(5),
-        Responsive.hp(2),
-        Responsive.wp(5),
-        Responsive.hp(1.5),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: Responsive.sp(20),
-              fontWeight: FontWeight.w800,
-              color: AppColors.textPrimary,
-              letterSpacing: -0.3,
+          // 구분선
+          SliverToBoxAdapter(
+            child: Container(
+              height: Responsive.hp(1),
+              color: AppColors.background,
             ),
           ),
-          if (actionText != null)
-            GestureDetector(
-              onTap: onTap,
-              child: Row(
-                children: [
-                  Text(
-                    actionText,
-                    style: TextStyle(
-                      fontSize: Responsive.sp(13),
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.primary,
-                    ),
-                  ),
-                  Icon(
-                    Icons.chevron_right_rounded,
-                    size: Responsive.sp(18),
-                    color: AppColors.primary,
-                  ),
-                ],
-              ),
+
+          // 피드 게시물
+          SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) {
+                if (index >= filteredPosts.length) return null;
+                return _buildPostCard(filteredPosts[index]);
+              },
+              childCount: filteredPosts.length,
             ),
+          ),
+
+          // 하단 여백
+          SliverToBoxAdapter(
+            child: SizedBox(height: Responsive.hp(10)),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildHotIdolsList(BuildContext context) {
-    final idols = MockData.idols.take(5).toList();
+  Widget _buildStoriesSection() {
+    final idols = MockData.idols.take(8).toList();
 
-    return SizedBox(
-      height: Responsive.hp(22),
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
-        padding: EdgeInsets.symmetric(horizontal: Responsive.wp(5)),
-        itemCount: idols.length,
-        itemBuilder: (context, index) {
-          final idol = idols[index];
-          return _buildIdolCard(context, idol, index + 1);
-        },
-      ),
-    );
-  }
-
-  Widget _buildIdolCard(BuildContext context, Map<String, dynamic> idol, int rank) {
-    return GestureDetector(
-      onTap: () => context.go('/idols/${idol['id']}'),
-      child: Container(
-        width: Responsive.wp(35),
-        margin: EdgeInsets.only(right: Responsive.wp(3)),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: AppColors.cardShadow(opacity: 0.08),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Stack(
-              children: [
-                ClipRRect(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                  child: idol['profileImage'] != null
-                      ? CachedNetworkImage(
-                          imageUrl: idol['profileImage'],
-                          height: Responsive.hp(12),
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                          placeholder: (_, __) => _buildImagePlaceholder(),
-                          errorWidget: (_, __, ___) => _buildImagePlaceholder(),
-                        )
-                      : _buildImagePlaceholder(),
-                ),
-                Positioned(
-                  top: 8,
-                  left: 8,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      gradient: rank <= 3 ? AppColors.goldGradient : null,
-                      color: rank > 3 ? AppColors.textPrimary : null,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      '#$rank',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: Responsive.sp(11),
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            Padding(
-              padding: EdgeInsets.all(Responsive.wp(3)),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Flexible(
-                        child: Text(
-                          idol['stageName'] ?? '',
-                          style: TextStyle(
-                            fontSize: Responsive.sp(14),
-                            fontWeight: FontWeight.w700,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      if (idol['isVerified'] ?? false)
-                        Padding(
-                          padding: const EdgeInsets.only(left: 4),
-                          child: Icon(
-                            Icons.verified,
-                            size: Responsive.sp(14),
-                            color: AppColors.primary,
-                          ),
-                        ),
-                    ],
-                  ),
-                  SizedBox(height: Responsive.hp(0.3)),
-                  Text(
-                    '${_formatCompact(idol['totalReceived'] ?? 0)}원 후원',
-                    style: TextStyle(
-                      fontSize: Responsive.sp(11),
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildImagePlaceholder() {
     return Container(
-      height: Responsive.hp(12),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppColors.primary.withValues(alpha: 0.3),
-            AppColors.secondary.withValues(alpha: 0.3),
-          ],
-        ),
-      ),
-      child: Center(
-        child: Icon(
-          Icons.person,
-          size: Responsive.sp(30),
-          color: Colors.white.withValues(alpha: 0.7),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCampaignsList(BuildContext context) {
-    final campaigns = MockData.campaigns.take(3).toList();
-
-    return SizedBox(
-      height: Responsive.hp(20),
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
-        padding: EdgeInsets.symmetric(horizontal: Responsive.wp(5)),
-        itemCount: campaigns.length,
-        itemBuilder: (context, index) {
-          final campaign = campaigns[index];
-          return _buildCampaignCard(context, campaign);
-        },
-      ),
-    );
-  }
-
-  Widget _buildCampaignCard(BuildContext context, Map<String, dynamic> campaign) {
-    final progress = (campaign['currentAmount'] as int) / (campaign['goalAmount'] as int);
-    final daysLeft = DateTime.parse(campaign['endDate']).difference(DateTime.now()).inDays;
-
-    return GestureDetector(
-      onTap: () => context.go('/campaigns/${campaign['id']}'),
-      child: Container(
-        width: Responsive.wp(70),
-        margin: EdgeInsets.only(right: Responsive.wp(3)),
-        padding: EdgeInsets.all(Responsive.wp(4)),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: AppColors.cardShadow(opacity: 0.08),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: Responsive.wp(2.5),
-                    vertical: Responsive.hp(0.5),
-                  ),
-                  decoration: BoxDecoration(
-                    color: daysLeft <= 7 ? AppColors.errorSoft : AppColors.primarySoft,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    daysLeft > 0 ? 'D-$daysLeft' : '마감',
-                    style: TextStyle(
-                      color: daysLeft <= 7 ? AppColors.error : AppColors.primary,
-                      fontSize: Responsive.sp(11),
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-                SizedBox(width: Responsive.wp(2)),
-                Expanded(
-                  child: Text(
-                    '${(progress * 100).toInt()}% 달성',
-                    style: TextStyle(
-                      fontSize: Responsive.sp(11),
-                      color: AppColors.textSecondary,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: Responsive.hp(1.5)),
-            Text(
-              campaign['title'] ?? '',
-              style: TextStyle(
-                fontSize: Responsive.sp(16),
-                fontWeight: FontWeight.w700,
-                height: 1.3,
-              ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const Spacer(),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: LinearProgressIndicator(
-                value: progress.clamp(0.0, 1.0),
-                backgroundColor: AppColors.border,
-                valueColor: const AlwaysStoppedAnimation(AppColors.primary),
-                minHeight: 6,
-              ),
-            ),
-            SizedBox(height: Responsive.hp(1)),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  '${_formatCurrency(campaign['currentAmount'])}원',
-                  style: TextStyle(
-                    fontSize: Responsive.sp(14),
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.primary,
-                  ),
-                ),
-                Text(
-                  '${campaign['supporters']}명 참여',
-                  style: TextStyle(
-                    fontSize: Responsive.sp(12),
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPremiumServices(BuildContext context) {
-    final services = [
-      {
-        'icon': Icons.restaurant,
-        'title': '식사 데이트권',
-        'subtitle': '아이돌과 함께하는 프리미엄 식사',
-        'price': '150만원~',
-        'route': '/date-tickets',
-        'gradient': AppColors.primaryGradient,
-      },
-      {
-        'icon': Icons.local_cafe,
-        'title': '카페 데이트권',
-        'subtitle': '아이돌과 티타임',
-        'price': '100만원~',
-        'route': '/date-tickets',
-        'gradient': AppColors.premiumGradient,
-      },
-    ];
-
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: Responsive.wp(5)),
-      child: Column(
-        children: [
-          Row(
-            children: services.map((service) {
-              return Expanded(
-                child: GestureDetector(
-                  onTap: () {
-                    HapticFeedback.lightImpact();
-                    context.go(service['route'] as String);
-                  },
-                  child: Container(
-                    margin: EdgeInsets.only(
-                      right: service == services.first ? Responsive.wp(2) : 0,
-                    ),
-                    padding: EdgeInsets.all(Responsive.wp(4)),
-                    decoration: BoxDecoration(
-                      gradient: service['gradient'] as LinearGradient,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: AppColors.glowShadow(AppColors.primary, opacity: 0.3),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Icon(
-                          service['icon'] as IconData,
-                          color: Colors.white,
-                          size: Responsive.sp(28),
-                        ),
-                        SizedBox(height: Responsive.hp(1.5)),
-                        Text(
-                          service['title'] as String,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: Responsive.sp(15),
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        SizedBox(height: Responsive.hp(0.5)),
-                        Text(
-                          service['subtitle'] as String,
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.8),
-                            fontSize: Responsive.sp(11),
-                          ),
-                        ),
-                        SizedBox(height: Responsive.hp(1)),
-                        Text(
-                          service['price'] as String,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: Responsive.sp(14),
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            }).toList(),
-          ),
-          SizedBox(height: Responsive.hp(1.5)),
-          // Additional service buttons
-          Row(
-            children: [
-              Expanded(
-                child: _buildServiceQuickButton(
-                  context,
-                  icon: Icons.campaign,
-                  label: '팬 광고 펀딩',
-                  route: '/ad-shop',
-                  color: AppColors.gold,
-                ),
-              ),
-              SizedBox(width: Responsive.wp(2)),
-              Expanded(
-                child: _buildServiceQuickButton(
-                  context,
-                  icon: Icons.emoji_events,
-                  label: '랭킹',
-                  route: '/ranking',
-                  color: AppColors.secondary,
-                ),
-              ),
-              SizedBox(width: Responsive.wp(2)),
-              Expanded(
-                child: _buildServiceQuickButton(
-                  context,
-                  icon: Icons.add_circle,
-                  label: '아이돌 등록',
-                  route: '/crm/register-idol',
-                  color: AppColors.success,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildServiceQuickButton(
-    BuildContext context, {
-    required IconData icon,
-    required String label,
-    required String route,
-    required Color color,
-  }) {
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.lightImpact();
-        context.go(route);
-      },
-      child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: Responsive.wp(3),
-          vertical: Responsive.hp(1.5),
-        ),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withValues(alpha: 0.3)),
-        ),
-        child: Column(
-          children: [
-            Icon(icon, color: color, size: Responsive.sp(22)),
-            SizedBox(height: Responsive.hp(0.5)),
-            Text(
-              label,
-              style: TextStyle(
-                color: color,
-                fontSize: Responsive.sp(10),
-                fontWeight: FontWeight.w600,
-              ),
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCategories(BuildContext context) {
-    final categories = [
-      {'icon': Icons.mic, 'label': '지하 아이돌', 'color': AppColors.idolCategory, 'value': 'UNDERGROUND_IDOL'},
-      {'icon': Icons.emoji_people, 'label': '메이드카페', 'color': AppColors.maidCategory, 'value': 'MAID_CAFE'},
-      {'icon': Icons.camera_alt, 'label': '코스플레이어', 'color': AppColors.cosplayCategory, 'value': 'COSPLAYER'},
-      {'icon': Icons.smart_display, 'label': 'VTuber', 'color': AppColors.vtuberCategory, 'value': 'VTuber'},
-    ];
-
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: Responsive.wp(5)),
-      child: Row(
-        children: categories.map((cat) {
-          return Expanded(
-            child: GestureDetector(
-              onTap: () => context.go('/idols'),
-              child: Container(
-                margin: EdgeInsets.only(right: cat != categories.last ? Responsive.wp(2) : 0),
-                padding: EdgeInsets.symmetric(vertical: Responsive.hp(1.5)),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(14),
-                  boxShadow: AppColors.cardShadow(opacity: 0.05),
-                ),
+      color: Colors.white,
+      padding: EdgeInsets.symmetric(vertical: Responsive.hp(1.5)),
+      child: SizedBox(
+        height: Responsive.hp(12),
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          padding: EdgeInsets.symmetric(horizontal: Responsive.wp(3)),
+          itemCount: idols.length + 1,
+          itemBuilder: (context, index) {
+            if (index == 0) {
+              // 내 스토리 추가 버튼
+              return Container(
+                width: Responsive.wp(18),
+                margin: EdgeInsets.only(right: Responsive.wp(2)),
                 child: Column(
                   children: [
-                    Icon(
-                      cat['icon'] as IconData,
-                      color: cat['color'] as Color,
-                      size: Responsive.sp(22),
+                    Container(
+                      width: Responsive.wp(15),
+                      height: Responsive.wp(15),
+                      decoration: BoxDecoration(
+                        color: AppColors.background,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: AppColors.divider, width: 1),
+                      ),
+                      child: Icon(
+                        Icons.add,
+                        color: AppColors.textSecondary,
+                        size: Responsive.sp(24),
+                      ),
                     ),
                     SizedBox(height: Responsive.hp(0.8)),
                     Text(
-                      cat['label'] as String,
+                      '내 스토리',
                       style: TextStyle(
-                        fontSize: Responsive.sp(10),
-                        fontWeight: FontWeight.w600,
+                        fontSize: Responsive.sp(11),
+                        color: AppColors.textSecondary,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            final idol = idols[index - 1];
+            final hasNewStory = index % 2 == 0; // 데모용 랜덤
+
+            return GestureDetector(
+              onTap: () {
+                HapticFeedback.lightImpact();
+                context.go('/idols/${idol['id']}');
+              },
+              child: Container(
+                width: Responsive.wp(18),
+                margin: EdgeInsets.only(right: Responsive.wp(2)),
+                child: Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(3),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: hasNewStory
+                            ? AppColors.primaryGradient
+                            : null,
+                        border: hasNewStory
+                            ? null
+                            : Border.all(color: AppColors.divider, width: 2),
+                      ),
+                      child: Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
+                        child: CircleAvatar(
+                          radius: Responsive.wp(6.5),
+                          backgroundColor: AppColors.primarySoft,
+                          backgroundImage: idol['profileImage'] != null
+                              ? CachedNetworkImageProvider(idol['profileImage'])
+                              : null,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: Responsive.hp(0.8)),
+                    Text(
+                      idol['stageName'] ?? '',
+                      style: TextStyle(
+                        fontSize: Responsive.sp(11),
+                        fontWeight: FontWeight.w500,
                         color: AppColors.textPrimary,
                       ),
-                      textAlign: TextAlign.center,
                       maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
               ),
-            ),
-          );
-        }).toList(),
+            );
+          },
+        ),
       ),
     );
   }
 
-  Widget _buildRecentPosts(BuildContext context) {
-    final posts = MockData.posts.take(3).toList();
+  Widget _buildPostCard(Map<String, dynamic> post) {
+    final author = post['author'] as Map<String, dynamic>?;
+    final images = post['images'] as List? ?? [];
+    final isSubscriberOnly = post['isSubscriberOnly'] ?? false;
+    final isLiked = post['isLiked'] ?? false;
 
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: Responsive.wp(5)),
+    return Container(
+      color: Colors.white,
+      margin: EdgeInsets.only(bottom: Responsive.hp(1)),
       child: Column(
-        children: posts.map((post) {
-          Map<String, dynamic>? author;
-          try {
-            author = MockData.idols.firstWhere((i) => i['id'] == post['authorId']);
-          } catch (_) {}
-
-          return Container(
-            margin: EdgeInsets.only(bottom: Responsive.hp(1.5)),
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 헤더: 프로필, 이름, 시간
+          Padding(
             padding: EdgeInsets.all(Responsive.wp(4)),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: AppColors.cardShadow(opacity: 0.05),
-            ),
             child: Row(
               children: [
-                CircleAvatar(
-                  radius: Responsive.wp(6),
-                  backgroundColor: AppColors.primarySoft,
-                  backgroundImage: author?['profileImage'] != null
-                      ? CachedNetworkImageProvider(author!['profileImage'])
-                      : null,
-                  child: author?['profileImage'] == null
-                      ? Icon(Icons.person, color: AppColors.primary, size: Responsive.sp(20))
-                      : null,
+                GestureDetector(
+                  onTap: () {
+                    if (author?['id'] != null) {
+                      context.go('/idols/${author!['id']}');
+                    }
+                  },
+                  child: CircleAvatar(
+                    radius: Responsive.wp(6),
+                    backgroundColor: AppColors.primarySoft,
+                    backgroundImage: author?['profileImage'] != null
+                        ? CachedNetworkImageProvider(author!['profileImage'])
+                        : null,
+                    child: author?['profileImage'] == null
+                        ? Icon(Icons.person, color: AppColors.primary, size: Responsive.sp(24))
+                        : null,
+                  ),
                 ),
                 SizedBox(width: Responsive.wp(3)),
                 Expanded(
@@ -1034,46 +426,516 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                     children: [
                       Row(
                         children: [
-                          Text(
-                            author?['stageName'] ?? '익명',
-                            style: TextStyle(
-                              fontSize: Responsive.sp(14),
-                              fontWeight: FontWeight.w700,
+                          Flexible(
+                            child: Text(
+                              author?['nickname'] ?? '익명',
+                              style: TextStyle(
+                                fontSize: Responsive.sp(15),
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.textPrimary,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          if (author?['isVerified'] ?? false)
-                            Padding(
-                              padding: const EdgeInsets.only(left: 4),
-                              child: Icon(
-                                Icons.verified,
-                                size: Responsive.sp(14),
-                                color: AppColors.primary,
+                          if (author?['isVerified'] == true) ...[
+                            SizedBox(width: Responsive.wp(1)),
+                            Icon(
+                              Icons.verified,
+                              color: AppColors.primary,
+                              size: Responsive.sp(16),
+                            ),
+                          ],
+                          if (isSubscriberOnly) ...[
+                            SizedBox(width: Responsive.wp(2)),
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: Responsive.wp(2),
+                                vertical: Responsive.hp(0.3),
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.secondary.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                '구독자 전용',
+                                style: TextStyle(
+                                  color: AppColors.secondary,
+                                  fontSize: Responsive.sp(10),
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
+                          ],
                         ],
                       ),
                       SizedBox(height: Responsive.hp(0.3)),
-                      Text(
-                        post['content'] ?? '',
-                        style: TextStyle(
-                          fontSize: Responsive.sp(12),
-                          color: AppColors.textSecondary,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                      Row(
+                        children: [
+                          Text(
+                            _getCategoryLabel(author?['category']),
+                            style: TextStyle(
+                              fontSize: Responsive.sp(12),
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                          Text(
+                            ' · ${_formatTimeAgo(post['createdAt'])}',
+                            style: TextStyle(
+                              fontSize: Responsive.sp(12),
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
                 ),
-                Icon(
-                  Icons.chevron_right_rounded,
-                  color: AppColors.textHint,
-                  size: Responsive.sp(20),
+                IconButton(
+                  icon: Icon(
+                    Icons.more_horiz,
+                    color: AppColors.textSecondary,
+                    size: Responsive.sp(20),
+                  ),
+                  onPressed: () => _showPostOptions(context, post),
                 ),
               ],
             ),
-          );
-        }).toList(),
+          ),
+
+          // 게시물 내용
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: Responsive.wp(4)),
+            child: Text(
+              post['content'] ?? '',
+              style: TextStyle(
+                fontSize: Responsive.sp(15),
+                color: AppColors.textPrimary,
+                height: 1.5,
+              ),
+            ),
+          ),
+
+          // 이미지
+          if (images.isNotEmpty) ...[
+            SizedBox(height: Responsive.hp(1.5)),
+            _buildImageGrid(images),
+          ],
+
+          // 액션 버튼들
+          Padding(
+            padding: EdgeInsets.all(Responsive.wp(4)),
+            child: Row(
+              children: [
+                _buildActionButton(
+                  icon: isLiked ? Icons.favorite : Icons.favorite_border,
+                  label: _formatNumber(post['likeCount'] ?? 0),
+                  color: isLiked ? AppColors.error : null,
+                  onTap: () {
+                    HapticFeedback.lightImpact();
+                    setState(() {
+                      post['isLiked'] = !isLiked;
+                      post['likeCount'] = (post['likeCount'] ?? 0) + (isLiked ? -1 : 1);
+                    });
+                  },
+                ),
+                SizedBox(width: Responsive.wp(6)),
+                _buildActionButton(
+                  icon: Icons.chat_bubble_outline,
+                  label: _formatNumber(post['commentCount'] ?? 0),
+                  onTap: () {
+                    HapticFeedback.lightImpact();
+                    CommentSheet.show(
+                      context,
+                      postId: post['id'] ?? '',
+                    );
+                  },
+                ),
+                SizedBox(width: Responsive.wp(6)),
+                _buildActionButton(
+                  icon: Icons.repeat,
+                  label: '',
+                  onTap: () {
+                    DemoFeedback.showSuccess(context, DemoMessages.reposted, icon: Icons.repeat);
+                  },
+                ),
+                SizedBox(width: Responsive.wp(6)),
+                _buildActionButton(
+                  icon: Icons.share_outlined,
+                  label: '',
+                  onTap: () {
+                    DemoFeedback.showShareDemo(context, '게시물');
+                  },
+                ),
+                const Spacer(),
+                _buildActionButton(
+                  icon: post['isBookmarked'] == true ? Icons.bookmark : Icons.bookmark_border,
+                  label: '',
+                  onTap: () {
+                    setState(() {
+                      post['isBookmarked'] = !(post['isBookmarked'] ?? false);
+                    });
+                    DemoFeedback.showBookmarkDemo(context, post['isBookmarked'] == true);
+                  },
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildImageGrid(List images) {
+    if (images.isEmpty) return const SizedBox.shrink();
+
+    if (images.length == 1) {
+      return GestureDetector(
+        onTap: () => _showImageViewer(context, images, 0),
+        child: CachedNetworkImage(
+          imageUrl: images[0],
+          width: double.infinity,
+          height: Responsive.hp(30),
+          fit: BoxFit.cover,
+          placeholder: (context, url) => Container(
+            height: Responsive.hp(30),
+            color: AppColors.background,
+            child: Center(
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: AppColors.primary,
+              ),
+            ),
+          ),
+          errorWidget: (context, url, error) => Container(
+            height: Responsive.hp(30),
+            color: AppColors.background,
+            child: Icon(Icons.image, color: AppColors.textHint, size: Responsive.sp(40)),
+          ),
+        ),
+      );
+    }
+
+    // 2개 이상의 이미지
+    return SizedBox(
+      height: Responsive.hp(25),
+      child: Row(
+        children: [
+          Expanded(
+            child: GestureDetector(
+              onTap: () => _showImageViewer(context, images, 0),
+              child: CachedNetworkImage(
+                imageUrl: images[0],
+                height: double.infinity,
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          if (images.length > 1) ...[
+            SizedBox(width: Responsive.wp(0.5)),
+            Expanded(
+              child: Column(
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => _showImageViewer(context, images, 1),
+                      child: CachedNetworkImage(
+                        imageUrl: images[1],
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                  if (images.length > 2) ...[
+                    SizedBox(height: Responsive.wp(0.5)),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => _showImageViewer(context, images, 2),
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            CachedNetworkImage(
+                              imageUrl: images[2],
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                            ),
+                            if (images.length > 3)
+                              Container(
+                                color: Colors.black.withValues(alpha: 0.5),
+                                child: Center(
+                                  child: Text(
+                                    '+${images.length - 3}',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: Responsive.sp(20),
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionButton({
+    required IconData icon,
+    required String label,
+    Color? color,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Row(
+        children: [
+          Icon(
+            icon,
+            size: Responsive.sp(20),
+            color: color ?? AppColors.textSecondary,
+          ),
+          if (label.isNotEmpty) ...[
+            SizedBox(width: Responsive.wp(1.5)),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: Responsive.sp(13),
+                color: color ?? AppColors.textSecondary,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  String _getCategoryLabel(String? category) {
+    if (category == null) return '';
+    return CategoryMapper.getCategoryName(category);
+  }
+
+  void _showPostOptions(BuildContext context, Map<String, dynamic> post) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: Responsive.wp(10),
+                height: 4,
+                margin: EdgeInsets.symmetric(vertical: Responsive.hp(1.5)),
+                decoration: BoxDecoration(
+                  color: AppColors.border,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              _buildOptionItem(Icons.person_add, '팔로우', () => Navigator.pop(context)),
+              _buildOptionItem(Icons.bookmark_border, '저장', () => Navigator.pop(context)),
+              _buildOptionItem(Icons.link, '링크 복사', () => Navigator.pop(context)),
+              _buildOptionItem(Icons.report_outlined, '신고', () => Navigator.pop(context), isDestructive: true),
+              SizedBox(height: Responsive.hp(2)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOptionItem(IconData icon, String label, VoidCallback onTap, {bool isDestructive = false}) {
+    return ListTile(
+      leading: Icon(
+        icon,
+        color: isDestructive ? AppColors.error : AppColors.textPrimary,
+      ),
+      title: Text(
+        label,
+        style: TextStyle(
+          color: isDestructive ? AppColors.error : AppColors.textPrimary,
+          fontSize: Responsive.sp(15),
+        ),
+      ),
+      onTap: onTap,
+    );
+  }
+
+  void _showImageViewer(BuildContext context, List images, int initialIndex) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Scaffold(
+          backgroundColor: Colors.black,
+          appBar: AppBar(
+            backgroundColor: Colors.black,
+            iconTheme: const IconThemeData(color: Colors.white),
+          ),
+          body: PageView.builder(
+            controller: PageController(initialPage: initialIndex),
+            itemCount: images.length,
+            itemBuilder: (context, index) => InteractiveViewer(
+              child: Center(
+                child: CachedNetworkImage(
+                  imageUrl: images[index],
+                  fit: BoxFit.contain,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showCreatePostSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        height: Responsive.hp(70),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          children: [
+            Container(
+              width: Responsive.wp(10),
+              height: 4,
+              margin: EdgeInsets.symmetric(vertical: Responsive.hp(1.5)),
+              decoration: BoxDecoration(
+                color: AppColors.border,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: Responsive.wp(4)),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text(
+                      '취소',
+                      style: TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: Responsive.sp(15),
+                      ),
+                    ),
+                  ),
+                  Text(
+                    '새 게시물',
+                    style: TextStyle(
+                      fontSize: Responsive.sp(17),
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      DemoFeedback.showSuccess(context, DemoMessages.postCreated);
+                    },
+                    child: Text(
+                      '게시',
+                      style: TextStyle(
+                        color: AppColors.primary,
+                        fontSize: Responsive.sp(15),
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Divider(color: AppColors.divider, height: 1),
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.all(Responsive.wp(4)),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CircleAvatar(
+                      radius: Responsive.wp(6),
+                      backgroundColor: AppColors.primarySoft,
+                      child: Icon(Icons.person, color: AppColors.primary),
+                    ),
+                    SizedBox(width: Responsive.wp(3)),
+                    Expanded(
+                      child: TextField(
+                        maxLines: null,
+                        autofocus: true,
+                        decoration: InputDecoration(
+                          hintText: '무슨 일이 있나요?',
+                          hintStyle: TextStyle(
+                            color: AppColors.textHint,
+                            fontSize: Responsive.sp(16),
+                          ),
+                          border: InputBorder.none,
+                        ),
+                        style: TextStyle(
+                          fontSize: Responsive.sp(16),
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Container(
+              padding: EdgeInsets.all(Responsive.wp(4)),
+              decoration: BoxDecoration(
+                border: Border(top: BorderSide(color: AppColors.divider)),
+              ),
+              child: Row(
+                children: [
+                  _buildMediaButton(Icons.image_outlined, '사진'),
+                  SizedBox(width: Responsive.wp(4)),
+                  _buildMediaButton(Icons.gif_box_outlined, 'GIF'),
+                  SizedBox(width: Responsive.wp(4)),
+                  _buildMediaButton(Icons.poll_outlined, '투표'),
+                  SizedBox(width: Responsive.wp(4)),
+                  _buildMediaButton(Icons.location_on_outlined, '위치'),
+                ],
+              ),
+            ),
+            SizedBox(height: MediaQuery.of(context).viewInsets.bottom),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMediaButton(IconData icon, String label) {
+    return GestureDetector(
+      onTap: () => HapticFeedback.lightImpact(),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: AppColors.primary, size: Responsive.sp(24)),
+          SizedBox(height: Responsive.hp(0.3)),
+          Text(
+            label,
+            style: TextStyle(
+              color: AppColors.primary,
+              fontSize: Responsive.sp(10),
+            ),
+          ),
+        ],
       ),
     );
   }

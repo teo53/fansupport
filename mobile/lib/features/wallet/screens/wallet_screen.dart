@@ -43,7 +43,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.primary.withOpacity(0.3),
+                    color: AppColors.primary.withValues(alpha: 0.3),
                     blurRadius: 20,
                     offset: const Offset(0, 10),
                   ),
@@ -351,7 +351,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
           width: Responsive.wp(11),
           height: Responsive.wp(11),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(icon, color: color, size: Responsive.sp(22)),

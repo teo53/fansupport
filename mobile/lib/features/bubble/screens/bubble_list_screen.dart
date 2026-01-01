@@ -5,6 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
+import '../../../core/utils/demo_feedback.dart';
 import '../../../core/mock/mock_data.dart';
 import '../../../shared/models/bubble_message_model.dart';
 
@@ -522,19 +523,29 @@ class _BubbleListScreenState extends ConsumerState<BubbleListScreen>
                       : Icons.favorite_border_rounded,
                   label: _formatCount(message.likeCount),
                   isActive: message.isLiked,
-                  onTap: () {},
+                  onTap: () {
+                    HapticFeedback.lightImpact();
+                    setState(() {
+                      message.isLiked = !message.isLiked;
+                      message.likeCount += message.isLiked ? 1 : -1;
+                    });
+                  },
                 ),
                 const SizedBox(width: 16),
                 _buildActionButton(
                   icon: Icons.visibility_outlined,
                   label: _formatCount(message.viewCount),
-                  onTap: () {},
+                  onTap: () {
+                    // View count is just informational
+                  },
                 ),
                 const Spacer(),
                 _buildActionButton(
                   icon: Icons.share_outlined,
                   label: '공유',
-                  onTap: () {},
+                  onTap: () {
+                    DemoFeedback.showShareDemo(context, '버블 메시지');
+                  },
                 ),
               ],
             ),

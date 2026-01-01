@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
+import '../../../core/utils/demo_feedback.dart';
 import '../../auth/providers/auth_provider.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -29,8 +30,12 @@ class ProfileScreen extends ConsumerWidget {
         ),
         actions: [
           IconButton(
+            icon: Icon(Icons.notifications_outlined, size: Responsive.sp(24)),
+            onPressed: () => context.push('/notifications'),
+          ),
+          IconButton(
             icon: Icon(Icons.settings_outlined, size: Responsive.sp(24)),
-            onPressed: () => _showSettingsSheet(context),
+            onPressed: () => context.push('/settings'),
           ),
         ],
       ),
@@ -48,7 +53,7 @@ class ProfileScreen extends ConsumerWidget {
                       border: Border.all(color: AppColors.primary, width: 3),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.primary.withOpacity(0.3),
+                          color: AppColors.primary.withValues(alpha: 0.3),
                           blurRadius: 15,
                           spreadRadius: 2,
                         ),
@@ -100,7 +105,7 @@ class ProfileScreen extends ConsumerWidget {
                   ),
                   SizedBox(height: Responsive.hp(2)),
                   OutlinedButton.icon(
-                    onPressed: () {},
+                    onPressed: () => context.push('/profile/edit'),
                     icon: Icon(Icons.edit, size: Responsive.sp(18)),
                     label: Text(
                       '프로필 수정',
@@ -189,21 +194,23 @@ class ProfileScreen extends ConsumerWidget {
                     icon: Icons.favorite,
                     title: '후원 내역',
                     subtitle: '보낸 후원 확인',
-                    onTap: () {},
+                    onTap: () {
+                      DemoFeedback.showComingSoon(context, '후원 내역');
+                    },
                   ),
                   _buildMenuItem(
                     context,
                     icon: Icons.campaign,
                     title: '참여한 펀딩',
                     subtitle: '펀딩 참여 내역',
-                    onTap: () {},
+                    onTap: () => context.push('/campaigns'),
                   ),
                   _buildMenuItem(
                     context,
                     icon: Icons.calendar_today,
                     title: '예약 내역',
                     subtitle: '메이드카페 예약 확인',
-                    onTap: () {},
+                    onTap: () => context.push('/booking'),
                   ),
                   SizedBox(height: Responsive.hp(3)),
                   Text(
@@ -219,32 +226,36 @@ class ProfileScreen extends ConsumerWidget {
                     context,
                     icon: Icons.notifications,
                     title: '알림 설정',
-                    onTap: () {},
+                    onTap: () => context.push('/settings'),
                   ),
                   _buildMenuItem(
                     context,
                     icon: Icons.payment,
                     title: '결제 수단',
-                    onTap: () {},
+                    onTap: () {
+                      DemoFeedback.showComingSoon(context, '결제 수단 관리');
+                    },
                   ),
                   _buildMenuItem(
                     context,
                     icon: Icons.security,
                     title: '보안 설정',
-                    onTap: () {},
+                    onTap: () => context.push('/settings/change-password'),
                   ),
                   _buildMenuItem(
                     context,
                     icon: Icons.help,
                     title: '고객센터',
-                    onTap: () {},
+                    onTap: () {
+                      DemoFeedback.showComingSoon(context, '고객센터');
+                    },
                   ),
                   _buildMenuItem(
                     context,
                     icon: Icons.info,
                     title: '앱 정보',
                     subtitle: '버전 1.0.0',
-                    onTap: () {},
+                    onTap: () => _showAppInfo(context),
                   ),
                   SizedBox(height: Responsive.hp(2)),
                   _buildMenuItem(
@@ -264,58 +275,6 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  void _showSettingsSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        padding: EdgeInsets.all(Responsive.wp(4)),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: Responsive.wp(10),
-              height: 4,
-              decoration: BoxDecoration(
-                color: AppColors.border,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            SizedBox(height: Responsive.hp(2)),
-            ListTile(
-              leading: const Icon(Icons.dark_mode),
-              title: const Text('다크 모드'),
-              trailing: Switch(
-                value: false,
-                onChanged: (value) {},
-                activeColor: AppColors.primary,
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.language),
-              title: const Text('언어'),
-              trailing: const Text('한국어'),
-              onTap: () {},
-            ),
-            ListTile(
-              leading: const Icon(Icons.notifications_outlined),
-              title: const Text('푸시 알림'),
-              trailing: Switch(
-                value: true,
-                onChanged: (value) {},
-                activeColor: AppColors.primary,
-              ),
-            ),
-            SizedBox(height: Responsive.hp(2)),
-          ],
-        ),
-      ),
-    );
-  }
 
   void _showSubscriptionList(BuildContext context) {
     showModalBottomSheet(
@@ -376,7 +335,7 @@ class ProfileScreen extends ConsumerWidget {
         contentPadding: EdgeInsets.all(Responsive.wp(3)),
         leading: CircleAvatar(
           radius: Responsive.wp(6),
-          backgroundColor: AppColors.primary.withOpacity(0.1),
+          backgroundColor: AppColors.primary.withValues(alpha: 0.1),
           child: Icon(Icons.person, color: AppColors.primary, size: Responsive.sp(24)),
         ),
         title: Row(
@@ -423,7 +382,9 @@ class ProfileScreen extends ConsumerWidget {
           ],
         ),
         trailing: TextButton(
-          onPressed: () {},
+          onPressed: () {
+            DemoFeedback.showComingSoon(context, '구독 관리');
+          },
           child: Text(
             '관리',
             style: TextStyle(fontSize: Responsive.sp(13)),
@@ -481,7 +442,7 @@ class ProfileScreen extends ConsumerWidget {
           width: Responsive.wp(10),
           height: Responsive.wp(10),
           decoration: BoxDecoration(
-            color: (color ?? AppColors.primary).withOpacity(0.1),
+            color: (color ?? AppColors.primary).withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(icon, color: color ?? AppColors.primary, size: Responsive.sp(22)),
@@ -546,6 +507,76 @@ class ProfileScreen extends ConsumerWidget {
             child: Text(
               '로그아웃',
               style: TextStyle(fontSize: Responsive.sp(14)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAppInfo(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            Icon(Icons.info_outline, color: AppColors.primary),
+            SizedBox(width: Responsive.wp(2)),
+            Text(
+              '앱 정보',
+              style: TextStyle(fontSize: Responsive.sp(18)),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildInfoRow('앱 이름', 'FanSupport'),
+            _buildInfoRow('버전', '1.0.0'),
+            _buildInfoRow('빌드', '2024.12.30'),
+            SizedBox(height: Responsive.hp(2)),
+            Text(
+              '© 2024 FanSupport. All rights reserved.',
+              style: TextStyle(
+                fontSize: Responsive.sp(12),
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              '확인',
+              style: TextStyle(fontSize: Responsive.sp(14)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: Responsive.hp(0.5)),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: Responsive.sp(14),
+              color: AppColors.textSecondary,
+            ),
+          ),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: Responsive.sp(14),
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],

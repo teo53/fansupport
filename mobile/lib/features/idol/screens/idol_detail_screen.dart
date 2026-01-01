@@ -6,6 +6,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
+import '../../../core/utils/formatters.dart';
+import '../../../core/utils/demo_feedback.dart';
 import '../../../core/mock/mock_data.dart';
 import '../../../shared/widgets/custom_button.dart';
 
@@ -58,7 +60,7 @@ class IdolDetailScreen extends ConsumerWidget {
                     imageUrl: idol['profileImage'],
                     fit: BoxFit.cover,
                     placeholder: (context, url) => Container(
-                      color: AppColors.primary.withOpacity(0.2),
+                      color: AppColors.primary.withValues(alpha: 0.2),
                     ),
                     errorWidget: (context, url, error) => Container(
                       decoration: const BoxDecoration(
@@ -73,7 +75,7 @@ class IdolDetailScreen extends ConsumerWidget {
                         end: Alignment.bottomCenter,
                         colors: [
                           Colors.transparent,
-                          Colors.black.withOpacity(0.6),
+                          Colors.black.withValues(alpha: 0.6),
                         ],
                       ),
                     ),
@@ -84,11 +86,13 @@ class IdolDetailScreen extends ConsumerWidget {
             actions: [
               IconButton(
                 icon: Icon(Icons.share, size: Responsive.sp(22)),
-                onPressed: () {},
+                onPressed: () {
+                  DemoFeedback.showShareDemo(context, idol['stageName'] ?? '아이돌');
+                },
               ),
               IconButton(
                 icon: Icon(Icons.more_vert, size: Responsive.sp(22)),
-                onPressed: () {},
+                onPressed: () => _showMoreOptions(context),
               ),
             ],
           ),
@@ -106,7 +110,7 @@ class IdolDetailScreen extends ConsumerWidget {
                       border: Border.all(color: Colors.white, width: 4),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
+                          color: Colors.black.withValues(alpha: 0.1),
                           blurRadius: 8,
                         ),
                       ],
@@ -311,7 +315,9 @@ class IdolDetailScreen extends ConsumerWidget {
                                     ),
                                   ),
                                   TextButton(
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      DemoFeedback.showComingSoon(context, '갤러리');
+                                    },
                                     child: Text(
                                       '전체 보기',
                                       style: TextStyle(fontSize: Responsive.sp(14)),
@@ -561,7 +567,9 @@ class IdolDetailScreen extends ConsumerWidget {
                                   ),
                                 ),
                                 TextButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    DemoFeedback.showComingSoon(context, '서포터 목록');
+                                  },
                                   child: Text(
                                     '전체 보기',
                                     style: TextStyle(fontSize: Responsive.sp(14)),
@@ -590,13 +598,59 @@ class IdolDetailScreen extends ConsumerWidget {
   }
 
   String _getCategoryName(String category) {
-    final names = {
-      'UNDERGROUND_IDOL': '지하 아이돌',
-      'MAID_CAFE': '메이드카페',
-      'COSPLAYER': '코스플레이어',
-      'VTuber': 'VTuber',
-    };
-    return names[category] ?? '기타';
+    return CategoryMapper.getCategoryName(category);
+  }
+
+  void _showMoreOptions(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              margin: EdgeInsets.symmetric(vertical: Responsive.hp(1.5)),
+              width: Responsive.wp(10),
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.border,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.report_outlined),
+              title: const Text('신고하기'),
+              onTap: () {
+                Navigator.pop(context);
+                DemoFeedback.showReportDemo(context, '신고가 접수');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.block_outlined),
+              title: const Text('차단하기'),
+              onTap: () {
+                Navigator.pop(context);
+                DemoFeedback.showSuccess(context, DemoMessages.userBlocked);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.link),
+              title: const Text('프로필 링크 복사'),
+              onTap: () {
+                Navigator.pop(context);
+                DemoFeedback.showSuccess(context, '링크가 복사되었습니다', icon: Icons.copy);
+              },
+            ),
+            SizedBox(height: Responsive.hp(2)),
+          ],
+        ),
+      ),
+    );
   }
 
   void _showSubscriptionModal(BuildContext context) {
@@ -663,7 +717,7 @@ class IdolDetailScreen extends ConsumerWidget {
         decoration: BoxDecoration(
           border: Border.all(color: isPopular ? color : AppColors.border),
           borderRadius: BorderRadius.circular(12),
-          color: isPopular ? color.withOpacity(0.05) : null,
+          color: isPopular ? color.withValues(alpha: 0.05) : null,
         ),
         child: Row(
           children: [
@@ -869,7 +923,7 @@ class IdolDetailScreen extends ConsumerWidget {
       decoration: BoxDecoration(
         border: Border.all(color: isPopular ? color : AppColors.border),
         borderRadius: BorderRadius.circular(12),
-        color: isPopular ? color.withOpacity(0.05) : null,
+        color: isPopular ? color.withValues(alpha: 0.05) : null,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

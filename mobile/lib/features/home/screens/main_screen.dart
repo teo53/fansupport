@@ -22,7 +22,7 @@ class _MainScreenState extends State<MainScreen> {
     if (location.startsWith('/campaigns')) {
       return 2;
     }
-    if (location.startsWith('/community')) {
+    if (location.startsWith('/calendar')) {
       return 3;
     }
     if (location.startsWith('/profile') || location.startsWith('/wallet')) {
@@ -44,7 +44,7 @@ class _MainScreenState extends State<MainScreen> {
         context.go('/campaigns');
         break;
       case 3:
-        context.go('/community');
+        context.go('/calendar');
         break;
       case 4:
         context.go('/profile');
@@ -105,9 +105,9 @@ class _MainScreenState extends State<MainScreen> {
                 context: context,
                 index: 3,
                 selectedIndex: selectedIndex,
-                icon: Icons.chat_bubble_outline_rounded,
-                selectedIcon: Icons.chat_bubble_rounded,
-                label: '커뮤니티',
+                icon: Icons.calendar_today_outlined,
+                selectedIcon: Icons.calendar_today_rounded,
+                label: '캘린더',
               ),
               _buildNavItem(
                 context: context,

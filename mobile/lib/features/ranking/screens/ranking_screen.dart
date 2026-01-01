@@ -115,7 +115,7 @@ class RankingScreen extends ConsumerWidget {
               ),
               boxShadow: [
                 BoxShadow(
-                  color: colors[tier]!.withOpacity(0.3),
+                  color: colors[tier]!.withValues(alpha: 0.3),
                   blurRadius: 12,
                   spreadRadius: 2,
                 ),
@@ -177,7 +177,7 @@ class RankingScreen extends ConsumerWidget {
           Text(
             '￦${_formatNumber(idol['totalReceived'] ?? 0)}',
             style: TextStyle(
-              color: Colors.white.withOpacity(0.8),
+              color: Colors.white.withValues(alpha: 0.8),
               fontSize: Responsive.sp(12),
             ),
           ),
@@ -215,7 +215,7 @@ class RankingScreen extends ConsumerWidget {
               ),
               CircleAvatar(
                 radius: Responsive.wp(6),
-                backgroundColor: AppColors.primary.withOpacity(0.1),
+                backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                 backgroundImage: idol['profileImage'] != null
                     ? CachedNetworkImageProvider(idol['profileImage'])
                     : null,
