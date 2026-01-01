@@ -56,7 +56,7 @@ class IdolDetailScreen extends ConsumerWidget {
                     imageUrl: idol.profileImage,
                     fit: BoxFit.cover,
                     placeholder: (context, url) => Container(
-                      color: idolColor.withValues(alpha: 0.2),
+                      color: idolColor.withOpacity(0.2),
                     ),
                     errorWidget: (context, url, error) => Container(
                       color: AppColors.background,
@@ -71,8 +71,8 @@ class IdolDetailScreen extends ConsumerWidget {
                         end: Alignment.bottomCenter,
                         colors: [
                           Colors.transparent,
-                          Colors.black.withValues(alpha: 0.2),
-                          Colors.black.withValues(alpha: 0.8),
+                          Colors.black.withOpacity(0.2),
+                          Colors.black.withOpacity(0.8),
                         ],
                         stops: const [0.3, 0.7, 1.0],
                       ),
@@ -108,7 +108,7 @@ class IdolDetailScreen extends ConsumerWidget {
                       border: Border.all(color: AppColors.background, width: 4),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.2),
+                          color: Colors.black.withOpacity(0.2),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
@@ -379,7 +379,7 @@ class IdolDetailScreen extends ConsumerWidget {
         boxShadow: isHighlight
             ? [
                 BoxShadow(
-                    color: color.withValues(alpha: 0.15),
+                    color: color.withOpacity(0.15),
                     blurRadius: 15,
                     offset: const Offset(0, 4))
               ]
@@ -393,7 +393,7 @@ class IdolDetailScreen extends ConsumerWidget {
               Container(
                 padding: EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
+                  color: color.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(Icons.star_rounded, color: color, size: 18),

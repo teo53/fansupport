@@ -102,7 +102,7 @@ class AppColors {
   // Shadows (Soft & Diffuse)
   static List<BoxShadow> cardShadow({double opacity = 0.04}) => [
         BoxShadow(
-          color: Colors.black.withValues(alpha: opacity),
+          color: Colors.black.withOpacity(opacity),
           blurRadius: 16,
           offset: const Offset(0, 4),
           spreadRadius: 0,
@@ -111,7 +111,7 @@ class AppColors {
 
   static List<BoxShadow> softShadow({double opacity = 0.03}) => [
         BoxShadow(
-          color: Colors.black.withValues(alpha: opacity),
+          color: Colors.black.withOpacity(opacity),
           blurRadius: 10,
           offset: const Offset(0, 2),
           spreadRadius: 0,
@@ -120,7 +120,7 @@ class AppColors {
 
   static List<BoxShadow> elevatedShadow({double opacity = 0.08}) => [
         BoxShadow(
-          color: Colors.black.withValues(alpha: opacity),
+          color: Colors.black.withOpacity(opacity),
           blurRadius: 20,
           offset: const Offset(0, 8),
           spreadRadius: 0,
@@ -130,7 +130,7 @@ class AppColors {
   static List<BoxShadow> glowShadow(Color color, {double opacity = 0.2}) {
     return [
       BoxShadow(
-        color: color.withValues(alpha: opacity),
+        color: color.withOpacity(opacity),
         blurRadius: 20,
         offset: const Offset(0, 8),
         spreadRadius: -4,

@@ -80,8 +80,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      AppColors.primary.withValues(alpha: 0.15),
-                      AppColors.primary.withValues(alpha: 0),
+                      AppColors.primary.withOpacity(0.15),
+                      AppColors.primary.withOpacity(0),
                     ],
                   ),
                 ),
@@ -97,8 +97,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      AppColors.secondary.withValues(alpha: 0.1),
-                      AppColors.secondary.withValues(alpha: 0),
+                      AppColors.secondary.withOpacity(0.1),
+                      AppColors.secondary.withOpacity(0),
                     ],
                   ),
                 ),
@@ -371,7 +371,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
               ),
               boxShadow: [
                 BoxShadow(
-                  color: (banner['color'] as Color).withValues(alpha: 0.3),
+                  color: (banner['color'] as Color).withOpacity(0.3),
                   blurRadius: 16,
                   offset: const Offset(0, 8),
                 ),
@@ -387,8 +387,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                       end: Alignment.bottomCenter,
                       colors: [
                         Colors.transparent,
-                        Colors.black.withValues(alpha: 0.2),
-                        Colors.black.withValues(alpha: 0.8),
+                        Colors.black.withOpacity(0.2),
+                        Colors.black.withOpacity(0.8),
                       ],
                     ),
                   ),
@@ -430,7 +430,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                       Text(
                         banner['subtitle'] as String,
                         style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.9),
+                          color: Colors.white.withOpacity(0.9),
                           fontSize: Responsive.sp(13),
                           fontWeight: FontWeight.w500,
                         ),
@@ -530,9 +530,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        Colors.black.withValues(alpha: 0.6),
+                        Colors.black.withOpacity(0.6),
                         Colors.transparent,
-                        Colors.black.withValues(alpha: 0.6),
+                        Colors.black.withOpacity(0.6),
                       ],
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
@@ -570,7 +570,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                           Text(
                             '1시간 전',
                             style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.6),
+                              color: Colors.white.withOpacity(0.6),
                               fontSize: 13,
                             ),
                           ),
@@ -800,9 +800,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                 borderRadius: BorderRadius.circular(24),
                 gradient: LinearGradient(
                   colors: [
-                    Colors.black.withValues(alpha: 0.0),
-                    Colors.black.withValues(alpha: 0.6),
-                    Colors.black.withValues(alpha: 0.9),
+                    Colors.black.withOpacity(0.0),
+                    Colors.black.withOpacity(0.6),
+                    Colors.black.withOpacity(0.9),
                   ],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
@@ -823,9 +823,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                     padding:
                         const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
+                      color: Colors.white.withOpacity(0.2),
                       border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.3)),
+                          color: Colors.white.withOpacity(0.3)),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -861,7 +861,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
-                        color: imageColor.withValues(alpha: 0.8),
+                        color: imageColor.withOpacity(0.8),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
@@ -881,7 +881,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                       fontWeight: FontWeight.w800,
                       shadows: [
                         Shadow(
-                          color: Colors.black.withValues(alpha: 0.5),
+                          color: Colors.black.withOpacity(0.5),
                           offset: const Offset(0, 2),
                           blurRadius: 4,
                         ),
@@ -896,7 +896,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                       Text(
                         _formatCompact(idol.totalSupport),
                         style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.9),
+                          color: Colors.white.withOpacity(0.9),
                           fontSize: Responsive.sp(13),
                           fontWeight: FontWeight.w600,
                         ),
@@ -1090,7 +1090,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                             Container(
                               padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.2),
+                                color: Colors.white.withOpacity(0.2),
                                 borderRadius: BorderRadius.circular(14),
                               ),
                               child: Icon(
@@ -1115,7 +1115,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                             Text(
                               service['subtitle'] as String,
                               style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.9),
+                                color: Colors.white.withOpacity(0.9),
                                 fontSize: Responsive.sp(12),
                                 height: 1.3,
                               ),
@@ -1206,9 +1206,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
           vertical: Responsive.hp(1.5),
         ),
         decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
+          color: color.withOpacity(0.1),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withValues(alpha: 0.3)),
+          border: Border.all(color: color.withOpacity(0.3)),
         ),
         child: Column(
           children: [

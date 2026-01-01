@@ -248,7 +248,7 @@ class _GradientButtonState extends State<GradientButton>
                     ? [
                         BoxShadow(
                           color: AppColors.primary
-                              .withValues(alpha: _glowAnimation.value),
+                              .withOpacity(_glowAnimation.value),
                           blurRadius: 20,
                           offset: const Offset(0, 8),
                           spreadRadius: -4,

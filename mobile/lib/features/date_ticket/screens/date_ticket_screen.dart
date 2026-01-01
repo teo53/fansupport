@@ -106,15 +106,15 @@ class _DateTicketScreenState extends ConsumerState<DateTicketScreen> {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppColors.neonPink.withValues(alpha: 0.1),
-              AppColors.neonPurple.withValues(alpha: 0.1),
+              AppColors.neonPink.withOpacity(0.1),
+              AppColors.neonPurple.withOpacity(0.1),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: AppColors.neonPink.withValues(alpha: 0.3),
+            color: AppColors.neonPink.withOpacity(0.3),
             width: 1,
           ),
         ),
@@ -165,7 +165,7 @@ class _DateTicketScreenState extends ConsumerState<DateTicketScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.7),
+                color: Colors.white.withOpacity(0.7),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
@@ -331,8 +331,8 @@ class _DateTicketScreenState extends ConsumerState<DateTicketScreen> {
                         ),
                         decoration: BoxDecoration(
                           color: product.type == DateTicketType.meal
-                              ? AppColors.warning.withValues(alpha: 0.1)
-                              : AppColors.info.withValues(alpha: 0.1),
+                              ? AppColors.warning.withOpacity(0.1)
+                              : AppColors.info.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Row(

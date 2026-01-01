@@ -721,7 +721,7 @@ class _IdolRegistrationScreenState extends ConsumerState<IdolRegistrationScreen>
           width: 44,
           height: 44,
           decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.1),
+            color: color.withOpacity(0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(icon, color: color, size: Responsive.sp(22)),
@@ -858,7 +858,7 @@ class _IdolRegistrationScreenState extends ConsumerState<IdolRegistrationScreen>
             activeTrackColor: AppColors.primary,
             inactiveTrackColor: AppColors.border,
             thumbColor: AppColors.primary,
-            overlayColor: AppColors.primary.withValues(alpha: 0.2),
+            overlayColor: AppColors.primary.withOpacity(0.2),
           ),
           child: Slider(
             value: value.toDouble(),
@@ -929,7 +929,7 @@ class _IdolRegistrationScreenState extends ConsumerState<IdolRegistrationScreen>
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, -5),
           ),

@@ -70,7 +70,7 @@ class AppTheme {
       ),
 
       // Card Theme
-      cardTheme: CardThemeData(
+      cardTheme: CardTheme(
         color: Colors.white,
         elevation: 0,
         shadowColor: Colors.black.withOpacity(0.05),
@@ -332,7 +332,7 @@ class AppTheme {
           fontSize: 15,
         ),
       ),
-      cardTheme: CardThemeData(
+      cardTheme: CardTheme(
         color: AppColors.darkSurface,
         elevation: 0,
         shape: RoundedRectangleBorder(

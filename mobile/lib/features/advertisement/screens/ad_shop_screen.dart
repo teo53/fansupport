@@ -176,7 +176,7 @@ class _AdShopScreenState extends ConsumerState<AdShopScreen>
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: AppColors.secondary.withValues(alpha: 0.3),
+            color: AppColors.secondary.withOpacity(0.3),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -192,7 +192,7 @@ class _AdShopScreenState extends ConsumerState<AdShopScreen>
               width: 100,
               height: 100,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.1),
+                color: Colors.white.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
             ),
@@ -205,7 +205,7 @@ class _AdShopScreenState extends ConsumerState<AdShopScreen>
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
+                      color: Colors.white.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
@@ -237,7 +237,7 @@ class _AdShopScreenState extends ConsumerState<AdShopScreen>
                 '강남역, 홍대입구, 삼성역 등 주요 지역',
                 style: TextStyle(
                   fontSize: Responsive.sp(13),
-                  color: Colors.white.withValues(alpha: 0.8),
+                  color: Colors.white.withOpacity(0.8),
                   fontFamily: 'Pretendard',
                 ),
               ),
@@ -475,19 +475,19 @@ class _AdShopScreenState extends ConsumerState<AdShopScreen>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppColors.info.withValues(alpha: 0.1),
-                AppColors.primary.withValues(alpha: 0.1),
+                AppColors.info.withOpacity(0.1),
+                AppColors.primary.withOpacity(0.1),
               ],
             ),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.info.withValues(alpha: 0.3)),
+            border: Border.all(color: AppColors.info.withOpacity(0.3)),
           ),
           child: Row(
             children: [
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: AppColors.info.withValues(alpha: 0.2),
+                  color: AppColors.info.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(Icons.groups_rounded, color: AppColors.info, size: 24),

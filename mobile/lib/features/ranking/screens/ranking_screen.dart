@@ -116,7 +116,7 @@ class RankingScreen extends ConsumerWidget {
               ),
               boxShadow: [
                 BoxShadow(
-                  color: colors[tier]!.withValues(alpha: 0.3),
+                  color: colors[tier]!.withOpacity(0.3),
                   blurRadius: 12,
                   spreadRadius: 2,
                 ),
@@ -170,7 +170,7 @@ class RankingScreen extends ConsumerWidget {
           Text(
             '${_formatNumber(idol.totalSupport)} P',
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.8),
+              color: Colors.white.withOpacity(0.8),
               fontSize: Responsive.sp(12),
             ),
           ),

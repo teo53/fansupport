@@ -70,7 +70,7 @@ class _MainScreenState extends State<MainScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
+            color: Colors.black.withOpacity(0.06),
             blurRadius: 20,
             offset: const Offset(0, -4),
           ),
@@ -153,7 +153,7 @@ class _MainScreenState extends State<MainScreen> {
                 ),
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? AppColors.primary.withValues(alpha: 0.1)
+                      ? AppColors.primary.withOpacity(0.1)
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(20),
                 ),
@@ -203,15 +203,15 @@ class _MainScreenState extends State<MainScreen> {
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          AppColors.primary.withValues(alpha: 0.8),
-                          AppColors.secondary.withValues(alpha: 0.8),
+                          AppColors.primary.withOpacity(0.8),
+                          AppColors.secondary.withOpacity(0.8),
                         ],
                       ),
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
                     color: AppColors.primary
-                        .withValues(alpha: isSelected ? 0.4 : 0.25),
+                        .withOpacity(isSelected ? 0.4 : 0.25),
                     blurRadius: isSelected ? 16 : 12,
                     offset: const Offset(0, 4),
                     spreadRadius: isSelected ? 0 : -2,
@@ -230,9 +230,9 @@ class _MainScreenState extends State<MainScreen> {
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                           colors: [
-                            Colors.white.withValues(alpha: 0.25),
+                            Colors.white.withOpacity(0.25),
                             Colors.transparent,
-                            Colors.white.withValues(alpha: 0.1),
+                            Colors.white.withOpacity(0.1),
                           ],
                         ),
                       ),

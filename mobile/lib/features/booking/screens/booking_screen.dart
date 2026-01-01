@@ -117,7 +117,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                       shape: BoxShape.circle,
                     ),
                     todayDecoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.3),
+                      color: AppColors.primary.withOpacity(0.3),
                       shape: BoxShape.circle,
                     ),
                     defaultTextStyle: TextStyle(fontSize: Responsive.sp(14)),
@@ -317,7 +317,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                 width: Responsive.wp(12),
                 height: Responsive.wp(12),
                 decoration: BoxDecoration(
-                  color: AppColors.maidCategory.withValues(alpha: 0.1),
+                  color: AppColors.maidCategory.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
@@ -387,7 +387,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
               width: Responsive.wp(14),
               height: Responsive.wp(14),
               decoration: BoxDecoration(
-                color: AppColors.success.withValues(alpha: 0.1),
+                color: AppColors.success.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Column(
@@ -440,7 +440,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                 vertical: Responsive.hp(0.5),
               ),
               decoration: BoxDecoration(
-                color: AppColors.success.withValues(alpha: 0.1),
+                color: AppColors.success.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Text(
@@ -528,7 +528,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
               decoration: BoxDecoration(
                 color:
                     (isCompleted ? AppColors.textSecondary : AppColors.success)
-                        .withValues(alpha: 0.1),
+                        .withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
@@ -569,7 +569,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
               decoration: BoxDecoration(
                 color:
                     (isCompleted ? AppColors.textSecondary : AppColors.success)
-                        .withValues(alpha: 0.1),
+                        .withOpacity(0.1),
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Text(
@@ -674,7 +674,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
               width: Responsive.wp(20),
               height: Responsive.wp(20),
               decoration: BoxDecoration(
-                color: AppColors.success.withValues(alpha: 0.1),
+                color: AppColors.success.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
