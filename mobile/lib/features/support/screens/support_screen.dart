@@ -19,16 +19,56 @@ class SupportScreen extends ConsumerStatefulWidget {
 }
 
 class _SupportScreenState extends ConsumerState<SupportScreen> {
-  int _selectedAmount = 5000;
+  int _selectedAmount = 0;
+  String? _selectedGiftName;
   final _messageController = TextEditingController();
-  bool _isAnonymous = false;
   bool _isLoading = false;
 
-  final _presetAmounts = [1000, 3000, 5000, 10000, 30000, 50000];
+  Widget _buildGiftCard(String name, int price, String emoji) {
+    final isSelected = _selectedGiftName == name;
+    final user = ref.read(currentUserProvider);
+    final canAfford = (user?.walletBalance ?? 0) >= price;
+
+    return InkWell(
+      onTap: canAfford
+          ? () => setState(() {
+                _selectedAmount = price;
+                _selectedGiftName = name;
+              })
+          : null,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.primary.withOpacity(0.1) : Colors.white,
+          border: Border.all(
+            color: isSelected ? AppColors.primary : Colors.grey[300]!,
+            width: isSelected ? 2 : 1,
+          ),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(emoji, style: const TextStyle(fontSize: 32)),
+            const SizedBox(height: 8),
+            Text(name,
+                style: TextStyle(
+                    fontWeight: FontWeight.bold, fontSize: Responsive.sp(13))),
+            const SizedBox(height: 4),
+            Text('￦${_formatNumber(price)}',
+                style: TextStyle(
+                    color: canAfford ? Colors.black54 : Colors.red,
+                    fontSize: Responsive.sp(12))),
+          ],
+        ),
+      ),
+    );
+  }
 
   Map<String, dynamic>? get _idol {
     try {
-      return MockData.idols.firstWhere((idol) => idol['id'] == widget.receiverId);
+      return MockData.idols
+          .firstWhere((idol) => idol['id'] == widget.receiverId);
     } catch (e) {
       return MockData.idols.first;
     }
@@ -69,7 +109,8 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
             // Receiver Info
             Card(
               elevation: 2,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
               child: Padding(
                 padding: EdgeInsets.all(Responsive.wp(4)),
                 child: Row(
@@ -97,7 +138,9 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
                               ),
                               SizedBox(width: Responsive.wp(1)),
                               if (idol?['isVerified'] ?? false)
-                                Icon(Icons.verified, size: Responsive.sp(18), color: AppColors.primary),
+                                Icon(Icons.verified,
+                                    size: Responsive.sp(18),
+                                    color: AppColors.primary),
                             ],
                           ),
                           SizedBox(height: Responsive.hp(0.5)),
@@ -117,67 +160,30 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
             ),
             SizedBox(height: Responsive.hp(3)),
 
-            // Amount Selection
+            // Gift Selection
             Text(
-              '후원 금액',
+              '선물 보내기',
               style: TextStyle(
                 fontSize: Responsive.sp(16),
                 fontWeight: FontWeight.w600,
               ),
             ),
             SizedBox(height: Responsive.hp(1.5)),
-            Wrap(
-              spacing: Responsive.wp(2),
-              runSpacing: Responsive.hp(1),
-              children: _presetAmounts.map((amount) {
-                final isSelected = _selectedAmount == amount;
-                final canAfford = walletBalance >= amount;
-                return InkWell(
-                  onTap: canAfford ? () => setState(() => _selectedAmount = amount) : null,
-                  borderRadius: BorderRadius.circular(12),
-                  child: Container(
-                    width: (Responsive.screenWidth - Responsive.wp(14)) / 3,
-                    padding: EdgeInsets.symmetric(vertical: Responsive.hp(2)),
-                    decoration: BoxDecoration(
-                      color: isSelected ? AppColors.primary : null,
-                      border: Border.all(
-                        color: isSelected
-                            ? AppColors.primary
-                            : canAfford
-                                ? AppColors.border
-                                : AppColors.border.withOpacity(0.5),
-                      ),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Column(
-                      children: [
-                        Icon(
-                          Icons.favorite,
-                          color: isSelected
-                              ? Colors.white
-                              : canAfford
-                                  ? AppColors.primary
-                                  : AppColors.textHint,
-                          size: Responsive.sp(24),
-                        ),
-                        SizedBox(height: Responsive.hp(1)),
-                        Text(
-                          '￦${_formatNumber(amount)}',
-                          style: TextStyle(
-                            color: isSelected
-                                ? Colors.white
-                                : canAfford
-                                    ? AppColors.textPrimary
-                                    : AppColors.textHint,
-                            fontWeight: FontWeight.w600,
-                            fontSize: Responsive.sp(13),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              }).toList(),
+            GridView.count(
+              crossAxisCount: 3,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              mainAxisSpacing: Responsive.wp(2),
+              crossAxisSpacing: Responsive.wp(2),
+              childAspectRatio: 0.75,
+              children: [
+                _buildGiftCard('조각 케이크', 1000, '🍰'),
+                _buildGiftCard('홀 케이크', 30000, '🎂'),
+                _buildGiftCard('케이크 타워', 100000, '🏰'),
+                _buildGiftCard('장미 꽃다발', 5000, '🌹'),
+                _buildGiftCard('샴페인', 50000, '🍾'),
+                _buildGiftCard('명품 가방', 500000, '👜'),
+              ],
             ),
             SizedBox(height: Responsive.hp(3)),
 
@@ -185,73 +191,72 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
             CustomTextField(
               controller: _messageController,
               label: '응원 메시지 (선택)',
-              hintText: '응원의 한마디를 남겨주세요',
+              hintText: '선물과 함께 보낼 메시지를 작성하세요',
               maxLines: 3,
             ),
             SizedBox(height: Responsive.hp(2)),
 
-            // Anonymous Option
-            CheckboxListTile(
-              value: _isAnonymous,
-              onChanged: (value) => setState(() => _isAnonymous = value ?? false),
-              title: Text('익명으로 후원하기', style: TextStyle(fontSize: Responsive.sp(14))),
-              subtitle: Text('닉네임이 공개되지 않습니다', style: TextStyle(fontSize: Responsive.sp(12))),
-              activeColor: AppColors.primary,
-              contentPadding: EdgeInsets.zero,
-              controlAffinity: ListTileControlAffinity.leading,
-            ),
-            SizedBox(height: Responsive.hp(3)),
-
             // Summary
-            Container(
-              padding: EdgeInsets.all(Responsive.wp(4)),
-              decoration: BoxDecoration(
-                color: AppColors.inputBackground,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('후원 금액', style: TextStyle(fontSize: Responsive.sp(14))),
-                      Text('￦${_formatNumber(_selectedAmount)}', style: TextStyle(fontSize: Responsive.sp(14))),
-                    ],
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: Responsive.hp(1.5)),
-                    child: const Divider(),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        '총 결제 금액',
-                        style: TextStyle(fontSize: Responsive.sp(16), fontWeight: FontWeight.w600),
-                      ),
-                      Text(
-                        '￦${_formatNumber(_selectedAmount)}',
-                        style: TextStyle(
-                          fontSize: Responsive.sp(20),
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.bold,
+            if (_selectedGiftName != null)
+              Container(
+                padding: EdgeInsets.all(Responsive.wp(4)),
+                decoration: BoxDecoration(
+                  color: AppColors.inputBackground,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('선택한 선물',
+                            style: TextStyle(fontSize: Responsive.sp(14))),
+                        Text(_selectedGiftName!,
+                            style: TextStyle(
+                                fontSize: Responsive.sp(14),
+                                fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                    Padding(
+                      padding:
+                          EdgeInsets.symmetric(vertical: Responsive.hp(1.5)),
+                      child: const Divider(),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '결제 금액',
+                          style: TextStyle(
+                              fontSize: Responsive.sp(16),
+                              fontWeight: FontWeight.w600),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                        Text(
+                          '￦${_formatNumber(_selectedAmount)}',
+                          style: TextStyle(
+                            fontSize: Responsive.sp(20),
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
             SizedBox(height: Responsive.hp(3)),
 
             // Support Button
             GradientButton(
-              onPressed: walletBalance >= _selectedAmount ? () => _handleSupport(context) : null,
+              onPressed: walletBalance >= _selectedAmount
+                  ? () => _handleSupport(context)
+                  : null,
               isLoading: _isLoading,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.favorite, color: Colors.white, size: Responsive.sp(20)),
+                  Icon(Icons.favorite,
+                      color: Colors.white, size: Responsive.sp(20)),
                   SizedBox(width: Responsive.wp(2)),
                   Text(
                     '후원하기',
@@ -274,21 +279,26 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
                   Icon(
                     Icons.account_balance_wallet,
                     size: Responsive.sp(16),
-                    color: walletBalance >= _selectedAmount ? AppColors.textSecondary : AppColors.error,
+                    color: walletBalance >= _selectedAmount
+                        ? AppColors.textSecondary
+                        : AppColors.error,
                   ),
                   SizedBox(width: Responsive.wp(1)),
                   Text(
                     '보유 코인: ￦${_formatNumber(walletBalance)}',
                     style: TextStyle(
                       fontSize: Responsive.sp(13),
-                      color: walletBalance >= _selectedAmount ? AppColors.textSecondary : AppColors.error,
+                      color: walletBalance >= _selectedAmount
+                          ? AppColors.textSecondary
+                          : AppColors.error,
                     ),
                   ),
                   if (walletBalance < _selectedAmount) ...[
                     SizedBox(width: Responsive.wp(2)),
                     TextButton(
                       onPressed: () => context.go('/wallet'),
-                      child: Text('충전하기', style: TextStyle(fontSize: Responsive.sp(13))),
+                      child: Text('충전하기',
+                          style: TextStyle(fontSize: Responsive.sp(13))),
                     ),
                   ],
                 ],
@@ -312,7 +322,9 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
     await Future.delayed(const Duration(seconds: 1));
 
     final currentBalance = ref.read(currentUserProvider)?.walletBalance ?? 0;
-    ref.read(authStateProvider.notifier).updateWalletBalance(currentBalance - _selectedAmount);
+    ref
+        .read(authStateProvider.notifier)
+        .updateWalletBalance(currentBalance - _selectedAmount);
 
     setState(() => _isLoading = false);
     if (!mounted) return;
@@ -332,18 +344,21 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
                 color: AppColors.success.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.check_circle, color: AppColors.success, size: Responsive.sp(50)),
+              child: Icon(Icons.check_circle,
+                  color: AppColors.success, size: Responsive.sp(50)),
             ),
             SizedBox(height: Responsive.hp(3)),
             Text(
               '후원 완료!',
-              style: TextStyle(fontSize: Responsive.sp(22), fontWeight: FontWeight.bold),
+              style: TextStyle(
+                  fontSize: Responsive.sp(22), fontWeight: FontWeight.bold),
             ),
             SizedBox(height: Responsive.hp(1)),
             Text(
               '${_idol?['stageName'] ?? '아이돌'}님께\n소중한 마음이 전달되었습니다',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: Responsive.sp(14), color: AppColors.textSecondary),
+              style: TextStyle(
+                  fontSize: Responsive.sp(14), color: AppColors.textSecondary),
             ),
             SizedBox(height: Responsive.hp(3)),
             CustomButton(

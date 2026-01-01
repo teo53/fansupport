@@ -23,7 +23,8 @@ class Responsive {
 
   static void init(BuildContext context) {
     _mediaQueryData = MediaQuery.of(context);
-    screenWidth = _mediaQueryData.size.width;
+    screenWidth =
+        _mediaQueryData.size.width > 480 ? 480 : _mediaQueryData.size.width;
     screenHeight = _mediaQueryData.size.height;
     blockSizeHorizontal = screenWidth / 100;
     blockSizeVertical = screenHeight / 100;
@@ -92,7 +93,8 @@ class Responsive {
   static double hp(double percentage) => screenHeight * (percentage / 100);
 
   /// 안전 영역 기준 너비 퍼센트
-  static double swp(double percentage) => safeAreaHorizontal * (percentage / 100);
+  static double swp(double percentage) =>
+      safeAreaHorizontal * (percentage / 100);
 
   /// 안전 영역 기준 높이 퍼센트
   static double shp(double percentage) => safeAreaVertical * (percentage / 100);

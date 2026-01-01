@@ -1,0 +1,34 @@
+Running Gradle task 'assembleDebug'...                          
+Checking the license for package NDK (Side by side) 28.2.13676358 in C:\Users\mapdr\AppData\Local\Android\Sdk\licenses
+License for package NDK (Side by side) 28.2.13676358 accepted.
+Preparing "Install NDK (Side by side) 28.2.13676358 v.28.2.13676358".
+"Install NDK (Side by side) 28.2.13676358 v.28.2.13676358" ready.
+Installing NDK (Side by side) 28.2.13676358 in C:\Users\mapdr\AppData\Local\Android\Sdk\ndk\28.2.13676358
+"Install NDK (Side by side) 28.2.13676358 v.28.2.13676358" complete.
+"Install NDK (Side by side) 28.2.13676358 v.28.2.13676358" finished.
+
+
+Target debug_android_application failed: ShaderCompilerException: Shader compilation of "C:\flutter\packages\flutter\lib\src\material\shaders\stretch_effect.frag" to "C:\Users\mapdr\OneDrive\바탕 화면\fansupport-main\mobile\build\app\intermediates\flutter\debug\flutter_assets\shaders/stretch_effect.frag" failed with exit code -1073741819.
+impellerc stdout:
+
+impellerc stderr:
+
+
+
+
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:compileFlutterBuildDebug'.
+> Process 'command 'C:\flutter\bin\flutter.bat'' finished with non-zero exit value 1
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 1m 55s
+Running Gradle task 'assembleDebug'...                            115.8s
+Gradle task assembleDebug failed with exit code 1

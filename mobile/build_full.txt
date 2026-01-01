@@ -1,0 +1,43 @@
+Running Gradle task 'assembleDebug'...                          
+Your project is configured with Android NDK 27.0.12077973, but the following plugin(s) depend on a different Android NDK version:
+- integration_test requires Android NDK 28.2.13676358
+Fix this issue by using the highest Android NDK version (they are backward compatible).
+Add the following to C:\Users\mapdr\OneDrive\바탕 화면\fansupport-main\mobile\android\app\build.gradle.kts:
+
+    android {
+        ndkVersion = "28.2.13676358"
+        ...
+    }
+Checking the license for package Android SDK Platform 34 in C:\Users\mapdr\AppData\Local\Android\Sdk\licenses
+License for package Android SDK Platform 34 accepted.
+Preparing "Install Android SDK Platform 34 (revision 3)".
+"Install Android SDK Platform 34 (revision 3)" ready.
+Installing Android SDK Platform 34 in C:\Users\mapdr\AppData\Local\Android\Sdk\platforms\android-34
+"Install Android SDK Platform 34 (revision 3)" complete.
+"Install Android SDK Platform 34 (revision 3)" finished.
+
+
+Target debug_android_application failed: ShaderCompilerException: Shader compilation of "C:\flutter\packages\flutter\lib\src\material\shaders\ink_sparkle.frag" to "C:\Users\mapdr\OneDrive\바탕 화면\fansupport-main\mobile\build\app\intermediates\flutter\debug\flutter_assets\shaders/ink_sparkle.frag" failed with exit code -1073741819.
+impellerc stdout:
+
+impellerc stderr:
+
+
+
+
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:compileFlutterBuildDebug'.
+> Process 'command 'C:\flutter\bin\flutter.bat'' finished with non-zero exit value 1
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 34s
+Running Gradle task 'assembleDebug'...                             35.2s
+Gradle task assembleDebug failed with exit code 1

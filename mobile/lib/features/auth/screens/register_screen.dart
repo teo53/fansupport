@@ -83,7 +83,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: AppColors.error.withOpacity(0.1),
+                      color: AppColors.error.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
@@ -245,7 +245,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
                 // Register Button
                 CustomButton(
-                  onPressed: isLoading || !_agreeToTerms ? null : _handleRegister,
+                  onPressed:
+                      isLoading || !_agreeToTerms ? null : _handleRegister,
                   isLoading: isLoading,
                   child: const Text('회원가입'),
                 ),

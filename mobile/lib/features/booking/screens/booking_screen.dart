@@ -27,9 +27,24 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
   ];
 
   final _timeSlots = [
-    '11:00', '11:30', '12:00', '12:30', '13:00', '13:30',
-    '14:00', '14:30', '15:00', '15:30', '16:00', '16:30',
-    '17:00', '17:30', '18:00', '18:30', '19:00', '19:30',
+    '11:00',
+    '11:30',
+    '12:00',
+    '12:30',
+    '13:00',
+    '13:30',
+    '14:00',
+    '14:30',
+    '15:00',
+    '15:30',
+    '16:00',
+    '16:30',
+    '17:00',
+    '17:30',
+    '18:00',
+    '18:30',
+    '19:00',
+    '19:30',
   ];
 
   @override
@@ -76,7 +91,8 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
             ),
             SizedBox(height: Responsive.hp(1.5)),
             Card(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
               child: Padding(
                 padding: EdgeInsets.all(Responsive.wp(2)),
                 child: TableCalendar(
@@ -101,7 +117,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                       shape: BoxShape.circle,
                     ),
                     todayDecoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.3),
+                      color: AppColors.primary.withValues(alpha: 0.3),
                       shape: BoxShape.circle,
                     ),
                     defaultTextStyle: TextStyle(fontSize: Responsive.sp(14)),
@@ -146,7 +162,8 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                     borderRadius: BorderRadius.circular(8),
                     child: Container(
                       width: (Responsive.screenWidth - Responsive.wp(14)) / 4,
-                      padding: EdgeInsets.symmetric(vertical: Responsive.hp(1.5)),
+                      padding:
+                          EdgeInsets.symmetric(vertical: Responsive.hp(1.5)),
                       decoration: BoxDecoration(
                         color: isSelected
                             ? AppColors.primary
@@ -171,8 +188,9 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                                 : isAvailable
                                     ? AppColors.textPrimary
                                     : AppColors.textHint,
-                            fontWeight:
-                                isSelected ? FontWeight.w600 : FontWeight.normal,
+                            fontWeight: isSelected
+                                ? FontWeight.w600
+                                : FontWeight.normal,
                             fontSize: Responsive.sp(13),
                           ),
                         ),
@@ -194,7 +212,8 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
             ),
             SizedBox(height: Responsive.hp(1.5)),
             Card(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
               child: Padding(
                 padding: EdgeInsets.symmetric(
                   horizontal: Responsive.wp(4),
@@ -207,11 +226,15 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                       onPressed: _numberOfGuests > 1
                           ? () => setState(() => _numberOfGuests--)
                           : null,
-                      icon: Icon(Icons.remove_circle_outline, size: Responsive.sp(28)),
-                      color: _numberOfGuests > 1 ? AppColors.primary : AppColors.textHint,
+                      icon: Icon(Icons.remove_circle_outline,
+                          size: Responsive.sp(28)),
+                      color: _numberOfGuests > 1
+                          ? AppColors.primary
+                          : AppColors.textHint,
                     ),
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: Responsive.wp(4)),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: Responsive.wp(4)),
                       child: Text(
                         '$_numberOfGuests명',
                         style: TextStyle(
@@ -224,8 +247,11 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                       onPressed: _numberOfGuests < 10
                           ? () => setState(() => _numberOfGuests++)
                           : null,
-                      icon: Icon(Icons.add_circle_outline, size: Responsive.sp(28)),
-                      color: _numberOfGuests < 10 ? AppColors.primary : AppColors.textHint,
+                      icon: Icon(Icons.add_circle_outline,
+                          size: Responsive.sp(28)),
+                      color: _numberOfGuests < 10
+                          ? AppColors.primary
+                          : AppColors.textHint,
                     ),
                   ],
                 ),
@@ -291,7 +317,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                 width: Responsive.wp(12),
                 height: Responsive.wp(12),
                 decoration: BoxDecoration(
-                  color: AppColors.maidCategory.withOpacity(0.1),
+                  color: AppColors.maidCategory.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
@@ -323,7 +349,8 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                     SizedBox(height: Responsive.hp(0.5)),
                     Row(
                       children: [
-                        Icon(Icons.star, color: AppColors.gold, size: Responsive.sp(14)),
+                        Icon(Icons.star,
+                            color: AppColors.gold, size: Responsive.sp(14)),
                         SizedBox(width: Responsive.wp(1)),
                         Text(
                           '${cafe['rating']}',
@@ -337,11 +364,10 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                   ],
                 ),
               ),
-              Radio<String>(
-                value: cafe['name'] as String,
-                groupValue: _selectedCafe,
-                onChanged: (value) => setState(() => _selectedCafe = value),
-                activeColor: AppColors.primary,
+              Icon(
+                isSelected ? Icons.check_circle : Icons.radio_button_unchecked,
+                color: isSelected ? AppColors.primary : AppColors.textHint,
+                size: Responsive.sp(24),
               ),
             ],
           ),
@@ -361,7 +387,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
               width: Responsive.wp(14),
               height: Responsive.wp(14),
               decoration: BoxDecoration(
-                color: AppColors.success.withOpacity(0.1),
+                color: AppColors.success.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Column(
@@ -414,7 +440,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                 vertical: Responsive.hp(0.5),
               ),
               decoration: BoxDecoration(
-                color: AppColors.success.withOpacity(0.1),
+                color: AppColors.success.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Text(
@@ -472,9 +498,12 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
               child: ListView(
                 padding: EdgeInsets.symmetric(horizontal: Responsive.wp(4)),
                 children: [
-                  _buildBookingHistoryItem('사쿠라 메이드카페', '2025.01.20', '14:00', 2, '확정'),
-                  _buildBookingHistoryItem('네코 메이드카페', '2025.01.15', '15:30', 3, '완료'),
-                  _buildBookingHistoryItem('프린세스 코스프레 카페', '2025.01.10', '13:00', 2, '완료'),
+                  _buildBookingHistoryItem(
+                      '사쿠라 메이드카페', '2025.01.20', '14:00', 2, '확정'),
+                  _buildBookingHistoryItem(
+                      '네코 메이드카페', '2025.01.15', '15:30', 3, '완료'),
+                  _buildBookingHistoryItem(
+                      '프린세스 코스프레 카페', '2025.01.10', '13:00', 2, '완료'),
                 ],
               ),
             ),
@@ -484,7 +513,8 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
     );
   }
 
-  Widget _buildBookingHistoryItem(String cafe, String date, String time, int guests, String status) {
+  Widget _buildBookingHistoryItem(
+      String cafe, String date, String time, int guests, String status) {
     final isCompleted = status == '완료';
     return Card(
       margin: EdgeInsets.only(bottom: Responsive.hp(1.5)),
@@ -496,12 +526,15 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
               width: Responsive.wp(12),
               height: Responsive.wp(12),
               decoration: BoxDecoration(
-                color: (isCompleted ? AppColors.textSecondary : AppColors.success).withOpacity(0.1),
+                color:
+                    (isCompleted ? AppColors.textSecondary : AppColors.success)
+                        .withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
                 Icons.local_cafe,
-                color: isCompleted ? AppColors.textSecondary : AppColors.success,
+                color:
+                    isCompleted ? AppColors.textSecondary : AppColors.success,
                 size: Responsive.sp(24),
               ),
             ),
@@ -534,13 +567,16 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                 vertical: Responsive.hp(0.5),
               ),
               decoration: BoxDecoration(
-                color: (isCompleted ? AppColors.textSecondary : AppColors.success).withOpacity(0.1),
+                color:
+                    (isCompleted ? AppColors.textSecondary : AppColors.success)
+                        .withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Text(
                 status,
                 style: TextStyle(
-                  color: isCompleted ? AppColors.textSecondary : AppColors.success,
+                  color:
+                      isCompleted ? AppColors.textSecondary : AppColors.success,
                   fontSize: Responsive.sp(11),
                   fontWeight: FontWeight.w600,
                 ),
@@ -579,7 +615,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
-              _handleBooking(context);
+              _handleBooking();
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
@@ -616,16 +652,16 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
     );
   }
 
-  void _handleBooking(BuildContext context) async {
+  Future<void> _handleBooking() async {
     setState(() => _isLoading = true);
     await Future.delayed(const Duration(seconds: 1));
     setState(() => _isLoading = false);
 
     if (!mounted) return;
-    _showSuccessDialog(context);
+    _showSuccessDialog();
   }
 
-  void _showSuccessDialog(BuildContext context) {
+  void _showSuccessDialog() {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -638,7 +674,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
               width: Responsive.wp(20),
               height: Responsive.wp(20),
               decoration: BoxDecoration(
-                color: AppColors.success.withOpacity(0.1),
+                color: AppColors.success.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(

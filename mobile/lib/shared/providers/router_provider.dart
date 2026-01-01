@@ -20,6 +20,10 @@ import '../../features/bubble/screens/bubble_list_screen.dart';
 import '../../features/date_ticket/screens/date_ticket_screen.dart';
 import '../../features/advertisement/screens/ad_shop_screen.dart';
 import '../../features/crm/screens/idol_registration_screen.dart';
+import '../../features/agency/screens/agency_dashboard_screen.dart';
+import '../../features/idol/screens/idol_dashboard_screen.dart';
+import '../../features/message/screens/message_creation_screen.dart';
+import '../../shared/models/idol_model.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authStateProvider);
@@ -118,6 +122,20 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/crm/register-idol',
             builder: (context, state) => const IdolRegistrationScreen(),
+          ),
+          GoRoute(
+            path: '/agency',
+            builder: (context, state) => const AgencyDashboardScreen(),
+          ),
+          GoRoute(
+            path: '/idol/dashboard',
+            builder: (context, state) =>
+                IdolDashboardScreen(idol: state.extra as IdolModel),
+          ),
+          GoRoute(
+            path: '/message/create',
+            builder: (context, state) =>
+                MessageCreationScreen(idol: state.extra as IdolModel),
           ),
         ],
       ),

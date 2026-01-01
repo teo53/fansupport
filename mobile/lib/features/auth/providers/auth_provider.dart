@@ -74,10 +74,35 @@ class AuthNotifier extends Notifier<AsyncValue<AuthState>> {
     }
   }
 
-  Future<void> loginAsDemo() async {
+  Future<void> loginAsDemo([String? role]) async {
     state = const AsyncValue.data(AuthState(isLoading: true));
     await Future.delayed(const Duration(milliseconds: 800));
-    state = AsyncValue.data(AuthState(user: MockData.demoUser));
+
+    if (role == 'IDOL') {
+      final idolUser = User(
+        id: 'idol_demo',
+        email: 'idol@demo.com',
+        nickname: '데모 아이돌',
+        profileImage: 'https://i.pravatar.cc/150?img=5',
+        role: 'IDOL',
+        isVerified: true,
+        walletBalance: 0,
+      );
+      state = AsyncValue.data(AuthState(user: idolUser));
+    } else if (role == 'AGENCY') {
+      final agencyUser = User(
+        id: 'agency_demo',
+        email: 'agency@demo.com',
+        nickname: '데모 소속사',
+        profileImage: null,
+        role: 'AGENCY',
+        isVerified: true,
+        walletBalance: 0,
+      );
+      state = AsyncValue.data(AuthState(user: agencyUser));
+    } else {
+      state = AsyncValue.data(AuthState(user: MockData.demoUser));
+    }
   }
 
   Future<void> logout() async {

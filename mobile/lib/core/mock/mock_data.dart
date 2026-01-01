@@ -25,6 +25,8 @@ class MockData {
       realName: '김서연',
       category: IdolCategory.undergroundIdol,
       agencyName: '스타라이트 엔터테인먼트',
+      groupName: null,
+      imageColor: '0xFFE91E63', // Pink
       profileImage: 'https://i.pravatar.cc/300?img=5',
       coverImage: 'https://picsum.photos/seed/cover1/800/400',
       bio: '데뷔 2년차 솔로 아이돌\n좋아하는 것: 노래, 춤, 팬분들\n꿈: 더 많은 분들께 행복을 전하기',
@@ -91,6 +93,8 @@ class MockData {
       stageName: '미유',
       category: IdolCategory.maidCafe,
       agencyName: 'StarLight Cafe',
+      groupName: 'StarLight Cafe',
+      imageColor: '0xFFFFD54F', // Yellow
       profileImage: 'https://i.pravatar.cc/300?img=9',
       coverImage: 'https://picsum.photos/seed/cover2/800/400',
       bio: '메이드 카페 근무 3년차\n취미: 코스프레, 게임\n특기: 라떼아트, 오믈렛 라이스',
@@ -145,6 +149,8 @@ class MockData {
       stageName: '루나',
       category: IdolCategory.undergroundIdol,
       agencyName: 'MoonLight Entertainment',
+      groupName: 'MoonLight',
+      imageColor: '0xFF5C6BC0', // Indigo
       profileImage: 'https://i.pravatar.cc/300?img=10',
       coverImage: 'https://picsum.photos/seed/cover3/800/400',
       bio: '그룹 MoonLight 멤버\n포지션: 메인보컬\n좋아하는 음식: 마카롱',
@@ -201,6 +207,8 @@ class MockData {
       id: 'idol-004',
       stageName: '사쿠라',
       category: IdolCategory.cosplayer,
+      groupName: null,
+      imageColor: '0xFFF48FB1', // Sakura Pink
       profileImage: 'https://i.pravatar.cc/300?img=20',
       coverImage: 'https://picsum.photos/seed/cover4/800/400',
       bio: '코스프레 경력 5년\n최애 작품: 마법소녀\n다음 코스프레: 비밀!',
@@ -248,6 +256,8 @@ class MockData {
       id: 'idol-005',
       stageName: '유키',
       category: IdolCategory.vtuber,
+      groupName: 'VirtuaLive',
+      imageColor: '0xFF00E5FF', // Cyan
       profileImage: 'https://i.pravatar.cc/300?img=25',
       coverImage: 'https://picsum.photos/seed/cover5/800/400',
       bio: '데뷔 1년차 VTuber\n주 콘텐츠: 게임, 노래\n구독자 수: 50,000+',
@@ -292,6 +302,8 @@ class MockData {
       id: 'idol-006',
       stageName: '아리',
       category: IdolCategory.undergroundIdol,
+      groupName: 'NewStar',
+      imageColor: '0xFF69F0AE', // Mint
       profileImage: 'https://i.pravatar.cc/300?img=32',
       bio: '데뷔 6개월차\n연습생 기간: 1년\n목표: 첫 단독 콘서트',
       description: '꿈을 향해 달려가는 신인 아이돌 아리예요! ⭐',
@@ -332,9 +344,8 @@ class MockData {
   ];
 
   // 기존 호환을 위한 idols Map 형태
-  static final List<Map<String, dynamic>> idols = idolModels
-      .map((idol) => idol.toJson())
-      .toList();
+  static final List<Map<String, dynamic>> idols =
+      idolModels.map((idol) => idol.toJson()).toList();
 
   // ============ 캠페인/펀딩 데이터 ============
   static final List<CampaignModel> campaignModels = [
@@ -423,7 +434,8 @@ class MockData {
         CampaignUpdate(
           id: 'update-1',
           title: '1차 목표 달성! 🎉',
-          content: '여러분 덕분에 1차 목표인 1000만원을 달성했어요! 정말 감사합니다. 추가 목표로 뮤직비디오 제작을 추진할 예정이에요!',
+          content:
+              '여러분 덕분에 1차 목표인 1000만원을 달성했어요! 정말 감사합니다. 추가 목표로 뮤직비디오 제작을 추진할 예정이에요!',
           createdAt: DateTime(2024, 12, 20),
         ),
         CampaignUpdate(
@@ -620,9 +632,8 @@ class MockData {
   ];
 
   // 기존 호환을 위한 campaigns Map 형태
-  static final List<Map<String, dynamic>> campaigns = campaignModels
-      .map((campaign) => campaign.toJson())
-      .toList();
+  static final List<Map<String, dynamic>> campaigns =
+      campaignModels.map((campaign) => campaign.toJson()).toList();
 
   // ============ 버블 메시지 데이터 ============
   static final List<BubbleMessageModel> bubbleMessages = [
@@ -970,7 +981,8 @@ class MockData {
         'isVerified': true,
         'category': 'UNDERGROUND_IDOL',
       },
-      'content': '오늘 연습 끝! 다음 주 공연 준비 열심히 하고 있어요 💪 팬분들 많이 와주실 거죠? 🥺\n\n#하늘별 #지하돌 #연습',
+      'content':
+          '오늘 연습 끝! 다음 주 공연 준비 열심히 하고 있어요 💪 팬분들 많이 와주실 거죠? 🥺\n\n#하늘별 #지하돌 #연습',
       'images': ['https://picsum.photos/seed/practice/400/400'],
       'likeCount': 234,
       'commentCount': 45,
@@ -987,7 +999,8 @@ class MockData {
         'isVerified': true,
         'category': 'MAID_CAFE',
       },
-      'content': '새로운 메이드 의상이 도착했어요! 🎀 어떤가요? 주인님들 의견 궁금해요~\n\n오늘 출근하니까 카페에서 만나요! 💕',
+      'content':
+          '새로운 메이드 의상이 도착했어요! 🎀 어떤가요? 주인님들 의견 궁금해요~\n\n오늘 출근하니까 카페에서 만나요! 💕',
       'images': ['https://picsum.photos/seed/maid/400/500'],
       'likeCount': 189,
       'commentCount': 67,
@@ -1004,7 +1017,8 @@ class MockData {
         'isVerified': true,
         'category': 'UNDERGROUND_IDOL',
       },
-      'content': '생일 이벤트 펀딩 78% 달성! 🎂\n\n정말 감사해요 여러분... 울컥 😢💕\n\n남은 기간도 열심히 할게요! 강남역 전광판 기대해주세요!!',
+      'content':
+          '생일 이벤트 펀딩 78% 달성! 🎂\n\n정말 감사해요 여러분... 울컥 😢💕\n\n남은 기간도 열심히 할게요! 강남역 전광판 기대해주세요!!',
       'images': [],
       'likeCount': 312,
       'commentCount': 89,
@@ -1021,7 +1035,8 @@ class MockData {
         'isVerified': true,
         'category': 'VTUBER',
       },
-      'content': '오늘 밤 10시 게임 방송 있어요! 🎮\n\n같이 게임하고 싶은 분 댓글로 신청해주세요~\n\n오늘은 발로란트 가요!',
+      'content':
+          '오늘 밤 10시 게임 방송 있어요! 🎮\n\n같이 게임하고 싶은 분 댓글로 신청해주세요~\n\n오늘은 발로란트 가요!',
       'images': ['https://picsum.photos/seed/gaming/400/300'],
       'likeCount': 156,
       'commentCount': 123,
@@ -1038,7 +1053,8 @@ class MockData {
         'isVerified': true,
         'category': 'UNDERGROUND_IDOL',
       },
-      'content': '🎉 구독자 전용 비하인드! 🎉\n\n앨범 녹음 현장 사진이에요~ 프리미엄 구독자분들만 볼 수 있어요! 💕',
+      'content':
+          '🎉 구독자 전용 비하인드! 🎉\n\n앨범 녹음 현장 사진이에요~ 프리미엄 구독자분들만 볼 수 있어요! 💕',
       'images': [
         'https://picsum.photos/seed/behind1/400/400',
         'https://picsum.photos/seed/behind2/400/400',

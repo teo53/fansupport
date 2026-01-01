@@ -28,6 +28,8 @@ class IdolModel extends Equatable {
   final IdolCategory category;
   final String? agencyId;
   final String? agencyName;
+  final String? groupName;
+  final String? imageColor; // Hex string e.g. "0xFFFF0000"
   final String profileImage;
   final String? coverImage;
   final String bio;
@@ -85,6 +87,8 @@ class IdolModel extends Equatable {
     required this.category,
     this.agencyId,
     this.agencyName,
+    this.groupName,
+    this.imageColor,
     required this.profileImage,
     this.coverImage,
     required this.bio,
@@ -126,9 +130,12 @@ class IdolModel extends Equatable {
       id: json['id'] as String,
       stageName: json['stageName'] as String,
       realName: json['realName'] as String?,
-      category: IdolCategory.fromCode(json['category'] as String? ?? 'UNDERGROUND_IDOL'),
+      category: IdolCategory.fromCode(
+          json['category'] as String? ?? 'UNDERGROUND_IDOL'),
       agencyId: json['agencyId'] as String?,
       agencyName: json['agencyName'] as String?,
+      groupName: json['groupName'] as String?,
+      imageColor: json['imageColor'] as String?,
       profileImage: json['profileImage'] as String? ?? '',
       coverImage: json['coverImage'] as String?,
       bio: json['bio'] as String? ?? '',
@@ -164,8 +171,11 @@ class IdolModel extends Equatable {
               ?.map((e) => SubscriptionTier.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
-      createdAt: DateTime.parse(json['createdAt'] as String? ?? DateTime.now().toIso8601String()),
-      updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt'] as String) : null,
+      createdAt: DateTime.parse(
+          json['createdAt'] as String? ?? DateTime.now().toIso8601String()),
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.parse(json['updatedAt'] as String)
+          : null,
     );
   }
 
@@ -177,6 +187,8 @@ class IdolModel extends Equatable {
       'category': category.code,
       'agencyId': agencyId,
       'agencyName': agencyName,
+      'groupName': groupName,
+      'imageColor': imageColor,
       'profileImage': profileImage,
       'coverImage': coverImage,
       'bio': bio,

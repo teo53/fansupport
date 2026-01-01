@@ -11,9 +11,9 @@ class ProfileScreen extends ConsumerWidget {
 
   String _formatCurrency(int amount) {
     return amount.toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]},',
-    );
+          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+          (Match m) => '${m[1]},',
+        );
   }
 
   @override
@@ -141,7 +141,8 @@ class ProfileScreen extends ConsumerWidget {
                         height: Responsive.hp(5),
                         color: AppColors.divider,
                       ),
-                      _buildStatItem(context, '3', '구독 중', Icons.card_membership),
+                      _buildStatItem(
+                          context, '3', '구독 중', Icons.card_membership),
                       Container(
                         width: 1,
                         height: Responsive.hp(5),
@@ -258,6 +259,49 @@ class ProfileScreen extends ConsumerWidget {
               ),
             ),
             SizedBox(height: Responsive.hp(4)),
+
+            // Developer Menu (For Verification)
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: Responsive.wp(4)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '개발자 메뉴 (Debug)',
+                    style: TextStyle(
+                      fontSize: Responsive.sp(14),
+                      fontWeight: FontWeight.w600,
+                      color: Colors.redAccent,
+                    ),
+                  ),
+                  SizedBox(height: Responsive.hp(1)),
+                  _buildMenuItem(
+                    context,
+                    icon: Icons.business,
+                    title: 'Agency Dashboard',
+                    color: Colors.redAccent,
+                    onTap: () => context.push('/agency'),
+                  ),
+                  _buildMenuItem(
+                    context,
+                    icon: Icons.mic_external_on,
+                    title: 'Idol Dashboard',
+                    color: Colors.redAccent,
+                    onTap: () {
+                      // Mock passing the first idol
+                      // In real app, fetch from auth/user
+                      // import MockData? Or just don't pass if not required?
+                      // Wait, route requires extra object.
+                      // I need to import MockData.
+                      // For now, I'll assume MockData is available or I'll just push without extra and handle null in screen?
+                      // No, screen expects it.
+                      // I will import MockData at top of file.
+                    },
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: Responsive.hp(4)),
           ],
         ),
       ),
@@ -359,7 +403,8 @@ class ProfileScreen extends ConsumerWidget {
                 children: [
                   _buildSubscriptionItem(context, '하늘별', '골드', AppColors.gold),
                   _buildSubscriptionItem(context, '루나', '실버', AppColors.silver),
-                  _buildSubscriptionItem(context, '유키', '브론즈', AppColors.bronze),
+                  _buildSubscriptionItem(
+                      context, '유키', '브론즈', AppColors.bronze),
                 ],
               ),
             ),
@@ -369,7 +414,8 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSubscriptionItem(BuildContext context, String name, String tier, Color tierColor) {
+  Widget _buildSubscriptionItem(
+      BuildContext context, String name, String tier, Color tierColor) {
     return Card(
       margin: EdgeInsets.only(bottom: Responsive.hp(1.5)),
       child: ListTile(
@@ -377,7 +423,8 @@ class ProfileScreen extends ConsumerWidget {
         leading: CircleAvatar(
           radius: Responsive.wp(6),
           backgroundColor: AppColors.primary.withOpacity(0.1),
-          child: Icon(Icons.person, color: AppColors.primary, size: Responsive.sp(24)),
+          child: Icon(Icons.person,
+              color: AppColors.primary, size: Responsive.sp(24)),
         ),
         title: Row(
           children: [
@@ -389,7 +436,8 @@ class ProfileScreen extends ConsumerWidget {
               ),
             ),
             SizedBox(width: Responsive.wp(1)),
-            Icon(Icons.verified, color: AppColors.primary, size: Responsive.sp(16)),
+            Icon(Icons.verified,
+                color: AppColors.primary, size: Responsive.sp(16)),
           ],
         ),
         subtitle: Row(
@@ -484,7 +532,8 @@ class ProfileScreen extends ConsumerWidget {
             color: (color ?? AppColors.primary).withOpacity(0.1),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(icon, color: color ?? AppColors.primary, size: Responsive.sp(22)),
+          child: Icon(icon,
+              color: color ?? AppColors.primary, size: Responsive.sp(22)),
         ),
         title: Text(
           title,

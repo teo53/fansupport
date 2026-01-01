@@ -8,6 +8,10 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../core/mock/mock_data.dart';
 import '../../auth/providers/auth_provider.dart';
+import '../../../shared/models/idol_model.dart';
+import '../../../shared/widgets/story_circle.dart';
+import '../../live/screens/incoming_call_screen.dart';
+import '../../chat/screens/chat_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -20,15 +24,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     with TickerProviderStateMixin {
   late ScrollController _scrollController;
   late AnimationController _fadeController;
-  double _scrollOffset = 0;
 
   @override
   void initState() {
     super.initState();
-    _scrollController = ScrollController()
-      ..addListener(() {
-        setState(() => _scrollOffset = _scrollController.offset);
-      });
+    _scrollController = ScrollController();
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
@@ -44,9 +44,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
 
   String _formatCurrency(int amount) {
     return amount.toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]},',
-    );
+          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+          (Match m) => '${m[1]},',
+        );
   }
 
   String _formatCompact(int amount) {
@@ -106,85 +106,99 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
             ),
 
             // Main Content
-            CustomScrollView(
-              controller: _scrollController,
-              physics: const BouncingScrollPhysics(),
-              slivers: [
-                // Custom App Bar
-                SliverToBoxAdapter(
-                  child: _buildHeader(context, user),
-                ),
+            Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 480),
+                child: CustomScrollView(
+                  controller: _scrollController,
+                  physics: const BouncingScrollPhysics(),
+                  slivers: [
+                    // Custom App Bar
+                    SliverToBoxAdapter(
+                      child: _buildHeader(context, user),
+                    ),
 
-                // Wallet Card
-                SliverToBoxAdapter(
-                  child: _buildWalletCard(context, user),
-                ),
+                    // Hero Banner
+                    SliverToBoxAdapter(
+                      child: _buildHeroBanner(context),
+                    ),
 
-                // Quick Actions
-                SliverToBoxAdapter(
-                  child: _buildQuickActions(context),
-                ),
+                    SliverToBoxAdapter(
+                      child: SizedBox(height: Responsive.hp(1.5)),
+                    ),
 
-                // Hot Idols Section
-                SliverToBoxAdapter(
-                  child: _buildSectionHeader(
-                    context,
-                    'HOT 아이돌',
-                    'TOP 10',
-                    onTap: () => context.go('/ranking'),
-                  ),
-                ),
-                SliverToBoxAdapter(
-                  child: _buildHotIdolsList(context),
-                ),
+                    // Story Section
+                    SliverToBoxAdapter(
+                      child: _buildStorySection(context),
+                    ),
 
-                // Trending Campaigns
-                SliverToBoxAdapter(
-                  child: _buildSectionHeader(
-                    context,
-                    '인기 펀딩',
-                    '전체보기',
-                    onTap: () => context.go('/campaigns'),
-                  ),
-                ),
-                SliverToBoxAdapter(
-                  child: _buildCampaignsList(context),
-                ),
+                    // Quick Actions
+                    SliverToBoxAdapter(
+                      child: _buildQuickActions(context),
+                    ),
 
-                // Premium Services
-                SliverToBoxAdapter(
-                  child: _buildSectionHeader(context, '프리미엄 서비스', null),
-                ),
-                SliverToBoxAdapter(
-                  child: _buildPremiumServices(context),
-                ),
+                    // Hot Idols Section (Rising Star)
+                    SliverToBoxAdapter(
+                      child: _buildSectionHeader(
+                        context,
+                        'Rising Star',
+                        '랭킹 보기',
+                        onTap: () => context.go('/ranking'),
+                      ),
+                    ),
+                    SliverToBoxAdapter(
+                      child: _buildHotIdolsList(context),
+                    ),
 
-                // Categories
-                SliverToBoxAdapter(
-                  child: _buildSectionHeader(context, '카테고리', null),
-                ),
-                SliverToBoxAdapter(
-                  child: _buildCategories(context),
-                ),
+                    // Trending Campaigns
+                    SliverToBoxAdapter(
+                      child: _buildSectionHeader(
+                        context,
+                        '인기 펀딩',
+                        '전체보기',
+                        onTap: () => context.go('/campaigns'),
+                      ),
+                    ),
+                    SliverToBoxAdapter(
+                      child: _buildCampaignsList(context),
+                    ),
 
-                // Recent Posts
-                SliverToBoxAdapter(
-                  child: _buildSectionHeader(
-                    context,
-                    '최근 소식',
-                    '더보기',
-                    onTap: () => context.go('/community'),
-                  ),
-                ),
-                SliverToBoxAdapter(
-                  child: _buildRecentPosts(context),
-                ),
+                    // Special Events
+                    SliverToBoxAdapter(
+                      child: _buildSectionHeader(context, '스페셜 이벤트', null),
+                    ),
+                    SliverToBoxAdapter(
+                      child: _buildPremiumServices(context),
+                    ),
 
-                // Bottom Spacing
-                SliverToBoxAdapter(
-                  child: SizedBox(height: Responsive.hp(12)),
+                    // Categories
+                    SliverToBoxAdapter(
+                      child: _buildSectionHeader(context, '카테고리', null),
+                    ),
+                    SliverToBoxAdapter(
+                      child: _buildCategories(context),
+                    ),
+
+                    // Recent Posts
+                    SliverToBoxAdapter(
+                      child: _buildSectionHeader(
+                        context,
+                        '최근 소식',
+                        '더보기',
+                        onTap: () => context.go('/community'),
+                      ),
+                    ),
+                    SliverToBoxAdapter(
+                      child: _buildRecentPosts(context),
+                    ),
+
+                    // Bottom Spacing
+                    SliverToBoxAdapter(
+                      child: SizedBox(height: Responsive.hp(12)),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ],
         ),
@@ -207,6 +221,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
           children: [
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
                   '안녕하세요,',
@@ -245,12 +260,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                 _buildHeaderButton(
                   icon: Icons.notifications_none_rounded,
                   badge: 3,
-                  onTap: () {},
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('알림 센터는 준비 중입니다')),
+                    );
+                  },
                 ),
                 SizedBox(width: Responsive.wp(2)),
                 _buildHeaderButton(
                   icon: Icons.search_rounded,
-                  onTap: () {},
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('검색 기능은 준비 중입니다')),
+                    );
+                  },
                 ),
               ],
             ),
@@ -311,136 +334,342 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     );
   }
 
-  Widget _buildWalletCard(BuildContext context, user) {
-    final balance = user?.walletBalance ?? 0;
+  Widget _buildHeroBanner(BuildContext context) {
+    // Mock Banner Data
+    final banners = [
+      {
+        'title': 'Angel Number 999',
+        'subtitle': 'Live Concert Coming Soon',
+        'image':
+            'https://images.unsplash.com/photo-1493225255756-d9584f8606e9?q=80&w=2070&auto=format&fit=crop',
+        'color': const Color(0xFF6B4DFF),
+      },
+      {
+        'title': 'New Generation',
+        'subtitle': 'Find Your Favorite Idol',
+        'image':
+            'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=2070&auto=format&fit=crop',
+        'color': const Color(0xFFFF4D8D),
+      },
+    ];
 
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: Responsive.wp(5),
-        vertical: Responsive.hp(1),
-      ),
-      child: GestureDetector(
-        onTap: () => context.go('/wallet'),
-        child: Container(
-          padding: EdgeInsets.all(Responsive.wp(5)),
-          decoration: BoxDecoration(
-            gradient: AppColors.premiumGradient,
-            borderRadius: BorderRadius.circular(24),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.primary.withValues(alpha: 0.35),
-                blurRadius: 25,
-                offset: const Offset(0, 12),
-                spreadRadius: -5,
+    return SizedBox(
+      height: Responsive.hp(22),
+      child: PageView.builder(
+        controller: PageController(viewportFraction: 0.92),
+        physics: const BouncingScrollPhysics(),
+        itemCount: banners.length,
+        itemBuilder: (context, index) {
+          final banner = banners[index];
+          return Container(
+            margin: EdgeInsets.symmetric(horizontal: Responsive.wp(1.5)),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(24),
+              image: DecorationImage(
+                image: NetworkImage(banner['image'] as String),
+                fit: BoxFit.cover,
               ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
+              boxShadow: [
+                BoxShadow(
+                  color: (banner['color'] as Color).withValues(alpha: 0.3),
+                  blurRadius: 16,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            child: Stack(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(24),
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.transparent,
+                        Colors.black.withValues(alpha: 0.2),
+                        Colors.black.withValues(alpha: 0.8),
+                      ],
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(Responsive.wp(5)),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(10),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
                         ),
-                        child: Icon(
-                          Icons.account_balance_wallet_rounded,
-                          color: Colors.white,
-                          size: Responsive.sp(20),
+                        decoration: BoxDecoration(
+                          color: (banner['color'] as Color),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          'Featured',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: Responsive.sp(10),
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
-                      SizedBox(width: Responsive.wp(3)),
+                      SizedBox(height: Responsive.hp(1)),
                       Text(
-                        '내 지갑',
+                        banner['title'] as String,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: Responsive.sp(22),
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                      Text(
+                        banner['subtitle'] as String,
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.9),
-                          fontSize: Responsive.sp(15),
-                          fontWeight: FontWeight.w600,
+                          fontSize: Responsive.sp(13),
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ],
                   ),
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: Responsive.wp(3),
-                      vertical: Responsive.hp(0.8),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildStorySection(BuildContext context) {
+    final idols = MockData.idolModels;
+
+    return SizedBox(
+      height: Responsive.hp(14),
+      child: ListView.separated(
+        padding: EdgeInsets.symmetric(horizontal: Responsive.wp(5)),
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        itemCount: idols.length,
+        separatorBuilder: (context, index) => SizedBox(width: Responsive.wp(4)),
+        itemBuilder: (context, index) {
+          final idol = idols[index];
+          // Mocking the first idol as 'Live'
+          final isLive = index == 0;
+
+          return StoryCircle(
+            idol: idol,
+            isLive: isLive,
+            onTap: () {
+              if (isLive) {
+                _showLiveScreen(context, idol);
+              } else {
+                _showStoryView(context, idol);
+              }
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  void _showLiveScreen(BuildContext context, IdolModel idol) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => IncomingCallScreen(idol: idol),
+        fullscreenDialog: true,
+      ),
+    );
+  }
+
+  void _showStoryView(BuildContext context, IdolModel idol) {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: 'Close',
+      barrierColor: Colors.black,
+      pageBuilder: (context, anim1, anim2) {
+        return Scaffold(
+          backgroundColor: Colors.transparent,
+          body: Stack(
+            fit: StackFit.expand,
+            children: [
+              // Story Image
+              Container(
+                color: Colors.black,
+                child: Center(
+                  child: CachedNetworkImage(
+                    imageUrl: idol.profileImage,
+                    fit: BoxFit.cover,
+                    height: double.infinity,
+                    width: double.infinity,
+                    placeholder: (context, url) => Container(
+                      color: AppColors.fromHex(idol.imageColor),
+                      child: const Center(
+                        child: CircularProgressIndicator(color: Colors.white),
+                      ),
                     ),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.add,
-                          size: Responsive.sp(16),
-                          color: AppColors.primary,
-                        ),
-                        SizedBox(width: Responsive.wp(1)),
-                        Text(
-                          '충전',
-                          style: TextStyle(
-                            color: AppColors.primary,
-                            fontSize: Responsive.sp(13),
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ],
+                    errorWidget: (context, url, error) => Container(
+                      color: AppColors.fromHex(idol.imageColor),
+                      child: const Center(
+                        child:
+                            Icon(Icons.person, color: Colors.white54, size: 80),
+                      ),
                     ),
                   ),
-                ],
-              ),
-              SizedBox(height: Responsive.hp(2.5)),
-              Text(
-                '${_formatCurrency(balance)}',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: Responsive.sp(36),
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: -1,
                 ),
               ),
-              Text(
-                '원',
-                style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.8),
-                  fontSize: Responsive.sp(18),
-                  fontWeight: FontWeight.w500,
+              // Gradient Overlay
+              Positioned.fill(
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.black.withValues(alpha: 0.6),
+                        Colors.transparent,
+                        Colors.black.withValues(alpha: 0.6),
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      stops: const [0.0, 0.2, 0.8],
+                    ),
+                  ),
+                ),
+              ),
+              // UI Layer
+              SafeArea(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Header
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 12),
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 18,
+                            backgroundImage:
+                                CachedNetworkImageProvider(idol.profileImage),
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            idol.stageName,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            '1시간 전',
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.6),
+                              fontSize: 13,
+                            ),
+                          ),
+                          const Spacer(),
+                          IconButton(
+                            icon: const Icon(Icons.close,
+                                color: Colors.white, size: 28),
+                            onPressed: () => Navigator.of(context).pop(),
+                          ),
+                        ],
+                      ),
+                    ),
+                    // Footer
+                    Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: SizedBox(
+                        width: double.infinity,
+                        height: 52,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            context.go('/idols/${idol.id}');
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            foregroundColor: Colors.black,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(26),
+                            ),
+                          ),
+                          child: const Text(
+                            '프로필 방문하기',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-        ),
-      ),
+        );
+      },
+      transitionBuilder: (context, anim1, anim2, child) {
+        return FadeTransition(opacity: anim1, child: child);
+      },
     );
   }
 
   Widget _buildQuickActions(BuildContext context) {
     final actions = [
-      {'icon': Icons.star_rounded, 'label': '아이돌', 'route': '/idols', 'color': AppColors.idolCategory},
-      {'icon': Icons.chat_bubble_rounded, 'label': '버블', 'route': '/bubble', 'color': AppColors.neonPink},
-      {'icon': Icons.restaurant_rounded, 'label': '데이트권', 'route': '/date-tickets', 'color': AppColors.secondary},
-      {'icon': Icons.campaign_rounded, 'label': '광고', 'route': '/ad-shop', 'color': AppColors.gold},
+      {
+        'icon': Icons.star_rounded,
+        'label': '멤버십',
+        'color': const Color(0xFF6B4DFF),
+        'onTap': () => context.go('/membership'),
+      },
+      {
+        'icon': Icons.chat_bubble_rounded, // Bubble Icon
+        'label': 'Bubble',
+        'color': const Color(0xFFFF4D8D), // Bubble Pink
+        'onTap': () {
+          // Mock navigation to first idol's chat
+          final firstIdol = MockData.idolModels.first;
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => ChatScreen(idol: firstIdol),
+            ),
+          );
+        },
+      },
+      {
+        'icon': Icons.feed_rounded,
+        'label': '피드',
+        'color': AppColors.primary,
+        'onTap': () => context.go('/community'),
+      },
+      {
+        'icon': Icons.calendar_today_rounded,
+        'label': '스케줄',
+        'color': const Color(0xFF00C853),
+        'onTap': () => context.go('/schedule'),
+      },
     ];
 
     return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: Responsive.wp(5),
-        vertical: Responsive.hp(2.5),
-      ),
+      padding: EdgeInsets.symmetric(horizontal: Responsive.wp(5)),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: actions.map((action) {
           return GestureDetector(
             onTap: () {
               HapticFeedback.lightImpact();
-              context.go(action['route'] as String);
+              (action['onTap'] as VoidCallback)();
             },
             child: Column(
               children: [
@@ -448,7 +677,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   width: Responsive.wp(16),
                   height: Responsive.wp(16),
                   decoration: BoxDecoration(
-                    color: (action['color'] as Color).withValues(alpha: 0.1),
+                    color: (action['color'] as Color)
+                        .withAlpha(25), // 0.1 opacity approx
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Icon(
@@ -526,110 +756,152 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   }
 
   Widget _buildHotIdolsList(BuildContext context) {
-    final idols = MockData.idols.take(5).toList();
+    // Use idolModels instead of idols
+    final idols = MockData.idolModels.take(5).toList();
 
     return SizedBox(
-      height: Responsive.hp(22),
+      height: Responsive.hp(38), // Taller for Photocard style
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
-        padding: EdgeInsets.symmetric(horizontal: Responsive.wp(5)),
+        padding:
+            EdgeInsets.symmetric(horizontal: Responsive.wp(5), vertical: 10),
         itemCount: idols.length,
         itemBuilder: (context, index) {
           final idol = idols[index];
-          return _buildIdolCard(context, idol, index + 1);
+          return _buildIdolPhotocard(context, idol, index + 1);
         },
       ),
     );
   }
 
-  Widget _buildIdolCard(BuildContext context, Map<String, dynamic> idol, int rank) {
+  Widget _buildIdolPhotocard(BuildContext context, IdolModel idol, int rank) {
+    final imageColor =
+        AppColors.fromHex(idol.imageColor, defaultColor: AppColors.primary);
+
     return GestureDetector(
-      onTap: () => context.go('/idols/${idol['id']}'),
+      onTap: () => context.go('/idols/${idol.id}'),
       child: Container(
-        width: Responsive.wp(35),
-        margin: EdgeInsets.only(right: Responsive.wp(3)),
+        width: Responsive.wp(55), // Wider card
+        margin: EdgeInsets.only(right: Responsive.wp(4)),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: AppColors.cardShadow(opacity: 0.08),
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: AppColors.elevatedShadow(opacity: 0.15),
+          image: DecorationImage(
+            image: NetworkImage(idol.profileImage),
+            fit: BoxFit.cover,
+          ),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Stack(
           children: [
-            Stack(
-              children: [
-                ClipRRect(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                  child: idol['profileImage'] != null
-                      ? CachedNetworkImage(
-                          imageUrl: idol['profileImage'],
-                          height: Responsive.hp(12),
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                          placeholder: (_, __) => _buildImagePlaceholder(),
-                          errorWidget: (_, __, ___) => _buildImagePlaceholder(),
-                        )
-                      : _buildImagePlaceholder(),
+            // Gradient Overlay
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(24),
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.black.withValues(alpha: 0.0),
+                    Colors.black.withValues(alpha: 0.6),
+                    Colors.black.withValues(alpha: 0.9),
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  stops: const [0.5, 0.8, 1.0],
                 ),
-                Positioned(
-                  top: 8,
-                  left: 8,
+              ),
+            ),
+
+            // Rank Badge (Glassmorphism)
+            Positioned(
+              top: 12,
+              left: 12,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
-                      gradient: rank <= 3 ? AppColors.goldGradient : null,
-                      color: rank > 3 ? AppColors.textPrimary : null,
-                      borderRadius: BorderRadius.circular(8),
+                      color: Colors.white.withValues(alpha: 0.2),
+                      border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.3)),
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Text(
-                      '#$rank',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: Responsive.sp(11),
-                        fontWeight: FontWeight.w700,
-                      ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          '#$rank',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: Responsive.sp(14),
+                            fontWeight: FontWeight.w900,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
-              ],
+              ),
             ),
-            Padding(
-              padding: EdgeInsets.all(Responsive.wp(3)),
+
+            // Idol Info
+            Positioned(
+              bottom: 16,
+              left: 16,
+              right: 16,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      Flexible(
-                        child: Text(
-                          idol['stageName'] ?? '',
-                          style: TextStyle(
-                            fontSize: Responsive.sp(14),
-                            fontWeight: FontWeight.w700,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                  if (idol.groupName != null)
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: imageColor.withValues(alpha: 0.8),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        idol.groupName!,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: Responsive.sp(10),
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
-                      if (idol['isVerified'] ?? false)
-                        Padding(
-                          padding: const EdgeInsets.only(left: 4),
-                          child: Icon(
-                            Icons.verified,
-                            size: Responsive.sp(14),
-                            color: AppColors.primary,
-                          ),
-                        ),
-                    ],
-                  ),
-                  SizedBox(height: Responsive.hp(0.3)),
-                  Text(
-                    '${_formatCompact(idol['totalReceived'] ?? 0)}원 후원',
-                    style: TextStyle(
-                      fontSize: Responsive.sp(11),
-                      color: AppColors.textSecondary,
                     ),
+                  Text(
+                    idol.stageName,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: Responsive.sp(22),
+                      fontWeight: FontWeight.w800,
+                      shadows: [
+                        Shadow(
+                          color: Colors.black.withValues(alpha: 0.5),
+                          offset: const Offset(0, 2),
+                          blurRadius: 4,
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(Icons.favorite, color: AppColors.error, size: 14),
+                      SizedBox(width: 4),
+                      Text(
+                        _formatCompact(idol.totalSupport),
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.9),
+                          fontSize: Responsive.sp(13),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -640,36 +912,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     );
   }
 
-  Widget _buildImagePlaceholder() {
-    return Container(
-      height: Responsive.hp(12),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppColors.primary.withValues(alpha: 0.3),
-            AppColors.secondary.withValues(alpha: 0.3),
-          ],
-        ),
-      ),
-      child: Center(
-        child: Icon(
-          Icons.person,
-          size: Responsive.sp(30),
-          color: Colors.white.withValues(alpha: 0.7),
-        ),
-      ),
-    );
-  }
-
   Widget _buildCampaignsList(BuildContext context) {
     final campaigns = MockData.campaigns.take(3).toList();
 
     return SizedBox(
-      height: Responsive.hp(20),
+      height: Responsive.hp(28),
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
-        padding: EdgeInsets.symmetric(horizontal: Responsive.wp(5)),
+        padding:
+            EdgeInsets.symmetric(horizontal: Responsive.wp(5), vertical: 10),
         itemCount: campaigns.length,
         itemBuilder: (context, index) {
           final campaign = campaigns[index];
@@ -679,9 +931,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     );
   }
 
-  Widget _buildCampaignCard(BuildContext context, Map<String, dynamic> campaign) {
-    final progress = (campaign['currentAmount'] as int) / (campaign['goalAmount'] as int);
-    final daysLeft = DateTime.parse(campaign['endDate']).difference(DateTime.now()).inDays;
+  Widget _buildCampaignCard(
+      BuildContext context, Map<String, dynamic> campaign) {
+    final progress =
+        (campaign['currentAmount'] as int) / (campaign['goalAmount'] as int);
+    final daysLeft =
+        DateTime.parse(campaign['endDate']).difference(DateTime.now()).inDays;
 
     return GestureDetector(
       onTap: () => context.go('/campaigns/${campaign['id']}'),
@@ -705,13 +960,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                     vertical: Responsive.hp(0.5),
                   ),
                   decoration: BoxDecoration(
-                    color: daysLeft <= 7 ? AppColors.errorSoft : AppColors.primarySoft,
+                    color: daysLeft <= 7
+                        ? AppColors.errorSoft
+                        : AppColors.primarySoft,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
                     daysLeft > 0 ? 'D-$daysLeft' : '마감',
                     style: TextStyle(
-                      color: daysLeft <= 7 ? AppColors.error : AppColors.primary,
+                      color:
+                          daysLeft <= 7 ? AppColors.error : AppColors.primary,
                       fontSize: Responsive.sp(11),
                       fontWeight: FontWeight.w700,
                     ),
@@ -781,18 +1039,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   Widget _buildPremiumServices(BuildContext context) {
     final services = [
       {
-        'icon': Icons.restaurant,
-        'title': '식사 데이트권',
-        'subtitle': '아이돌과 함께하는 프리미엄 식사',
-        'price': '150만원~',
+        'icon': Icons.airplane_ticket_rounded,
+        'title': 'VIP 팬미팅',
+        'subtitle': '소수 정예 오프라인 만남',
+        'price': '응모하기',
         'route': '/date-tickets',
         'gradient': AppColors.primaryGradient,
       },
       {
-        'icon': Icons.local_cafe,
-        'title': '카페 데이트권',
-        'subtitle': '아이돌과 티타임',
-        'price': '100만원~',
+        'icon': Icons.videocam_rounded,
+        'title': '1:1 영상통화',
+        'subtitle': '나만의 위한 응원 메시지',
+        'price': '응모하기',
         'route': '/date-tickets',
         'gradient': AppColors.premiumGradient,
       },
@@ -811,48 +1069,78 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                     context.go(service['route'] as String);
                   },
                   child: Container(
+                    height: Responsive.hp(21),
                     margin: EdgeInsets.only(
-                      right: service == services.first ? Responsive.wp(2) : 0,
+                      right: service == services.first ? Responsive.wp(3) : 0,
                     ),
-                    padding: EdgeInsets.all(Responsive.wp(4)),
+                    padding: EdgeInsets.all(Responsive.wp(5)),
                     decoration: BoxDecoration(
                       gradient: service['gradient'] as LinearGradient,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: AppColors.glowShadow(AppColors.primary, opacity: 0.3),
+                      borderRadius: BorderRadius.circular(24),
+                      boxShadow: AppColors.glowShadow(AppColors.primary,
+                          opacity: 0.15),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Icon(
-                          service['icon'] as IconData,
-                          color: Colors.white,
-                          size: Responsive.sp(28),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.2),
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              child: Icon(
+                                service['icon'] as IconData,
+                                color: Colors.white,
+                                size: Responsive.sp(20),
+                              ),
+                            ),
+                            SizedBox(height: Responsive.hp(2)),
+                            Text(
+                              service['title'] as String,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: Responsive.sp(16),
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: -0.5,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            SizedBox(height: Responsive.hp(0.8)),
+                            Text(
+                              service['subtitle'] as String,
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.9),
+                                fontSize: Responsive.sp(12),
+                                height: 1.3,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
                         ),
-                        SizedBox(height: Responsive.hp(1.5)),
-                        Text(
-                          service['title'] as String,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: Responsive.sp(15),
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        SizedBox(height: Responsive.hp(0.5)),
-                        Text(
-                          service['subtitle'] as String,
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.8),
-                            fontSize: Responsive.sp(11),
-                          ),
-                        ),
-                        SizedBox(height: Responsive.hp(1)),
-                        Text(
-                          service['price'] as String,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: Responsive.sp(14),
-                            fontWeight: FontWeight.w800,
-                          ),
+                        Row(
+                          children: [
+                            Text(
+                              '진행중인 이벤트 보기',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: Responsive.sp(12),
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            Icon(
+                              Icons.arrow_forward_rounded,
+                              color: Colors.white,
+                              size: Responsive.sp(12),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -861,8 +1149,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
               );
             }).toList(),
           ),
-          SizedBox(height: Responsive.hp(1.5)),
-          // Additional service buttons
+          SizedBox(height: Responsive.hp(3)),
           Row(
             children: [
               Expanded(
@@ -874,7 +1161,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   color: AppColors.gold,
                 ),
               ),
-              SizedBox(width: Responsive.wp(2)),
+              SizedBox(width: Responsive.wp(3)),
               Expanded(
                 child: _buildServiceQuickButton(
                   context,
@@ -884,7 +1171,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   color: AppColors.secondary,
                 ),
               ),
-              SizedBox(width: Responsive.wp(2)),
+              SizedBox(width: Responsive.wp(3)),
               Expanded(
                 child: _buildServiceQuickButton(
                   context,
@@ -915,7 +1202,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       },
       child: Container(
         padding: EdgeInsets.symmetric(
-          horizontal: Responsive.wp(3),
+          horizontal: Responsive.wp(1.5),
           vertical: Responsive.hp(1.5),
         ),
         decoration: BoxDecoration(
@@ -946,51 +1233,81 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
 
   Widget _buildCategories(BuildContext context) {
     final categories = [
-      {'icon': Icons.mic, 'label': '지하 아이돌', 'color': AppColors.idolCategory, 'value': 'UNDERGROUND_IDOL'},
-      {'icon': Icons.emoji_people, 'label': '메이드카페', 'color': AppColors.maidCategory, 'value': 'MAID_CAFE'},
-      {'icon': Icons.camera_alt, 'label': '코스플레이어', 'color': AppColors.cosplayCategory, 'value': 'COSPLAYER'},
-      {'icon': Icons.smart_display, 'label': 'VTuber', 'color': AppColors.vtuberCategory, 'value': 'VTuber'},
+      {
+        'icon': Icons.mic,
+        'label': '지하 아이돌',
+        'color': AppColors.idolCategory,
+        'value': 'UNDERGROUND_IDOL'
+      },
+      {
+        'icon': Icons.emoji_people,
+        'label': '메이드카페',
+        'color': AppColors.maidCategory,
+        'value': 'MAID_CAFE'
+      },
+      {
+        'icon': Icons.camera_alt,
+        'label': '코스플레이어',
+        'color': AppColors.cosplayCategory,
+        'value': 'COSPLAYER'
+      },
+      {
+        'icon': Icons.smart_display,
+        'label': 'VTuber',
+        'color': AppColors.vtuberCategory,
+        'value': 'VTuber'
+      },
     ];
 
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: Responsive.wp(5)),
-      child: Row(
-        children: categories.map((cat) {
-          return Expanded(
-            child: GestureDetector(
-              onTap: () => context.go('/idols'),
-              child: Container(
-                margin: EdgeInsets.only(right: cat != categories.last ? Responsive.wp(2) : 0),
-                padding: EdgeInsets.symmetric(vertical: Responsive.hp(1.5)),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(14),
-                  boxShadow: AppColors.cardShadow(opacity: 0.05),
-                ),
-                child: Column(
-                  children: [
-                    Icon(
+    return SizedBox(
+      height: Responsive.hp(12),
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        padding: EdgeInsets.symmetric(horizontal: Responsive.wp(5)),
+        itemCount: categories.length,
+        itemBuilder: (context, index) {
+          final cat = categories[index];
+          return GestureDetector(
+            onTap: () => context.go('/idols?category=${cat['value']}'),
+            child: Container(
+              width: Responsive.wp(20),
+              margin: EdgeInsets.only(
+                right: index != categories.length - 1 ? Responsive.wp(3) : 0,
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(Responsive.wp(3)),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: AppColors.cardShadow(opacity: 0.05),
+                    ),
+                    child: Icon(
                       cat['icon'] as IconData,
                       color: cat['color'] as Color,
-                      size: Responsive.sp(22),
+                      size: Responsive.sp(20),
                     ),
-                    SizedBox(height: Responsive.hp(0.8)),
-                    Text(
-                      cat['label'] as String,
-                      style: TextStyle(
-                        fontSize: Responsive.sp(10),
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
-                      ),
-                      textAlign: TextAlign.center,
-                      maxLines: 1,
+                  ),
+                  SizedBox(height: Responsive.hp(1)),
+                  Text(
+                    cat['label'] as String,
+                    style: TextStyle(
+                      fontSize: Responsive.sp(11),
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
                     ),
-                  ],
-                ),
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
               ),
             ),
           );
-        }).toList(),
+        },
       ),
     );
   }
@@ -1002,10 +1319,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       padding: EdgeInsets.symmetric(horizontal: Responsive.wp(5)),
       child: Column(
         children: posts.map((post) {
-          Map<String, dynamic>? author;
+          IdolModel? author;
           try {
-            author = MockData.idols.firstWhere((i) => i['id'] == post['authorId']);
+            // Find author in idolModels using id
+            author =
+                MockData.idolModels.firstWhere((i) => i.id == post['authorId']);
           } catch (_) {}
+
+          // Fallback to searching in generic idols map if not found (backward compatibility)
+          // Actually, let's just use idolModels. If not found, it's null.
+          final profileImage = author?.profileImage;
+          final stageName = author?.stageName ?? '익명';
+          final isVerified = author?.isVerified ?? false;
 
           return Container(
             margin: EdgeInsets.only(bottom: Responsive.hp(1.5)),
@@ -1020,11 +1345,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                 CircleAvatar(
                   radius: Responsive.wp(6),
                   backgroundColor: AppColors.primarySoft,
-                  backgroundImage: author?['profileImage'] != null
-                      ? CachedNetworkImageProvider(author!['profileImage'])
+                  backgroundImage: profileImage != null
+                      ? CachedNetworkImageProvider(profileImage)
                       : null,
-                  child: author?['profileImage'] == null
-                      ? Icon(Icons.person, color: AppColors.primary, size: Responsive.sp(20))
+                  child: profileImage == null
+                      ? Icon(Icons.person,
+                          color: AppColors.primary, size: Responsive.sp(20))
                       : null,
                 ),
                 SizedBox(width: Responsive.wp(3)),
@@ -1035,13 +1361,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                       Row(
                         children: [
                           Text(
-                            author?['stageName'] ?? '익명',
+                            stageName,
                             style: TextStyle(
                               fontSize: Responsive.sp(14),
                               fontWeight: FontWeight.w700,
                             ),
                           ),
-                          if (author?['isVerified'] ?? false)
+                          if (isVerified)
                             Padding(
                               padding: const EdgeInsets.only(left: 4),
                               child: Icon(

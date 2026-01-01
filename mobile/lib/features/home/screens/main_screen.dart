@@ -79,7 +79,7 @@ class _MainScreenState extends State<MainScreen> {
       child: SafeArea(
         top: false,
         child: Container(
-          height: 70,
+          height: 90,
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -160,7 +160,8 @@ class _MainScreenState extends State<MainScreen> {
                 child: Icon(
                   isSelected ? selectedIcon : icon,
                   size: 24,
-                  color: isSelected ? AppColors.primary : AppColors.textTertiary,
+                  color:
+                      isSelected ? AppColors.primary : AppColors.textTertiary,
                 ),
               ),
               const SizedBox(height: 4),
@@ -169,7 +170,8 @@ class _MainScreenState extends State<MainScreen> {
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                  color: isSelected ? AppColors.primary : AppColors.textTertiary,
+                  color:
+                      isSelected ? AppColors.primary : AppColors.textTertiary,
                   fontFamily: 'Pretendard',
                 ),
                 child: Text(label),
@@ -208,7 +210,8 @@ class _MainScreenState extends State<MainScreen> {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.primary.withValues(alpha: isSelected ? 0.4 : 0.25),
+                    color: AppColors.primary
+                        .withValues(alpha: isSelected ? 0.4 : 0.25),
                     blurRadius: isSelected ? 16 : 12,
                     offset: const Offset(0, 4),
                     spreadRadius: isSelected ? 0 : -2,
