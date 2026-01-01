@@ -3,8 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'dart:ui';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/design_system.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../core/mock/mock_data.dart';
 import '../../auth/providers/auth_provider.dart';
@@ -479,47 +479,66 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     String title,
     String? actionText, {
     VoidCallback? onTap,
+    bool hasDivider = false,
   }) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(
-        Responsive.wp(5),
-        Responsive.hp(2),
-        Responsive.wp(5),
-        Responsive.hp(1.5),
+      padding: const EdgeInsets.fromLTRB(
+        DS.screenPadding,
+        DS.space6,
+        DS.screenPadding,
+        DS.space3,
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: Responsive.sp(20),
-              fontWeight: FontWeight.w800,
-              color: AppColors.textPrimary,
-              letterSpacing: -0.3,
+          if (hasDivider) ...[
+            Container(
+              height: 1,
+              color: AppColors.divider,
+              margin: const EdgeInsets.only(bottom: DS.space6),
             ),
-          ),
-          if (actionText != null)
-            GestureDetector(
-              onTap: onTap,
-              child: Row(
-                children: [
-                  Text(
-                    actionText,
-                    style: TextStyle(
-                      fontSize: Responsive.sp(13),
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.primary,
+          ],
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                title,
+                style: DS.heading3,
+              ),
+              if (actionText != null)
+                GestureDetector(
+                  onTap: onTap,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: DS.space3,
+                      vertical: DS.space1,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.primarySoft,
+                      borderRadius: DS.borderRadiusXs,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          actionText,
+                          style: DS.textSm(
+                            color: AppColors.primary,
+                            weight: DS.weightSemibold,
+                          ),
+                        ),
+                        const SizedBox(width: 2),
+                        const Icon(
+                          Icons.chevron_right_rounded,
+                          size: 16,
+                          color: AppColors.primary,
+                        ),
+                      ],
                     ),
                   ),
-                  Icon(
-                    Icons.chevron_right_rounded,
-                    size: Responsive.sp(18),
-                    color: AppColors.primary,
-                  ),
-                ],
-              ),
-            ),
+                ),
+            ],
+          ),
         ],
       ),
     );
@@ -529,11 +548,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     final idols = MockData.idols.take(5).toList();
 
     return SizedBox(
-      height: Responsive.hp(22),
+      height: 180,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
-        padding: EdgeInsets.symmetric(horizontal: Responsive.wp(5)),
+        padding: const EdgeInsets.symmetric(horizontal: DS.screenPadding),
         itemCount: idols.length,
         itemBuilder: (context, index) {
           final idol = idols[index];
@@ -547,12 +566,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     return GestureDetector(
       onTap: () => context.go('/idols/${idol['id']}'),
       child: Container(
-        width: Responsive.wp(35),
-        margin: EdgeInsets.only(right: Responsive.wp(3)),
+        width: 140,
+        margin: const EdgeInsets.only(right: DS.space3),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: AppColors.cardShadow(opacity: 0.08),
+          borderRadius: DS.borderRadiusLg,
+          boxShadow: AppColors.cardShadow(opacity: 0.06),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -560,11 +579,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
             Stack(
               children: [
                 ClipRRect(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(DS.radiusLg),
+                  ),
                   child: idol['profileImage'] != null
                       ? CachedNetworkImage(
                           imageUrl: idol['profileImage'],
-                          height: Responsive.hp(12),
+                          height: 100,
                           width: double.infinity,
                           fit: BoxFit.cover,
                           placeholder: (_, __) => _buildImagePlaceholder(),
@@ -572,22 +593,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                         )
                       : _buildImagePlaceholder(),
                 ),
+                // Rank badge
                 Positioned(
-                  top: 8,
-                  left: 8,
+                  top: DS.space2,
+                  left: DS.space2,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: DS.space2,
+                      vertical: DS.space1,
+                    ),
                     decoration: BoxDecoration(
                       gradient: rank <= 3 ? AppColors.goldGradient : null,
-                      color: rank > 3 ? AppColors.textPrimary : null,
-                      borderRadius: BorderRadius.circular(8),
+                      color: rank > 3 ? AppColors.textPrimary.withValues(alpha: 0.85) : null,
+                      borderRadius: DS.borderRadiusXs,
                     ),
                     child: Text(
                       '#$rank',
-                      style: TextStyle(
+                      style: DS.textXs(
                         color: Colors.white,
-                        fontSize: Responsive.sp(11),
-                        fontWeight: FontWeight.w700,
+                        weight: DS.weightBold,
                       ),
                     ),
                   ),
@@ -595,7 +619,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
               ],
             ),
             Padding(
-              padding: EdgeInsets.all(Responsive.wp(3)),
+              padding: const EdgeInsets.all(DS.space3),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -604,32 +628,26 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                       Flexible(
                         child: Text(
                           idol['stageName'] ?? '',
-                          style: TextStyle(
-                            fontSize: Responsive.sp(14),
-                            fontWeight: FontWeight.w700,
-                          ),
+                          style: DS.textBase(weight: DS.weightBold),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       if (idol['isVerified'] ?? false)
-                        Padding(
-                          padding: const EdgeInsets.only(left: 4),
+                        const Padding(
+                          padding: EdgeInsets.only(left: 4),
                           child: Icon(
                             Icons.verified,
-                            size: Responsive.sp(14),
+                            size: 14,
                             color: AppColors.primary,
                           ),
                         ),
                     ],
                   ),
-                  SizedBox(height: Responsive.hp(0.3)),
+                  const SizedBox(height: 2),
                   Text(
                     '${_formatCompact(idol['totalReceived'] ?? 0)}원 후원',
-                    style: TextStyle(
-                      fontSize: Responsive.sp(11),
-                      color: AppColors.textSecondary,
-                    ),
+                    style: DS.textXs(color: AppColors.textSecondary),
                   ),
                 ],
               ),
@@ -642,20 +660,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
 
   Widget _buildImagePlaceholder() {
     return Container(
-      height: Responsive.hp(12),
+      height: 100,
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppColors.primary.withValues(alpha: 0.3),
-            AppColors.secondary.withValues(alpha: 0.3),
-          ],
-        ),
+        color: AppColors.primarySoft,
       ),
       child: Center(
         child: Icon(
-          Icons.person,
-          size: Responsive.sp(30),
-          color: Colors.white.withValues(alpha: 0.7),
+          Icons.person_rounded,
+          size: 32,
+          color: AppColors.primary.withValues(alpha: 0.5),
         ),
       ),
     );
@@ -999,78 +1012,84 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     final posts = MockData.posts.take(3).toList();
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: Responsive.wp(5)),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         children: posts.map((post) {
-          Map<String, dynamic>? author;
-          try {
-            author = MockData.idols.firstWhere((i) => i['id'] == post['authorId']);
-          } catch (_) {}
+          // Get author from embedded author object (fixed from authorId lookup)
+          final author = post['author'] as Map<String, dynamic>?;
 
-          return Container(
-            margin: EdgeInsets.only(bottom: Responsive.hp(1.5)),
-            padding: EdgeInsets.all(Responsive.wp(4)),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: AppColors.cardShadow(opacity: 0.05),
-            ),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  radius: Responsive.wp(6),
-                  backgroundColor: AppColors.primarySoft,
-                  backgroundImage: author?['profileImage'] != null
-                      ? CachedNetworkImageProvider(author!['profileImage'])
-                      : null,
-                  child: author?['profileImage'] == null
-                      ? Icon(Icons.person, color: AppColors.primary, size: Responsive.sp(20))
-                      : null,
-                ),
-                SizedBox(width: Responsive.wp(3)),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            author?['stageName'] ?? '익명',
-                            style: TextStyle(
-                              fontSize: Responsive.sp(14),
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          if (author?['isVerified'] ?? false)
-                            Padding(
-                              padding: const EdgeInsets.only(left: 4),
-                              child: Icon(
-                                Icons.verified,
-                                size: Responsive.sp(14),
-                                color: AppColors.primary,
+          return GestureDetector(
+            onTap: () => context.go('/community'),
+            child: Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: AppColors.cardShadow(opacity: 0.04),
+              ),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    radius: 22,
+                    backgroundColor: AppColors.primarySoft,
+                    backgroundImage: author?['profileImage'] != null
+                        ? CachedNetworkImageProvider(author!['profileImage'])
+                        : null,
+                    child: author?['profileImage'] == null
+                        ? const Icon(Icons.person, color: AppColors.primary, size: 20)
+                        : null,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                author?['nickname'] ?? author?['stageName'] ?? '익명',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                        ],
-                      ),
-                      SizedBox(height: Responsive.hp(0.3)),
-                      Text(
-                        post['content'] ?? '',
-                        style: TextStyle(
-                          fontSize: Responsive.sp(12),
-                          color: AppColors.textSecondary,
+                            if (author?['isVerified'] == true)
+                              const Padding(
+                                padding: EdgeInsets.only(left: 4),
+                                child: Icon(
+                                  Icons.verified,
+                                  size: 14,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                          ],
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
+                        const SizedBox(height: 2),
+                        Text(
+                          post['content'] ?? '',
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: AppColors.textSecondary,
+                            height: 1.3,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                Icon(
-                  Icons.chevron_right_rounded,
-                  color: AppColors.textHint,
-                  size: Responsive.sp(20),
-                ),
-              ],
+                  const Icon(
+                    Icons.chevron_right_rounded,
+                    color: AppColors.textHint,
+                    size: 20,
+                  ),
+                ],
+              ),
             ),
           );
         }).toList(),

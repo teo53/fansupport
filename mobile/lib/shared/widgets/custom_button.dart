@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../core/theme/app_colors.dart';
-import '../../core/utils/responsive.dart';
+import '../../core/theme/design_system.dart';
 
 /// 기본 커스텀 버튼
+/// 높이: sm=40, md=48, lg=56 (기본값: lg)
+/// 반경: 16px (DS.radiusMd)
 class CustomButton extends StatefulWidget {
   final VoidCallback? onPressed;
   final Widget child;
@@ -23,7 +25,7 @@ class CustomButton extends StatefulWidget {
     this.isLoading = false,
     this.isOutlined = false,
     this.width,
-    this.height = 56,
+    this.height = DS.buttonHeightLg,
     this.backgroundColor,
     this.foregroundColor,
     this.borderRadius,
@@ -74,7 +76,7 @@ class _CustomButtonState extends State<CustomButton>
 
   @override
   Widget build(BuildContext context) {
-    final radius = widget.borderRadius ?? BorderRadius.circular(16);
+    final radius = widget.borderRadius ?? DS.borderRadiusMd;
 
     return GestureDetector(
       onTapDown: _onTapDown,
@@ -151,6 +153,8 @@ class _CustomButtonState extends State<CustomButton>
 }
 
 /// 그라데이션 버튼 (프리미엄 느낌)
+/// 높이: 56px (DS.buttonHeightLg)
+/// 반경: 16px (DS.radiusMd)
 class GradientButton extends StatefulWidget {
   final VoidCallback? onPressed;
   final Widget child;
@@ -168,7 +172,7 @@ class GradientButton extends StatefulWidget {
     required this.child,
     this.isLoading = false,
     this.width,
-    this.height = 56,
+    this.height = DS.buttonHeightLg,
     this.gradient = AppColors.primaryGradient,
     this.borderRadius,
     this.enableGlow = true,
@@ -225,7 +229,7 @@ class _GradientButtonState extends State<GradientButton>
 
   @override
   Widget build(BuildContext context) {
-    final radius = widget.borderRadius ?? BorderRadius.circular(16);
+    final radius = widget.borderRadius ?? DS.borderRadiusMd;
     final isEnabled = widget.onPressed != null && !widget.isLoading;
 
     return GestureDetector(
@@ -476,10 +480,10 @@ class SocialButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: 56,
+      height: DS.buttonHeightLg,
       decoration: BoxDecoration(
         color: backgroundColor,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: DS.borderRadiusMd,
         border: backgroundColor == Colors.white
             ? Border.all(color: AppColors.border)
             : null,
@@ -488,7 +492,7 @@ class SocialButton extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: isLoading ? null : onPressed,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: DS.borderRadiusMd,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Row(
@@ -530,6 +534,8 @@ class SocialButton extends StatelessWidget {
 }
 
 /// 칩 버튼 (태그, 필터용)
+/// 높이: 36px (DS.chipHeight)
+/// 반경: 12px (DS.radiusSm)
 class ChipButton extends StatelessWidget {
   final String label;
   final bool isSelected;
@@ -556,14 +562,14 @@ class ChipButton extends StatelessWidget {
         onPressed?.call();
       },
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+        duration: DS.durationFast,
+        height: DS.chipHeight,
         padding: EdgeInsets.symmetric(
-          horizontal: icon != null ? 12 : 16,
-          vertical: 10,
+          horizontal: icon != null ? DS.space3 : DS.space4,
         ),
         decoration: BoxDecoration(
           color: isSelected ? color : AppColors.backgroundAlt,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: DS.borderRadiusSm,
           border: Border.all(
             color: isSelected ? color : AppColors.border,
             width: 1,
