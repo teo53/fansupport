@@ -8,6 +8,7 @@ import '../../../core/theme/design_system.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../core/mock/mock_data.dart';
 import '../../auth/providers/auth_provider.dart';
+import '../../../shared/widgets/contribution_chart.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -115,12 +116,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   child: _buildHeader(context, user),
                 ),
 
+                // ⭐ 내 기여도 카드 (핵심 과시 기능 - 최상단 배치)
+                SliverToBoxAdapter(
+                  child: _buildMyContributionCard(context, user),
+                ),
+
                 // Wallet Card
                 SliverToBoxAdapter(
                   child: _buildWalletCard(context, user),
                 ),
 
-                // Quick Actions
+                // 오늘의 스케줄 (초기 유저 훅)
+                SliverToBoxAdapter(
+                  child: _buildTodaySchedule(context),
+                ),
+
+                // Quick Actions (전략적으로 하단 네비와 중복 제거)
                 SliverToBoxAdapter(
                   child: _buildQuickActions(context),
                 ),
@@ -421,18 +432,304 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     );
   }
 
+  /// 내 기여도 카드 - 핵심 과시 기능
+  /// 핵심 UX: "내가 이 아이돌에게 얼마를 사용했냐"를 과시
+  Widget _buildMyContributionCard(BuildContext context, dynamic user) {
+    // Mock 데이터 - 실제로는 사용자의 기여 데이터
+    final myRank = 3;
+    final myPercentage = 15.2;
+    final totalContributed = 2580000;
+    final topIdol = '하늘별';
+
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: Responsive.wp(5),
+        vertical: Responsive.hp(1),
+      ),
+      child: GestureDetector(
+        onTap: () {
+          HapticFeedback.lightImpact();
+          // TODO: 내 기여도 상세 페이지
+        },
+        child: Container(
+          padding: const EdgeInsets.all(DS.space4),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                AppColors.secondary.withValues(alpha: 0.15),
+                AppColors.primary.withValues(alpha: 0.1),
+              ],
+            ),
+            borderRadius: DS.borderRadiusLg,
+            border: Border.all(
+              color: AppColors.primary.withValues(alpha: 0.2),
+            ),
+          ),
+          child: Row(
+            children: [
+              // 랭킹 배지
+              Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  gradient: AppColors.goldGradient,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.gold.withValues(alpha: 0.4),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.emoji_events_rounded,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                    Text(
+                      '$myRank위',
+                      style: DS.textSm(
+                        color: Colors.white,
+                        weight: DS.weightBold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: DS.space4),
+
+              // 기여도 정보
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            'TOP $myRank',
+                            style: DS.textXs(
+                              color: Colors.white,
+                              weight: DS.weightBold,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          '$topIdol 서포터',
+                          style: DS.textSm(color: AppColors.textSecondary),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      '₩${_formatCurrency(totalContributed)} 후원',
+                      style: DS.textXl(weight: DS.weightBold),
+                    ),
+                    const SizedBox(height: 2),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.trending_up_rounded,
+                          size: 14,
+                          color: AppColors.success,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '전체 $myPercentage% 기여',
+                          style: DS.textXs(
+                            color: AppColors.success,
+                            weight: DS.weightMedium,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              // 공유 버튼
+              IconButton(
+                onPressed: () {
+                  HapticFeedback.lightImpact();
+                  // TODO: 기여도 공유 기능
+                },
+                icon: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.share_rounded,
+                    color: AppColors.primary,
+                    size: 20,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// 오늘의 스케줄 - 초기 유저 훅 기능
+  Widget _buildTodaySchedule(BuildContext context) {
+    // Mock 스케줄 데이터
+    final todaySchedules = [
+      {'idol': '하늘별', 'title': '정기 라이브', 'time': '19:00', 'type': 'LIVE'},
+      {'idol': '루나', 'title': '팬 사인회', 'time': '14:00', 'type': 'EVENT'},
+    ];
+
+    if (todaySchedules.isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: Responsive.wp(5),
+        vertical: Responsive.hp(1.5),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: AppColors.secondary.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(
+                      Icons.calendar_today_rounded,
+                      color: AppColors.secondary,
+                      size: 16,
+                    ),
+                  ),
+                  const SizedBox(width: DS.space2),
+                  Text(
+                    '오늘의 스케줄',
+                    style: DS.textBase(weight: DS.weightBold),
+                  ),
+                ],
+              ),
+              GestureDetector(
+                onTap: () => context.go('/schedule'),
+                child: Text(
+                  '전체보기',
+                  style: DS.textSm(
+                    color: AppColors.primary,
+                    weight: DS.weightMedium,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: DS.space3),
+          ...todaySchedules.map((schedule) => _buildScheduleItem(context, schedule)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildScheduleItem(BuildContext context, Map<String, dynamic> schedule) {
+    final typeColors = {
+      'LIVE': AppColors.primary,
+      'EVENT': AppColors.secondary,
+    };
+    final color = typeColors[schedule['type']] ?? AppColors.primary;
+
+    return GestureDetector(
+      onTap: () => context.go('/schedule'),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: DS.space2),
+        padding: const EdgeInsets.symmetric(
+          horizontal: DS.space3,
+          vertical: DS.space2,
+        ),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: DS.borderRadiusSm,
+          border: Border.all(color: AppColors.border),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 4,
+              height: 32,
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(width: DS.space3),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    schedule['title'] as String,
+                    style: DS.textSm(weight: DS.weightSemibold),
+                  ),
+                  Text(
+                    schedule['idol'] as String,
+                    style: DS.textXs(color: AppColors.textSecondary),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                schedule['time'] as String,
+                style: DS.textXs(
+                  color: color,
+                  weight: DS.weightBold,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 퀵액션 - 하단 네비와 중복 제거
+  /// 하단 네비: 홈, 스케줄, 펀딩, 아이돌, 마이
+  /// 퀵액션: 버블, 데이트권, 광고, 랭킹 (네비에 없는 것들)
   Widget _buildQuickActions(BuildContext context) {
     final actions = [
-      {'icon': Icons.star_rounded, 'label': '아이돌', 'route': '/idols', 'color': AppColors.idolCategory},
       {'icon': Icons.chat_bubble_rounded, 'label': '버블', 'route': '/bubble', 'color': AppColors.neonPink},
       {'icon': Icons.restaurant_rounded, 'label': '데이트권', 'route': '/date-tickets', 'color': AppColors.secondary},
-      {'icon': Icons.campaign_rounded, 'label': '광고', 'route': '/ad-shop', 'color': AppColors.gold},
+      {'icon': Icons.campaign_rounded, 'label': '광고펀딩', 'route': '/ad-shop', 'color': AppColors.gold},
+      {'icon': Icons.emoji_events_rounded, 'label': '랭킹', 'route': '/ranking', 'color': AppColors.primary},
     ];
 
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: Responsive.wp(5),
-        vertical: Responsive.hp(2.5),
+        vertical: Responsive.hp(2),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -445,23 +742,26 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
             child: Column(
               children: [
                 Container(
-                  width: Responsive.wp(16),
-                  height: Responsive.wp(16),
+                  width: Responsive.wp(15),
+                  height: Responsive.wp(15),
                   decoration: BoxDecoration(
                     color: (action['color'] as Color).withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(
+                      color: (action['color'] as Color).withValues(alpha: 0.2),
+                    ),
                   ),
                   child: Icon(
                     action['icon'] as IconData,
                     color: action['color'] as Color,
-                    size: Responsive.sp(26),
+                    size: Responsive.sp(24),
                   ),
                 ),
-                SizedBox(height: Responsive.hp(1)),
+                SizedBox(height: Responsive.hp(0.8)),
                 Text(
                   action['label'] as String,
                   style: TextStyle(
-                    fontSize: Responsive.sp(12),
+                    fontSize: Responsive.sp(11),
                     fontWeight: FontWeight.w600,
                     color: AppColors.textPrimary,
                   ),

@@ -2,7 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/design_system.dart';
 
+/// 메인 화면 - 전략적 하단 네비게이션 구조
+///
+/// 네비게이션 전략:
+/// 1. 홈 - 내 기여도 + 개인화된 대시보드
+/// 2. 스케줄 - 초기 유저 유입 훅 (일상적 유틸리티)
+/// 3. 펀딩 - 핵심 수익 모델 (가운데 강조)
+/// 4. 아이돌 - 콘텐츠 탐색
+/// 5. 마이 - 기여도 과시 + 설정
+///
+/// 커뮤니티는 유저 수 N명 이상일 때 조건부 활성화 (설정에서 접근)
 class MainScreen extends StatefulWidget {
   final Widget child;
 
@@ -15,18 +26,23 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _calculateSelectedIndex(BuildContext context) {
     final location = GoRouterState.of(context).matchedLocation;
-    if (location.startsWith('/idols') || location.startsWith('/ranking')) {
+    // 스케줄 탭 (초기 유저 훅 - 2번째)
+    if (location.startsWith('/schedule')) {
       return 1;
     }
+    // 펀딩 탭 (가운데 강조 - 3번째)
     if (location.startsWith('/campaigns')) {
       return 2;
     }
-    if (location.startsWith('/community')) {
+    // 아이돌 탭 (4번째)
+    if (location.startsWith('/idols') || location.startsWith('/ranking')) {
       return 3;
     }
+    // 마이 탭 (5번째)
     if (location.startsWith('/profile') || location.startsWith('/wallet')) {
       return 4;
     }
+    // 홈 (1번째)
     return 0;
   }
 
@@ -37,13 +53,13 @@ class _MainScreenState extends State<MainScreen> {
         context.go('/');
         break;
       case 1:
-        context.go('/idols');
+        context.go('/schedule');
         break;
       case 2:
         context.go('/campaigns');
         break;
       case 3:
-        context.go('/community');
+        context.go('/idols');
         break;
       case 4:
         context.go('/profile');
@@ -75,6 +91,7 @@ class _MainScreenState extends State<MainScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 4),
           child: Row(
             children: [
+              // 1. 홈 - 내 기여도 대시보드
               _buildNavItem(
                 context: context,
                 index: 0,
@@ -83,23 +100,27 @@ class _MainScreenState extends State<MainScreen> {
                 selectedIcon: Icons.home_rounded,
                 label: '홈',
               ),
+              // 2. 스케줄 - 초기 유저 훅 (매일 사용하는 유틸리티)
               _buildNavItem(
                 context: context,
                 index: 1,
+                selectedIndex: selectedIndex,
+                icon: Icons.calendar_today_outlined,
+                selectedIcon: Icons.calendar_today_rounded,
+                label: '스케줄',
+              ),
+              // 3. 펀딩 - 가운데 강조 (핵심 수익)
+              _buildCenterNavItem(context, selectedIndex),
+              // 4. 아이돌 - 콘텐츠 탐색
+              _buildNavItem(
+                context: context,
+                index: 3,
                 selectedIndex: selectedIndex,
                 icon: Icons.favorite_outline_rounded,
                 selectedIcon: Icons.favorite_rounded,
                 label: '아이돌',
               ),
-              _buildCenterNavItem(context, selectedIndex),
-              _buildNavItem(
-                context: context,
-                index: 3,
-                selectedIndex: selectedIndex,
-                icon: Icons.chat_bubble_outline_rounded,
-                selectedIcon: Icons.chat_bubble_rounded,
-                label: '커뮤니티',
-              ),
+              // 5. 마이 - 기여도 과시 + 설정
               _buildNavItem(
                 context: context,
                 index: 4,

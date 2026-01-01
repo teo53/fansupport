@@ -20,6 +20,8 @@ import '../../features/bubble/screens/bubble_list_screen.dart';
 import '../../features/date_ticket/screens/date_ticket_screen.dart';
 import '../../features/advertisement/screens/ad_shop_screen.dart';
 import '../../features/crm/screens/idol_registration_screen.dart';
+import '../../features/schedule/screens/schedule_screen.dart';
+import '../../features/crm/screens/agency_crm_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authStateProvider);
@@ -56,6 +58,11 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/',
             builder: (context, state) => const HomeScreen(),
+          ),
+          // 스케줄 - 초기 유저 유입 훅
+          GoRoute(
+            path: '/schedule',
+            builder: (context, state) => const ScheduleScreen(),
           ),
           GoRoute(
             path: '/idols',
@@ -118,6 +125,11 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/crm/register-idol',
             builder: (context, state) => const IdolRegistrationScreen(),
+          ),
+          // 소속사 CRM 대시보드
+          GoRoute(
+            path: '/crm/dashboard',
+            builder: (context, state) => const AgencyCrmScreen(),
           ),
         ],
       ),
