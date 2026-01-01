@@ -16,11 +16,14 @@ defaults:
   run:
     working-directory: mobile
 
+env:
+  GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
+
 jobs:
   build-apk:
     name: Build APK
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
 
     steps:
       - uses: actions/checkout@v4
@@ -48,7 +51,12 @@ jobs:
         run: flutter pub get
 
       - name: Build APK
-        run: flutter build apk --${{ github.event.inputs.build_type }} --no-tree-shake-icons
+        run: |
+          flutter build apk --${{ github.event.inputs.build_type }} \
+            --no-tree-shake-icons \
+            --dart-define=FLUTTER_BUILD_MODE=${{ github.event.inputs.build_type }}
+        env:
+          GRADLE_OPTS: "-Xmx3g -XX:+UseParallelGC -Dorg.gradle.daemon=false"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
