@@ -953,6 +953,7 @@ class IdolDetailScreen extends ConsumerWidget {
     final medals = [Icons.looks_one, Icons.looks_two, Icons.looks_3];
     final colors = [AppColors.gold, AppColors.silver, AppColors.bronze];
     final names = ['최고의팬', '열정서포터', '응원단장'];
+    final bgColors = ['FBBF24', '94A3B8', 'F97316'];
 
     return Padding(
       padding: EdgeInsets.only(bottom: Responsive.hp(1.5)),
@@ -963,7 +964,7 @@ class IdolDetailScreen extends ConsumerWidget {
           CircleAvatar(
             radius: Responsive.wp(5),
             backgroundImage: CachedNetworkImageProvider(
-              'https://i.pravatar.cc/100?img=${index + 10}',
+              'https://ui-avatars.com/api/?name=${Uri.encodeComponent(names[index])}&background=${bgColors[index]}&color=fff&size=100&font-size=0.4&rounded=true',
             ),
           ),
           SizedBox(width: Responsive.wp(3)),

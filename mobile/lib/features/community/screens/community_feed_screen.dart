@@ -98,19 +98,14 @@ class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen> {
     final postId = post['id'] as String;
     final isLiked = _likedPosts.contains(postId);
     final isBookmarked = _bookmarkedPosts.contains(postId);
-    final likesCount = (post['likes'] as int) + (isLiked ? 1 : 0);
+    final likesCount = ((post['likeCount'] ?? post['likes'] ?? 0) as int) + (isLiked ? 1 : 0);
     final isSubscriberOnly = post['isSubscriberOnly'] ?? false;
-    final hasImage = post['imageUrl'] != null;
+    final images = post['images'] as List<dynamic>? ?? [];
+    final hasImage = images.isNotEmpty;
 
-    // Get author info
-    Map<String, dynamic>? author;
-    try {
-      author = MockData.idols.firstWhere((i) => i['id'] == post['authorId']);
-    } catch (e) {
-      author = null;
-    }
-
-    final isIdol = author != null;
+    // Get author info from embedded author object
+    final author = post['author'] as Map<String, dynamic>?;
+    final isIdol = author != null && (author['isVerified'] ?? false);
 
     return Card(
       margin: EdgeInsets.only(bottom: Responsive.hp(2)),
@@ -146,7 +141,7 @@ class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen> {
                         children: [
                           Flexible(
                             child: Text(
-                              author?['stageName'] ?? post['authorName'] ?? '익명',
+                              author?['nickname'] ?? author?['stageName'] ?? '익명',
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: Responsive.sp(15),
@@ -154,7 +149,7 @@ class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen> {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          if (isIdol && (author?['isVerified'] ?? false)) ...[
+                          if (author?['isVerified'] == true) ...[
                             SizedBox(width: Responsive.wp(1)),
                             Icon(
                               Icons.verified,
@@ -210,54 +205,87 @@ class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen> {
               ),
             ),
 
-            // Image
+            // Images
             if (hasImage) ...[
               SizedBox(height: Responsive.hp(1.5)),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: CachedNetworkImage(
-                  imageUrl: post['imageUrl'],
-                  height: Responsive.hp(25),
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => Container(
+              if (images.length == 1)
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: CachedNetworkImage(
+                    imageUrl: images[0] as String,
                     height: Responsive.hp(25),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          AppColors.primary.withOpacity(0.3),
-                          AppColors.secondary.withOpacity(0.3),
-                        ],
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => Container(
+                      height: Responsive.hp(25),
+                      decoration: BoxDecoration(
+                        color: AppColors.primarySoft,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Center(
+                        child: Icon(
+                          Icons.image,
+                          size: Responsive.sp(40),
+                          color: AppColors.primary.withValues(alpha: 0.5),
+                        ),
                       ),
                     ),
-                    child: Center(
-                      child: Icon(
-                        Icons.image,
-                        size: Responsive.sp(50),
-                        color: Colors.white.withOpacity(0.5),
+                    errorWidget: (context, url, error) => Container(
+                      height: Responsive.hp(25),
+                      decoration: BoxDecoration(
+                        color: AppColors.primarySoft,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Center(
+                        child: Icon(
+                          Icons.broken_image,
+                          size: Responsive.sp(40),
+                          color: AppColors.textTertiary,
+                        ),
                       ),
                     ),
                   ),
-                  errorWidget: (context, url, error) => Container(
-                    height: Responsive.hp(25),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          AppColors.primary.withOpacity(0.3),
-                          AppColors.secondary.withOpacity(0.3),
-                        ],
-                      ),
-                    ),
-                    child: Center(
-                      child: Icon(
-                        Icons.image,
-                        size: Responsive.sp(50),
-                        color: Colors.white.withOpacity(0.5),
+                )
+              else
+                SizedBox(
+                  height: Responsive.hp(15),
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: images.length,
+                    separatorBuilder: (_, __) => SizedBox(width: Responsive.wp(2)),
+                    itemBuilder: (context, index) => ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: CachedNetworkImage(
+                        imageUrl: images[index] as String,
+                        width: Responsive.hp(15),
+                        height: Responsive.hp(15),
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => Container(
+                          width: Responsive.hp(15),
+                          height: Responsive.hp(15),
+                          color: AppColors.primarySoft,
+                          child: Center(
+                            child: Icon(
+                              Icons.image,
+                              size: Responsive.sp(24),
+                              color: AppColors.primary.withValues(alpha: 0.5),
+                            ),
+                          ),
+                        ),
+                        errorWidget: (context, url, error) => Container(
+                          width: Responsive.hp(15),
+                          height: Responsive.hp(15),
+                          color: AppColors.inputBackground,
+                          child: Icon(
+                            Icons.broken_image,
+                            size: Responsive.sp(24),
+                            color: AppColors.textTertiary,
+                          ),
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
             ],
             SizedBox(height: Responsive.hp(1.5)),
 
@@ -283,7 +311,7 @@ class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen> {
                 _buildActionButton(
                   context,
                   icon: Icons.chat_bubble_outline,
-                  label: '${post['comments'] ?? 0}',
+                  label: '${post['commentCount'] ?? post['comments'] ?? 0}',
                   onTap: () {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('댓글 기능은 준비 중입니다')),

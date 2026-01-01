@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../core/utils/responsive.dart';
 
 class MainScreen extends StatefulWidget {
   final Widget child;
@@ -54,7 +53,6 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Responsive.init(context);
     final selectedIndex = _calculateSelectedIndex(context);
 
     return Scaffold(
@@ -68,21 +66,14 @@ class _MainScreenState extends State<MainScreen> {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
-            blurRadius: 20,
-            offset: const Offset(0, -4),
-          ),
-        ],
+        boxShadow: AppColors.bottomNavShadow(),
       ),
       child: SafeArea(
         top: false,
         child: Container(
-          height: 70,
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+          height: 64,
+          padding: const EdgeInsets.symmetric(horizontal: 4),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _buildNavItem(
                 context: context,
@@ -141,38 +132,38 @@ class _MainScreenState extends State<MainScreen> {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           curve: Curves.easeOutCubic,
-          padding: const EdgeInsets.symmetric(vertical: 6),
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
               AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
                 padding: EdgeInsets.symmetric(
-                  horizontal: isSelected ? 16 : 0,
-                  vertical: isSelected ? 6 : 0,
+                  horizontal: isSelected ? 12 : 0,
+                  vertical: isSelected ? 4 : 0,
                 ),
                 decoration: BoxDecoration(
                   color: isSelected
                       ? AppColors.primary.withValues(alpha: 0.1)
                       : Colors.transparent,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(16),
                 ),
                 child: Icon(
                   isSelected ? selectedIcon : icon,
-                  size: 24,
+                  size: 22,
                   color: isSelected ? AppColors.primary : AppColors.textTertiary,
                 ),
               ),
-              const SizedBox(height: 4),
-              AnimatedDefaultTextStyle(
-                duration: const Duration(milliseconds: 200),
+              const SizedBox(height: 2),
+              Text(
+                label,
                 style: TextStyle(
-                  fontSize: 11,
+                  fontSize: 10,
                   fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                   color: isSelected ? AppColors.primary : AppColors.textTertiary,
-                  fontFamily: 'Pretendard',
                 ),
-                child: Text(label),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),
@@ -189,11 +180,13 @@ class _MainScreenState extends State<MainScreen> {
         onTap: () => _onItemTapped(context, 2),
         behavior: HitTestBehavior.opaque,
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              width: 52,
-              height: 52,
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              width: 44,
+              height: 44,
               decoration: BoxDecoration(
                 gradient: isSelected
                     ? AppColors.primaryGradient
@@ -201,55 +194,33 @@ class _MainScreenState extends State<MainScreen> {
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          AppColors.primary.withValues(alpha: 0.8),
-                          AppColors.secondary.withValues(alpha: 0.8),
+                          AppColors.primary.withValues(alpha: 0.85),
+                          AppColors.neonPurple.withValues(alpha: 0.85),
                         ],
                       ),
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.primary.withValues(alpha: isSelected ? 0.4 : 0.25),
-                    blurRadius: isSelected ? 16 : 12,
-                    offset: const Offset(0, 4),
-                    spreadRadius: isSelected ? 0 : -2,
+                    color: AppColors.primary.withValues(alpha: isSelected ? 0.35 : 0.2),
+                    blurRadius: isSelected ? 12 : 8,
+                    offset: const Offset(0, 3),
+                    spreadRadius: isSelected ? 0 : -1,
                   ),
                 ],
               ),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  // Shimmer effect
-                  if (isSelected)
-                    Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            Colors.white.withValues(alpha: 0.25),
-                            Colors.transparent,
-                            Colors.white.withValues(alpha: 0.1),
-                          ],
-                        ),
-                      ),
-                    ),
-                  Icon(
-                    Icons.rocket_launch_rounded,
-                    size: 26,
-                    color: Colors.white,
-                  ),
-                ],
+              child: Icon(
+                Icons.rocket_launch_rounded,
+                size: 22,
+                color: Colors.white,
               ),
             ),
             const SizedBox(height: 2),
             Text(
               '펀딩',
               style: TextStyle(
-                fontSize: 11,
+                fontSize: 10,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
                 color: isSelected ? AppColors.primary : AppColors.textSecondary,
-                fontFamily: 'Pretendard',
               ),
             ),
           ],

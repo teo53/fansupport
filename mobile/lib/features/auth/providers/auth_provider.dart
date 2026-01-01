@@ -63,7 +63,7 @@ class AuthNotifier extends Notifier<AsyncValue<AuthState>> {
         id: 'new-user-${DateTime.now().millisecondsSinceEpoch}',
         email: email,
         nickname: nickname,
-        profileImage: 'https://i.pravatar.cc/150?img=3',
+        profileImage: 'https://ui-avatars.com/api/?name=$nickname&background=5046E5&color=fff&size=150&font-size=0.4&rounded=true',
         role: 'FAN',
         isVerified: false,
         walletBalance: 50000,
