@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.idolsupport.idol_support"
-    compileSdk = 36
+    compileSdk = 35
     ndkVersion = "28.2.13676358"
 
     compileOptions {
