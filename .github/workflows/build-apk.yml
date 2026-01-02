@@ -62,11 +62,28 @@ jobs:
         run: flutter clean && flutter pub get
 
       - name: Build APK
-        run: flutter build apk --debug --no-tree-shake-icons --verbose 2>&1 || (echo "=== BUILD FAILED ===" && cat ~/.flutter-devtools.log 2>/dev/null || true && exit 1)
+        id: build
+        continue-on-error: true
+        run: |
+          flutter build apk --debug --no-tree-shake-icons 2>&1 | tee build_output.log
+          exit ${PIPESTATUS[0]}
+
+      - name: Upload build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: mobile/build_output.log
+          retention-days: 7
 
       - name: Upload APK
+        if: steps.build.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: app-${{ github.event.inputs.build_type || 'debug' }}-apk
           path: mobile/build/app/outputs/flutter-apk/app-${{ github.event.inputs.build_type || 'debug' }}.apk
           retention-days: 30
+
+      - name: Fail if build failed
+        if: steps.build.outcome == 'failure'
+        run: exit 1
