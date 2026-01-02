@@ -5,6 +5,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
 import '../../auth/providers/auth_provider.dart';
+import '../../agency/screens/agency_crm_dashboard_screen.dart';
+import '../../idol/screens/idol_crm_dashboard_screen.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -21,6 +23,20 @@ class ProfileScreen extends ConsumerWidget {
     Responsive.init(context);
     final user = ref.watch(currentUserProvider);
 
+    // Route to role-specific dashboard
+    final userRole = user?.role.toUpperCase() ?? 'FAN';
+
+    // Agency accounts see CRM Dashboard directly
+    if (userRole == 'AGENCY') {
+      return const AgencyCrmDashboardScreen();
+    }
+
+    // Idol accounts see Idol CRM Dashboard
+    if (userRole == 'IDOL') {
+      return const IdolCrmDashboardScreen();
+    }
+
+    // Fan accounts see the regular profile
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -260,7 +276,7 @@ class ProfileScreen extends ConsumerWidget {
             ),
             SizedBox(height: Responsive.hp(4)),
 
-            // Developer Menu (For Verification)
+            // Developer Menu (For Role Testing)
             Padding(
               padding: EdgeInsets.symmetric(horizontal: Responsive.wp(4)),
               child: Column(
@@ -278,25 +294,42 @@ class ProfileScreen extends ConsumerWidget {
                   _buildMenuItem(
                     context,
                     icon: Icons.business,
-                    title: 'Agency Dashboard',
+                    title: 'Agency CRM Dashboard',
+                    subtitle: '소속사 계정 미리보기',
                     color: Colors.redAccent,
-                    onTap: () => context.push('/agency'),
+                    onTap: () => context.push('/agency/crm'),
                   ),
                   _buildMenuItem(
                     context,
                     icon: Icons.mic_external_on,
-                    title: 'Idol Dashboard',
+                    title: 'Idol CRM Dashboard',
+                    subtitle: '아이돌 계정 미리보기',
                     color: Colors.redAccent,
-                    onTap: () {
-                      // Mock passing the first idol
-                      // In real app, fetch from auth/user
-                      // import MockData? Or just don't pass if not required?
-                      // Wait, route requires extra object.
-                      // I need to import MockData.
-                      // For now, I'll assume MockData is available or I'll just push without extra and handle null in screen?
-                      // No, screen expects it.
-                      // I will import MockData at top of file.
-                    },
+                    onTap: () => context.push('/idol/crm'),
+                  ),
+                  _buildMenuItem(
+                    context,
+                    icon: Icons.campaign,
+                    title: 'Campaigns (펀딩)',
+                    subtitle: '펀딩/캠페인 페이지',
+                    color: Colors.orange,
+                    onTap: () => context.push('/campaigns'),
+                  ),
+                  _buildMenuItem(
+                    context,
+                    icon: Icons.ads_click,
+                    title: 'Advertising',
+                    subtitle: '광고 구매',
+                    color: Colors.purple,
+                    onTap: () => context.push('/advertising'),
+                  ),
+                  _buildMenuItem(
+                    context,
+                    icon: Icons.feed,
+                    title: 'Idol Posts Feed',
+                    subtitle: '아이돌 게시글 피드',
+                    color: Colors.pink,
+                    onTap: () => context.push('/posts'),
                   ),
                 ],
               ),

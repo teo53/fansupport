@@ -19,13 +19,16 @@ class _MainScreenState extends State<MainScreen> {
     if (location.startsWith('/idols') || location.startsWith('/ranking')) {
       return 1;
     }
-    if (location.startsWith('/campaigns')) {
+    if (location.startsWith('/bubble') || location.startsWith('/posts')) {
       return 2;
     }
     if (location.startsWith('/community')) {
       return 3;
     }
-    if (location.startsWith('/profile') || location.startsWith('/wallet')) {
+    if (location.startsWith('/profile') ||
+        location.startsWith('/wallet') ||
+        location.startsWith('/agency') ||
+        location.startsWith('/idol/crm')) {
       return 4;
     }
     return 0;
@@ -41,7 +44,8 @@ class _MainScreenState extends State<MainScreen> {
         context.go('/idols');
         break;
       case 2:
-        context.go('/campaigns');
+        // Bubble/Messages - the core feature for fan communication
+        context.go('/bubble');
         break;
       case 3:
         context.go('/community');
@@ -237,8 +241,9 @@ class _MainScreenState extends State<MainScreen> {
                         ),
                       ),
                     ),
+                  // Bubble icon - core communication feature
                   Icon(
-                    Icons.rocket_launch_rounded,
+                    Icons.chat_bubble_rounded,
                     size: 26,
                     color: Colors.white,
                   ),
@@ -247,7 +252,7 @@ class _MainScreenState extends State<MainScreen> {
             ),
             const SizedBox(height: 2),
             Text(
-              '펀딩',
+              '버블',
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,

@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-enum UserRole { fan, idol, maid, admin }
+enum UserRole { fan, idol, maid, agency, admin }
 
 class User extends Equatable {
   final String id;
