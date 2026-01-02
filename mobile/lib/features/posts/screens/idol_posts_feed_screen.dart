@@ -22,10 +22,7 @@ class _IdolPostsFeedScreenState extends ConsumerState<IdolPostsFeedScreen> {
   @override
   void initState() {
     super.initState();
-    // Increment view count when posts are loaded
-    for (var post in _posts) {
-      post.viewCount++;
-    }
+    // Posts loaded - view counts are managed by the model
   }
 
   @override
@@ -154,13 +151,13 @@ class _IdolPostsFeedScreenState extends ConsumerState<IdolPostsFeedScreen> {
             ),
 
           // Post image
-          if (post.imageUrls.isNotEmpty) ...[
+          if (post.mediaUrls != null && post.mediaUrls!.isNotEmpty) ...[
             const SizedBox(height: 12),
-            _buildPostImages(post.imageUrls),
+            _buildPostImages(post.mediaUrls!),
           ],
 
           // Poll (if exists)
-          if (post.poll != null) ...[
+          if (post.pollOptions != null) ...[
             const SizedBox(height: 12),
             _buildPollWidget(post),
           ],
@@ -357,14 +354,14 @@ class _IdolPostsFeedScreenState extends ConsumerState<IdolPostsFeedScreen> {
 
   Widget _buildPollWidget(IdolPost post) {
     final totalVotes =
-        post.poll!.fold<int>(0, (sum, option) => sum + option.votes);
+        post.pollOptions!.fold<int>(0, (sum, option) => sum + option.voteCount);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Column(
-        children: post.poll!.map((option) {
+        children: post.pollOptions!.map((option) {
           final percentage =
-              totalVotes > 0 ? (option.votes / totalVotes * 100) : 0.0;
+              totalVotes > 0 ? (option.voteCount / totalVotes * 100) : 0.0;
           return Container(
             margin: const EdgeInsets.only(bottom: 8),
             child: InkWell(
@@ -673,9 +670,9 @@ class _IdolPostsFeedScreenState extends ConsumerState<IdolPostsFeedScreen> {
                 child: ListView.builder(
                   controller: scrollController,
                   padding: const EdgeInsets.all(16),
-                  itemCount: post.comments.length,
+                  itemCount: post.previewComments?.length ?? 0,
                   itemBuilder: (context, index) =>
-                      _buildCommentItem(post.comments[index]),
+                      _buildCommentItem(post.previewComments![index]),
                 ),
               ),
               Container(

@@ -8,17 +8,17 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../core/mock/mock_analytics_data.dart';
+import '../../../core/mock/mock_data.dart';
 import '../../../shared/models/idol_model.dart';
-import '../../../shared/models/analytics_model.dart';
 import '../../../shared/models/idol_post_model.dart';
 import '../../live/screens/live_screen.dart';
 
 /// 아이돌 CRM 대시보드
 /// 실시간 구독자, 매출, 게시물 통계, 피크 시간 분석
 class IdolCrmDashboardScreen extends ConsumerStatefulWidget {
-  final IdolModel idol;
+  final IdolModel? idol;
 
-  const IdolCrmDashboardScreen({super.key, required this.idol});
+  const IdolCrmDashboardScreen({super.key, this.idol});
 
   @override
   ConsumerState<IdolCrmDashboardScreen> createState() => _IdolCrmDashboardScreenState();
@@ -31,6 +31,8 @@ class _IdolCrmDashboardScreenState extends ConsumerState<IdolCrmDashboardScreen>
   int _todayRevenue = 3200000;
   int _liveViewers = 0;
   int _newSubscribersToday = 12;
+
+  IdolModel get _idol => _idol ?? MockData.idolModels.first;
 
   @override
   void initState() {
@@ -116,7 +118,7 @@ class _IdolCrmDashboardScreenState extends ConsumerState<IdolCrmDashboardScreen>
           const SizedBox(width: 12),
           CircleAvatar(
             radius: 22,
-            backgroundImage: CachedNetworkImageProvider(widget.idol.profileImage),
+            backgroundImage: CachedNetworkImageProvider(_idol.profileImage),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -126,14 +128,14 @@ class _IdolCrmDashboardScreenState extends ConsumerState<IdolCrmDashboardScreen>
                 Row(
                   children: [
                     Text(
-                      widget.idol.stageName,
+                      _idol.stageName,
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(width: 6),
-                    if (widget.idol.isVerified)
+                    if (_idol.isVerified)
                       const Icon(Icons.verified, color: AppColors.primary, size: 18),
                   ],
                 ),
@@ -350,8 +352,8 @@ class _IdolCrmDashboardScreenState extends ConsumerState<IdolCrmDashboardScreen>
       children: [
         _buildSummaryCard(
           title: '총 구독자',
-          value: '${widget.idol.subscriberCount}명',
-          subtitle: '+${((widget.idol.subscriberCount) * 0.08).toInt()}명 이번 달',
+          value: '${_idol.subscriberCount}명',
+          subtitle: '+${((_idol.subscriberCount) * 0.08).toInt()}명 이번 달',
           icon: Icons.people,
           color: Colors.purple,
         ),
@@ -447,7 +449,7 @@ class _IdolCrmDashboardScreenState extends ConsumerState<IdolCrmDashboardScreen>
                 color: Colors.red,
                 onTap: () {
                   Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => LiveScreen(idol: widget.idol)),
+                    MaterialPageRoute(builder: (_) => LiveScreen(idol: _idol)),
                   );
                 },
               ),
@@ -458,7 +460,7 @@ class _IdolCrmDashboardScreenState extends ConsumerState<IdolCrmDashboardScreen>
                 icon: Icons.send,
                 label: '메시지 발송',
                 color: AppColors.primary,
-                onTap: () => context.push('/message/create', extra: widget.idol),
+                onTap: () => context.push('/message/create', extra: _idol),
               ),
             ),
             const SizedBox(width: 12),
@@ -595,7 +597,7 @@ class _IdolCrmDashboardScreenState extends ConsumerState<IdolCrmDashboardScreen>
   // ==================== 게시물 탭 ====================
   Widget _buildPostsTab() {
     final posts = MockAnalyticsData.idolPosts
-        .where((p) => p.idolId == widget.idol.id)
+        .where((p) => p.idolId == _idol.id)
         .toList();
 
     return ListView(
@@ -991,7 +993,7 @@ class _IdolCrmDashboardScreenState extends ConsumerState<IdolCrmDashboardScreen>
       onPressed: () {
         HapticFeedback.mediumImpact();
         Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => LiveScreen(idol: widget.idol)),
+          MaterialPageRoute(builder: (_) => LiveScreen(idol: _idol)),
         );
       },
       backgroundColor: Colors.red,

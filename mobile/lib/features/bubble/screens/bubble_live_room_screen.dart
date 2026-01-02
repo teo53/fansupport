@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../core/mock/mock_analytics_data.dart';
+import '../../../core/mock/mock_data.dart';
 import '../../../shared/models/live_chat_model.dart';
 import '../../../shared/models/idol_model.dart';
 
@@ -18,9 +19,10 @@ import '../../../shared/models/idol_model.dart';
 /// 2. 아이돌이 특정 팬 메시지를 태그하면 모든 팬에게 보임
 /// 3. 아이돌은 모든 팬 메시지를 볼 수 있음
 class BubbleLiveRoomScreen extends ConsumerStatefulWidget {
-  final IdolModel idol;
+  final IdolModel? idol;
+  final String? roomId;
 
-  const BubbleLiveRoomScreen({super.key, required this.idol});
+  const BubbleLiveRoomScreen({super.key, this.idol, this.roomId});
 
   @override
   ConsumerState<BubbleLiveRoomScreen> createState() => _BubbleLiveRoomScreenState();
@@ -47,10 +49,12 @@ class _BubbleLiveRoomScreenState extends ConsumerState<BubbleLiveRoomScreen> {
   Timer? _updateTimer;
   int _viewerCount = 1234;
 
+  IdolModel get _idol => _idol ?? MockData.idolModels.first;
+
   @override
   void initState() {
     super.initState();
-    _liveRoom = MockAnalyticsData.getLiveRoom(widget.idol.id);
+    _liveRoom = MockAnalyticsData.getLiveRoom(_idol.id);
     _allMessages = MockAnalyticsData.getLiveChatMessages(_liveRoom.id, _myUserId);
     _filterVisibleMessages();
     _startRealtimeUpdates();
@@ -190,7 +194,7 @@ class _BubbleLiveRoomScreenState extends ConsumerState<BubbleLiveRoomScreen> {
             children: [
               CircleAvatar(
                 radius: 22,
-                backgroundImage: CachedNetworkImageProvider(widget.idol.profileImage),
+                backgroundImage: CachedNetworkImageProvider(_idol.profileImage),
               ),
               Positioned(
                 bottom: 0,
@@ -220,7 +224,7 @@ class _BubbleLiveRoomScreenState extends ConsumerState<BubbleLiveRoomScreen> {
                 Row(
                   children: [
                     Text(
-                      widget.idol.stageName,
+                      _idol.stageName,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 16,
@@ -301,7 +305,7 @@ class _BubbleLiveRoomScreenState extends ConsumerState<BubbleLiveRoomScreen> {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              '${widget.idol.stageName}님과 1:1 대화처럼 느껴져요\n다른 팬의 메시지는 보이지 않아요 💕',
+              '${_idol.stageName}님과 1:1 대화처럼 느껴져요\n다른 팬의 메시지는 보이지 않아요 💕',
               style: TextStyle(
                 color: Colors.white.withOpacity(0.9),
                 fontSize: 12,
@@ -346,7 +350,7 @@ class _BubbleLiveRoomScreenState extends ConsumerState<BubbleLiveRoomScreen> {
         children: [
           CircleAvatar(
             radius: 18,
-            backgroundImage: CachedNetworkImageProvider(message.senderProfileImage ?? widget.idol.profileImage),
+            backgroundImage: CachedNetworkImageProvider(message.senderProfileImage ?? _idol.profileImage),
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -637,7 +641,7 @@ class _BubbleLiveRoomScreenState extends ConsumerState<BubbleLiveRoomScreen> {
               style: const TextStyle(color: Colors.white, fontSize: 15),
               onChanged: (val) => setState(() {}),
               decoration: InputDecoration(
-                hintText: '${widget.idol.stageName}에게 메시지 보내기...',
+                hintText: '${_idol.stageName}에게 메시지 보내기...',
                 hintStyle: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 14),
                 counterText: '${_textController.text.length}/$charLimit',
                 counterStyle: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 10),
