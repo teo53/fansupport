@@ -1040,18 +1040,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     final services = [
       {
         'icon': Icons.calendar_month_rounded,
-        'title': '오프회 일정',
-        'subtitle': '아이돌과 직접 만나는 날',
+        'title': '겐바 캘린더',
+        'subtitle': '라이브/오프회 일정 확인',
         'price': '일정 보기',
-        'route': '/date-tickets',
+        'route': '/calendar',
         'gradient': AppColors.primaryGradient,
       },
       {
-        'icon': Icons.music_note_rounded,
-        'title': '공연 일정',
-        'subtitle': '라이브 공연 & 이벤트',
-        'price': '일정 보기',
-        'route': '/campaigns',
+        'icon': Icons.campaign_rounded,
+        'title': '광고 홍보',
+        'subtitle': '겐바/아이돌 홍보하기',
+        'price': '신청하기',
+        'route': '/advertising',
         'gradient': AppColors.premiumGradient,
       },
     ];

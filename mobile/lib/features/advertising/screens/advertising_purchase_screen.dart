@@ -1,138 +1,106 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Advertising package types
-enum AdPackageType {
-  banner,
-  featured,
-  push,
-  premium,
+/// 광고 섹션 타입
+enum AdSectionType {
+  mainPoster,      // 메인 포스터 섹션
+  homeBanner,      // 홈/캘린더 탭 배너 섹션
+  idolTab,         // 아이돌 탭 섹션
+  genbaDetail,     // 겐바 상세페이지 배너 섹션
 }
 
-/// Advertising target audience
-enum AdTargetAudience {
-  all,
-  subscribers,
-  nonSubscribers,
-  ageGroup,
-  region,
-}
-
-/// Advertising package model
-class AdPackage {
-  final String id;
+/// 광고 섹션 정보
+class AdSection {
+  final AdSectionType type;
   final String name;
   final String description;
-  final AdPackageType type;
-  final int price;
-  final int durationDays;
-  final int impressions;
-  final double clickRate;
   final List<String> features;
-  final bool isPopular;
-  final bool isBestValue;
+  final IconData icon;
+  final Color color;
 
-  const AdPackage({
-    required this.id,
+  const AdSection({
+    required this.type,
     required this.name,
     required this.description,
-    required this.type,
-    required this.price,
-    required this.durationDays,
-    required this.impressions,
-    required this.clickRate,
     required this.features,
-    this.isPopular = false,
-    this.isBestValue = false,
+    required this.icon,
+    required this.color,
   });
 }
 
-/// Mock advertising packages
-final List<AdPackage> adPackages = [
-  AdPackage(
-    id: 'banner_basic',
-    name: 'Basic Banner',
-    description: 'Entry-level banner advertising',
-    type: AdPackageType.banner,
-    price: 50000,
-    durationDays: 7,
-    impressions: 10000,
-    clickRate: 2.5,
+/// 광고 섹션 목록 (아지토 기준)
+final List<AdSection> adSections = [
+  AdSection(
+    type: AdSectionType.mainPoster,
+    name: '메인 포스터',
+    description: '홈탭 메인 포스터 자리\n가장 중요하고 눈에 띄는 위치',
     features: [
-      'Home feed banner',
-      'Basic targeting',
-      'Performance report',
+      '홈탭 최상단 노출',
+      '클릭 시 예매 페이지 이동',
+      '최신 오픈 겐바 상단 고정',
     ],
+    icon: Icons.photo_size_select_actual_rounded,
+    color: Colors.pink,
   ),
-  AdPackage(
-    id: 'banner_pro',
-    name: 'Pro Banner',
-    description: 'Enhanced banner with better placement',
-    type: AdPackageType.banner,
-    price: 150000,
-    durationDays: 14,
-    impressions: 50000,
-    clickRate: 3.5,
+  AdSection(
+    type: AdSectionType.homeBanner,
+    name: '홈/캘린더 배너',
+    description: '홈탭 하단 + 캘린더탭 상단 배너',
     features: [
-      'Prime placement',
-      'Advanced targeting',
-      'Real-time analytics',
-      'A/B testing',
+      '영상/음원/이미지 커스텀 가능',
+      '클릭 시 이동 페이지 자유 설정',
+      '요청 시 배너 무료 제작',
     ],
-    isPopular: true,
+    icon: Icons.view_carousel_rounded,
+    color: Colors.blue,
   ),
-  AdPackage(
-    id: 'featured_idol',
-    name: 'Featured Idol',
-    description: 'Get featured on the discover page',
-    type: AdPackageType.featured,
-    price: 300000,
-    durationDays: 7,
-    impressions: 100000,
-    clickRate: 5.0,
+  AdSection(
+    type: AdSectionType.idolTab,
+    name: '아이돌 탭',
+    description: '아이돌탭 상단 커버 영역',
     features: [
-      'Discover page feature',
-      'Trending section',
-      'Push notification',
-      'Social sharing boost',
+      '아이돌탭 상단 커버 제공',
+      '"오시 추가" 유도 컴포넌트',
+      '클릭 시 이동 페이지 자유 설정',
     ],
+    icon: Icons.people_rounded,
+    color: Colors.purple,
   ),
-  AdPackage(
-    id: 'push_campaign',
-    name: 'Push Campaign',
-    description: 'Direct push notifications to fans',
-    type: AdPackageType.push,
-    price: 200000,
-    durationDays: 3,
-    impressions: 30000,
-    clickRate: 8.0,
+  AdSection(
+    type: AdSectionType.genbaDetail,
+    name: '겐바 상세페이지',
+    description: '겐바 상세페이지 내 배너',
     features: [
-      'Direct push notification',
-      'Custom message',
-      'Target timing',
-      'Click tracking',
+      '겐바 상세 내 배너 노출',
+      '클릭 시 이동 페이지 자유 설정',
+      '관련 겐바 타겟팅 가능',
     ],
-  ),
-  AdPackage(
-    id: 'premium_spotlight',
-    name: 'Premium Spotlight',
-    description: 'Maximum exposure package',
-    type: AdPackageType.premium,
-    price: 500000,
-    durationDays: 30,
-    impressions: 500000,
-    clickRate: 4.5,
-    features: [
-      'All ad placements',
-      'Priority support',
-      'Custom creatives',
-      'Dedicated manager',
-      'Monthly report',
-      'ROI guarantee',
-    ],
-    isBestValue: true,
+    icon: Icons.article_rounded,
+    color: Colors.teal,
   ),
 ];
+
+/// 기간별 가격 계산 (일당)
+int getPricePerDay(int days) {
+  if (days == 1) return 30000;
+  if (days >= 2 && days <= 6) return 25000;
+  if (days >= 7 && days <= 13) return 20000;
+  return 15000; // 14일 이상
+}
+
+/// 총 가격 계산
+int calculateTotalPrice(int days, int sectionCount, {bool applyFullDiscount = false}) {
+  int pricePerDay = getPricePerDay(days);
+  int total = pricePerDay * days * sectionCount;
+
+  // 풀 섹션 (4개) 할인 15%
+  if (applyFullDiscount && sectionCount == 4) {
+    total = (total * 0.85).round();
+  }
+
+  return total;
+}
 
 class AdvertisingPurchaseScreen extends ConsumerStatefulWidget {
   const AdvertisingPurchaseScreen({super.key});
@@ -146,21 +114,37 @@ class _AdvertisingPurchaseScreenState
     extends ConsumerState<AdvertisingPurchaseScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  AdPackage? _selectedPackage;
-  AdTargetAudience _targetAudience = AdTargetAudience.all;
-  DateTime _startDate = DateTime.now().add(const Duration(days: 1));
-  final TextEditingController _budgetController = TextEditingController();
+
+  // 선택된 섹션들
+  final Set<AdSectionType> _selectedSections = {};
+
+  // 홍보 기간
+  int _promotionDays = 7;
+
+  // 신청자 유형
+  String _applicantType = '팬';
+
+  // 신청자 이름 (Presented by OOO)
+  final TextEditingController _applicantNameController = TextEditingController();
+
+  // 겐바 정보
+  final TextEditingController _genbaNameController = TextEditingController();
+  final TextEditingController _genbeDateController = TextEditingController();
+  final TextEditingController _linkUrlController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 2, vsync: this);
   }
 
   @override
   void dispose() {
     _tabController.dispose();
-    _budgetController.dispose();
+    _applicantNameController.dispose();
+    _genbaNameController.dispose();
+    _genbeDateController.dispose();
+    _linkUrlController.dispose();
     super.dispose();
   }
 
@@ -169,83 +153,238 @@ class _AdvertisingPurchaseScreenState
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: const Text('Advertising'),
-        backgroundColor: Colors.deepPurple,
-        foregroundColor: Colors.white,
+        title: const Text('광고 홍보'),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black87,
+        elevation: 0,
         bottom: TabBar(
           controller: _tabController,
-          labelColor: Colors.white,
-          unselectedLabelColor: Colors.white70,
-          indicatorColor: Colors.amber,
+          labelColor: Colors.pink,
+          unselectedLabelColor: Colors.grey,
+          indicatorColor: Colors.pink,
           tabs: const [
-            Tab(text: 'Packages', icon: Icon(Icons.local_offer)),
-            Tab(text: 'Create Ad', icon: Icon(Icons.add_circle)),
-            Tab(text: 'My Ads', icon: Icon(Icons.campaign)),
+            Tab(text: '홍보 신청', icon: Icon(Icons.campaign)),
+            Tab(text: '내 광고', icon: Icon(Icons.history)),
           ],
         ),
       ),
       body: TabBarView(
         controller: _tabController,
         children: [
-          _buildPackagesTab(),
-          _buildCreateAdTab(),
+          _buildApplicationTab(),
           _buildMyAdsTab(),
         ],
       ),
     );
   }
 
-  Widget _buildPackagesTab() {
-    return ListView(
+  Widget _buildApplicationTab() {
+    final totalPrice = calculateTotalPrice(
+      _promotionDays,
+      _selectedSections.length,
+      applyFullDiscount: _selectedSections.length == 4,
+    );
+
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
-      children: [
-        // Header stats
-        _buildStatsHeader(),
-        const SizedBox(height: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 안내 배너
+          _buildInfoBanner(),
+          const SizedBox(height: 20),
 
-        // Package categories
-        const Text(
-          'Advertising Packages',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
+          // 가격표
+          _buildPricingTable(),
+          const SizedBox(height: 20),
+
+          // 섹션 선택
+          _buildSectionTitle('광고 섹션 선택'),
+          const SizedBox(height: 12),
+          ...adSections.map((section) => _buildSectionCard(section)),
+          const SizedBox(height: 20),
+
+          // 기간 선택
+          _buildSectionTitle('홍보 기간'),
+          const SizedBox(height: 12),
+          _buildDurationSelector(),
+          const SizedBox(height: 20),
+
+          // 신청자 정보
+          _buildSectionTitle('신청자 정보'),
+          const SizedBox(height: 12),
+          _buildApplicantInfo(),
+          const SizedBox(height: 20),
+
+          // 겐바/아이돌 정보
+          _buildSectionTitle('홍보 대상'),
+          const SizedBox(height: 12),
+          _buildGenbaInfo(),
+          const SizedBox(height: 20),
+
+          // 노출 순서 안내
+          _buildExposurePriorityInfo(),
+          const SizedBox(height: 20),
+
+          // 예상 금액
+          _buildTotalPriceCard(totalPrice),
+          const SizedBox(height: 16),
+
+          // 신청 버튼
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: _selectedSections.isNotEmpty
+                  ? () => _showConfirmationDialog(totalPrice)
+                  : null,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.pink,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                disabledBackgroundColor: Colors.grey[300],
+              ),
+              child: Text(
+                _selectedSections.isEmpty
+                    ? '섹션을 선택해주세요'
+                    : '홍보 신청하기',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
           ),
-        ),
-        const SizedBox(height: 12),
-
-        // Package cards
-        ...adPackages.map((package) => _buildPackageCard(package)),
-      ],
+          const SizedBox(height: 40),
+        ],
+      ),
     );
   }
 
-  Widget _buildStatsHeader() {
+  Widget _buildInfoBanner() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Colors.deepPurple, Colors.purple],
+        gradient: LinearGradient(
+          colors: [Colors.pink.shade400, Colors.purple.shade400],
         ),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Your Advertising Performance',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 16),
           Row(
             children: [
-              _buildStatItem('Total Spent', '\$1,250', Icons.payments),
-              _buildStatItem('Impressions', '125K', Icons.visibility),
-              _buildStatItem('Clicks', '4.2K', Icons.touch_app),
-              _buildStatItem('CTR', '3.4%', Icons.trending_up),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.campaign, color: Colors.white),
+              ),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Text(
+                  '겐바/아이돌 홍보',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          _buildInfoRow('샘탄/오히로메/리리이베/일반 모두 신청 가능'),
+          _buildInfoRow('소속사/팀/팬 누구나 홍보 신청 가능'),
+          _buildInfoRow('"Presented by OOO" 형태로 신청자 표시'),
+          _buildInfoRow('4개 섹션 동시 진행 시 15% 할인'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 4),
+      child: Row(
+        children: [
+          Icon(Icons.check_circle, color: Colors.white.withValues(alpha: 0.8), size: 16),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.9),
+                fontSize: 13,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPricingTable() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            children: [
+              Icon(Icons.payments, color: Colors.pink),
+              SizedBox(width: 8),
+              Text(
+                '가격표 (섹션당)',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Table(
+            border: TableBorder.all(
+              color: Colors.grey.shade200,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            children: [
+              TableRow(
+                decoration: BoxDecoration(
+                  color: Colors.pink.shade50,
+                ),
+                children: const [
+                  Padding(
+                    padding: EdgeInsets.all(12),
+                    child: Text('기간', style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.all(12),
+                    child: Text('일당 가격', style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                ],
+              ),
+              _buildPriceRow('1일', '30,000원/일'),
+              _buildPriceRow('2일 ~ 6일', '25,000원/일'),
+              _buildPriceRow('7일 ~ 13일', '20,000원/일'),
+              _buildPriceRow('14일 ~', '15,000원/일'),
             ],
           ),
         ],
@@ -253,34 +392,39 @@ class _AdvertisingPurchaseScreenState
     );
   }
 
-  Widget _buildStatItem(String label, String value, IconData icon) {
-    return Expanded(
-      child: Column(
-        children: [
-          Icon(icon, color: Colors.white70, size: 24),
-          const SizedBox(height: 4),
-          Text(
-            value,
+  TableRow _buildPriceRow(String duration, String price) {
+    return TableRow(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(12),
+          child: Text(duration),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(12),
+          child: Text(
+            price,
             style: const TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
+              color: Colors.pink,
+              fontWeight: FontWeight.w600,
             ),
           ),
-          Text(
-            label,
-            style: const TextStyle(
-              color: Colors.white70,
-              fontSize: 11,
-            ),
-          ),
-        ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Text(
+      title,
+      style: const TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.bold,
       ),
     );
   }
 
-  Widget _buildPackageCard(AdPackage package) {
-    final isSelected = _selectedPackage?.id == package.id;
+  Widget _buildSectionCard(AdSection section) {
+    final isSelected = _selectedSections.contains(section.type);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -288,7 +432,7 @@ class _AdvertisingPurchaseScreenState
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isSelected ? Colors.deepPurple : Colors.transparent,
+          color: isSelected ? section.color : Colors.transparent,
           width: 2,
         ),
         boxShadow: [
@@ -300,461 +444,169 @@ class _AdvertisingPurchaseScreenState
         ],
       ),
       child: InkWell(
-        onTap: () => setState(() => _selectedPackage = package),
+        onTap: () {
+          HapticFeedback.selectionClick();
+          setState(() {
+            if (isSelected) {
+              _selectedSections.remove(section.type);
+            } else {
+              _selectedSections.add(section.type);
+            }
+          });
+        },
         borderRadius: BorderRadius.circular(16),
-        child: Stack(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      _buildPackageIcon(package.type),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              package.name,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                              package.description,
-                              style: TextStyle(
-                                color: Colors.grey[600],
-                                fontSize: 13,
-                              ),
-                            ),
-                          ],
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: section.color.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(section.icon, color: section.color, size: 28),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      section.name,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      section.description,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 4,
+                      runSpacing: 4,
+                      children: section.features.map((f) => Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
                         ),
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            '\$${(package.price / 1000).toStringAsFixed(0)}K',
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.deepPurple,
-                            ),
-                          ),
-                          Text(
-                            '${package.durationDays} days',
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      _buildMetricChip(
-                        Icons.visibility,
-                        '${(package.impressions / 1000).toStringAsFixed(0)}K impressions',
-                      ),
-                      const SizedBox(width: 8),
-                      _buildMetricChip(
-                        Icons.touch_app,
-                        '${package.clickRate}% CTR',
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 6,
-                    runSpacing: 6,
-                    children: package.features
-                        .map((f) => Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.grey[100],
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Text(
-                                f,
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  color: Colors.grey[700],
-                                ),
-                              ),
-                            ))
-                        .toList(),
-                  ),
-                  if (isSelected) ...[
-                    const SizedBox(height: 12),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () => _showPurchaseDialog(package),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.deepPurple,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[100],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          f,
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: Colors.grey[700],
                           ),
                         ),
-                        child: const Text('Purchase This Package'),
-                      ),
+                      )).toList(),
                     ),
                   ],
-                ],
-              ),
-            ),
-            if (package.isPopular)
-              Positioned(
-                top: 12,
-                right: 12,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.orange,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Text(
-                    'POPULAR',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
                 ),
               ),
-            if (package.isBestValue)
-              Positioned(
-                top: 12,
-                right: 12,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.green,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Text(
-                    'BEST VALUE',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+              Checkbox(
+                value: isSelected,
+                onChanged: (value) {
+                  HapticFeedback.selectionClick();
+                  setState(() {
+                    if (value == true) {
+                      _selectedSections.add(section.type);
+                    } else {
+                      _selectedSections.remove(section.type);
+                    }
+                  });
+                },
+                activeColor: section.color,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4),
                 ),
               ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildPackageIcon(AdPackageType type) {
-    IconData icon;
-    Color color;
-
-    switch (type) {
-      case AdPackageType.banner:
-        icon = Icons.view_carousel;
-        color = Colors.blue;
-        break;
-      case AdPackageType.featured:
-        icon = Icons.star;
-        color = Colors.amber;
-        break;
-      case AdPackageType.push:
-        icon = Icons.notifications_active;
-        color = Colors.red;
-        break;
-      case AdPackageType.premium:
-        icon = Icons.diamond;
-        color = Colors.purple;
-        break;
-    }
+  Widget _buildDurationSelector() {
+    final durations = [1, 3, 7, 14, 30];
 
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
-      child: Icon(icon, color: color, size: 28),
-    );
-  }
-
-  Widget _buildMetricChip(IconData icon, String text) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: Colors.deepPurple.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
+      child: Column(
         children: [
-          Icon(icon, size: 14, color: Colors.deepPurple),
-          const SizedBox(width: 4),
-          Text(
-            text,
-            style: const TextStyle(
-              fontSize: 12,
-              color: Colors.deepPurple,
-              fontWeight: FontWeight.w500,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: durations.map((days) {
+              final isSelected = _promotionDays == days;
+              return GestureDetector(
+                onTap: () {
+                  HapticFeedback.selectionClick();
+                  setState(() => _promotionDays = days);
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: isSelected ? Colors.pink : Colors.grey[100],
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    '$days일',
+                    style: TextStyle(
+                      color: isSelected ? Colors.white : Colors.grey[700],
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '일당 가격',
+                style: TextStyle(color: Colors.grey[600]),
+              ),
+              Text(
+                '${_formatCurrency(getPricePerDay(_promotionDays))}원/일',
+                style: const TextStyle(
+                  color: Colors.pink,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildCreateAdTab() {
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        // Campaign details
-        _buildSectionCard(
-          'Campaign Details',
-          Icons.campaign,
-          Column(
-            children: [
-              TextField(
-                decoration: InputDecoration(
-                  labelText: 'Campaign Name',
-                  hintText: 'e.g., Summer Concert Promotion',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  prefixIcon: const Icon(Icons.edit),
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                maxLines: 3,
-                decoration: InputDecoration(
-                  labelText: 'Campaign Description',
-                  hintText: 'Describe your campaign goals...',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  prefixIcon: const Icon(Icons.description),
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
-
-        // Target audience
-        _buildSectionCard(
-          'Target Audience',
-          Icons.people,
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: AdTargetAudience.values.map((audience) {
-                  final isSelected = _targetAudience == audience;
-                  return ChoiceChip(
-                    label: Text(_getAudienceLabel(audience)),
-                    selected: isSelected,
-                    onSelected: (selected) {
-                      if (selected) {
-                        setState(() => _targetAudience = audience);
-                      }
-                    },
-                    selectedColor: Colors.deepPurple,
-                    labelStyle: TextStyle(
-                      color: isSelected ? Colors.white : Colors.black87,
-                    ),
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                _getAudienceDescription(_targetAudience),
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 13,
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
-
-        // Schedule
-        _buildSectionCard(
-          'Schedule',
-          Icons.calendar_today,
-          Column(
-            children: [
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.play_arrow, color: Colors.green),
-                title: const Text('Start Date'),
-                subtitle: Text(
-                  '${_startDate.year}/${_startDate.month}/${_startDate.day}',
-                ),
-                trailing: TextButton(
-                  onPressed: () async {
-                    final date = await showDatePicker(
-                      context: context,
-                      initialDate: _startDate,
-                      firstDate: DateTime.now(),
-                      lastDate: DateTime.now().add(const Duration(days: 365)),
-                    );
-                    if (date != null) {
-                      setState(() => _startDate = date);
-                    }
-                  },
-                  child: const Text('Change'),
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
-
-        // Budget
-        _buildSectionCard(
-          'Budget',
-          Icons.attach_money,
-          Column(
-            children: [
-              TextField(
-                controller: _budgetController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  labelText: 'Daily Budget',
-                  hintText: 'Enter amount',
-                  prefixText: '\$ ',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  prefixIcon: const Icon(Icons.payments),
-                ),
-              ),
-              const SizedBox(height: 12),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.amber.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.lightbulb, color: Colors.amber),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        'Recommended: \$50-100/day for optimal reach',
-                        style: TextStyle(
-                          color: Colors.amber[800],
-                          fontSize: 13,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
-
-        // Creative upload
-        _buildSectionCard(
-          'Creative Assets',
-          Icons.image,
-          Column(
-            children: [
-              InkWell(
-                onTap: () {
-                  // TODO: Implement image picker
-                },
-                child: Container(
-                  height: 150,
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: Colors.grey[300]!,
-                      style: BorderStyle.solid,
-                    ),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.cloud_upload,
-                          size: 40,
-                          color: Colors.grey[400],
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Click to upload banner image',
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                        Text(
-                          'Recommended: 1200x628px',
-                          style: TextStyle(
-                            color: Colors.grey[400],
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 24),
-
-        // Submit button
-        ElevatedButton(
-          onPressed: () => _showCreateConfirmation(),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.deepPurple,
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-          child: const Text(
-            'Create Campaign',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSectionCard(String title, IconData icon, Widget content) {
+  Widget _buildApplicantInfo() {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -771,64 +623,326 @@ class _AdvertisingPurchaseScreenState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // 신청자 유형
+          const Text(
+            '신청자 유형',
+            style: TextStyle(fontWeight: FontWeight.w500),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: ['소속사', '팀', '팬'].map((type) {
+              final isSelected = _applicantType == type;
+              return Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: ChoiceChip(
+                  label: Text(type),
+                  selected: isSelected,
+                  onSelected: (selected) {
+                    if (selected) {
+                      setState(() => _applicantType = type);
+                    }
+                  },
+                  selectedColor: Colors.pink,
+                  labelStyle: TextStyle(
+                    color: isSelected ? Colors.white : Colors.black87,
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 16),
+
+          // 신청자 이름
+          const Text(
+            '표시될 이름 (Presented by)',
+            style: TextStyle(fontWeight: FontWeight.w500),
+          ),
+          const SizedBox(height: 8),
+          TextField(
+            controller: _applicantNameController,
+            decoration: InputDecoration(
+              hintText: '예: 하늘별 팬클럽',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 12,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGenbaInfo() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextField(
+            controller: _genbaNameController,
+            decoration: InputDecoration(
+              labelText: '겐바/아이돌 이름',
+              hintText: '예: MONQ 1st RELEASE LIVE',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _genbeDateController,
+            decoration: InputDecoration(
+              labelText: '겐바 날짜',
+              hintText: '예: 2025.05.23',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              suffixIcon: const Icon(Icons.calendar_today),
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _linkUrlController,
+            decoration: InputDecoration(
+              labelText: '클릭 시 이동할 링크 (선택)',
+              hintText: '예: 예매 페이지 URL',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              suffixIcon: const Icon(Icons.link),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildExposurePriorityInfo() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.amber.shade50,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.amber.shade200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
           Row(
             children: [
-              Icon(icon, color: Colors.deepPurple),
+              Icon(Icons.info_outline, color: Colors.amber.shade700),
               const SizedBox(width: 8),
               Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 16,
+                '노출 순서 안내',
+                style: TextStyle(
                   fontWeight: FontWeight.bold,
+                  color: Colors.amber.shade800,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          content,
+          const SizedBox(height: 12),
+          _buildPriorityRow('1순위', '섹션의 수'),
+          _buildPriorityRow('2순위', '홍보 기간'),
+          _buildPriorityRow('3순위', '신청 날짜'),
+          const SizedBox(height: 8),
+          Text(
+            '→ 동시에 쓰는 섹션의 수가 같다면, 홍보 기간이 길수록 앞에 노출돼요',
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.amber.shade700,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPriorityRow(String rank, String description) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            decoration: BoxDecoration(
+              color: Colors.amber.shade100,
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Text(
+              rank,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: Colors.amber.shade800,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(description),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTotalPriceCard(int totalPrice) {
+    final isFullPackage = _selectedSections.length == 4;
+    final originalPrice = isFullPackage
+        ? (totalPrice / 0.85).round()
+        : totalPrice;
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.pink.shade200),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.pink.withValues(alpha: 0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('선택 섹션'),
+              Text(
+                '${_selectedSections.length}개',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('홍보 기간'),
+              Text(
+                '$_promotionDays일',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          if (isFullPackage) ...[
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: const Text(
+                        '풀 섹션 할인',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const Text(
+                  '-15%',
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ],
+          const Divider(height: 24),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                '예상 결제 금액',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  if (isFullPackage)
+                    Text(
+                      '${_formatCurrency(originalPrice)}원',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[500],
+                        decoration: TextDecoration.lineThrough,
+                      ),
+                    ),
+                  Text(
+                    '${_formatCurrency(totalPrice)}원',
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.pink,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ],
       ),
     );
   }
 
   Widget _buildMyAdsTab() {
-    final mockCampaigns = [
+    // Mock data for my ads
+    final myAds = [
       {
-        'name': 'Summer Live Concert',
+        'name': 'MONQ 1st RELEASE',
+        'sections': ['메인 포스터', '홈/캘린더 배너'],
+        'period': '2025.05.20 ~ 2025.05.27',
         'status': 'active',
-        'budget': 150000,
-        'spent': 45000,
-        'impressions': 32500,
-        'clicks': 1250,
-        'startDate': '2024/01/15',
-        'endDate': '2024/01/22',
+        'presentedBy': '모옹 팬클럽',
       },
       {
-        'name': 'New Album Release',
+        'name': '하늘별 생일 이벤트',
+        'sections': ['아이돌 탭'],
+        'period': '2025.04.15 ~ 2025.04.22',
         'status': 'completed',
-        'budget': 300000,
-        'spent': 300000,
-        'impressions': 125000,
-        'clicks': 4200,
-        'startDate': '2024/01/01',
-        'endDate': '2024/01/14',
-      },
-      {
-        'name': 'Fan Meeting Promo',
-        'status': 'scheduled',
-        'budget': 200000,
-        'spent': 0,
-        'impressions': 0,
-        'clicks': 0,
-        'startDate': '2024/02/01',
-        'endDate': '2024/02/07',
+        'presentedBy': '하늘별 응원회',
       },
     ];
 
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        // Summary card
+        // Summary
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
@@ -842,94 +956,58 @@ class _AdvertisingPurchaseScreenState
               ),
             ],
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              const Text(
-                'Campaign Summary',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  _buildSummaryItem('Active', '1', Colors.green),
-                  _buildSummaryItem('Scheduled', '1', Colors.blue),
-                  _buildSummaryItem('Completed', '1', Colors.grey),
-                  _buildSummaryItem('Total', '3', Colors.deepPurple),
-                ],
-              ),
+              _buildStatColumn('진행 중', '1', Colors.green),
+              Container(width: 1, height: 40, color: Colors.grey[200]),
+              _buildStatColumn('완료', '1', Colors.grey),
+              Container(width: 1, height: 40, color: Colors.grey[200]),
+              _buildStatColumn('총 지출', '320K', Colors.pink),
             ],
           ),
         ),
         const SizedBox(height: 20),
 
         const Text(
-          'My Campaigns',
+          '내 광고 내역',
           style: TextStyle(
-            fontSize: 18,
+            fontSize: 16,
             fontWeight: FontWeight.bold,
           ),
         ),
         const SizedBox(height: 12),
 
-        // Campaign list
-        ...mockCampaigns.map((campaign) => _buildCampaignCard(campaign)),
+        ...myAds.map((ad) => _buildMyAdCard(ad)),
       ],
     );
   }
 
-  Widget _buildSummaryItem(String label, String value, Color color) {
-    return Expanded(
-      child: Column(
-        children: [
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
+  Widget _buildStatColumn(String label, String value, Color color) {
+    return Column(
+      children: [
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: color,
           ),
-          Text(
-            label,
-            style: TextStyle(
-              color: Colors.grey[600],
-              fontSize: 12,
-            ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.grey[600],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
-  Widget _buildCampaignCard(Map<String, dynamic> campaign) {
-    Color statusColor;
-    IconData statusIcon;
-
-    switch (campaign['status']) {
-      case 'active':
-        statusColor = Colors.green;
-        statusIcon = Icons.play_circle;
-        break;
-      case 'scheduled':
-        statusColor = Colors.blue;
-        statusIcon = Icons.schedule;
-        break;
-      case 'completed':
-        statusColor = Colors.grey;
-        statusIcon = Icons.check_circle;
-        break;
-      default:
-        statusColor = Colors.grey;
-        statusIcon = Icons.help;
-    }
-
-    final budget = campaign['budget'] as int;
-    final spent = campaign['spent'] as int;
-    final progress = budget > 0 ? spent / budget : 0.0;
+  Widget _buildMyAdCard(Map<String, dynamic> ad) {
+    final isActive = ad['status'] == 'active';
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -949,10 +1027,11 @@ class _AdvertisingPurchaseScreenState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
                 child: Text(
-                  campaign['name'] as String,
+                  ad['name'] as String,
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -965,160 +1044,61 @@ class _AdvertisingPurchaseScreenState
                   vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: statusColor.withValues(alpha: 0.1),
+                  color: isActive ? Colors.green.shade50 : Colors.grey.shade100,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(statusIcon, size: 14, color: statusColor),
-                    const SizedBox(width: 4),
-                    Text(
-                      (campaign['status'] as String).toUpperCase(),
-                      style: TextStyle(
-                        color: statusColor,
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
+                child: Text(
+                  isActive ? '진행 중' : '완료',
+                  style: TextStyle(
+                    color: isActive ? Colors.green : Colors.grey,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
+          Text(
+            'Presented by ${ad['presentedBy']}',
+            style: TextStyle(
+              color: Colors.grey[600],
+              fontSize: 13,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 6,
+            children: (ad['sections'] as List<String>).map((section) {
+              return Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.pink.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  section,
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Colors.pink.shade700,
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 8),
           Row(
             children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Budget',
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 12,
-                      ),
-                    ),
-                    Text(
-                      '\$${(budget / 1000).toStringAsFixed(0)}K',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Impressions',
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 12,
-                      ),
-                    ),
-                    Text(
-                      '${((campaign['impressions'] as int) / 1000).toStringAsFixed(1)}K',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Clicks',
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 12,
-                      ),
-                    ),
-                    Text(
-                      '${((campaign['clicks'] as int) / 1000).toStringAsFixed(1)}K',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'CTR',
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 12,
-                      ),
-                    ),
-                    Text(
-                      campaign['impressions'] as int > 0
-                          ? '${((campaign['clicks'] as int) / (campaign['impressions'] as int) * 100).toStringAsFixed(1)}%'
-                          : '-',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          // Progress bar
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Budget spent: \$${(spent / 1000).toStringAsFixed(1)}K',
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 12,
-                    ),
-                  ),
-                  Text(
-                    '${(progress * 100).toStringAsFixed(0)}%',
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(4),
-                child: LinearProgressIndicator(
-                  value: progress,
-                  backgroundColor: Colors.grey[200],
-                  valueColor: AlwaysStoppedAnimation<Color>(statusColor),
-                  minHeight: 6,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Icon(Icons.date_range, size: 14, color: Colors.grey[600]),
+              Icon(Icons.date_range, size: 14, color: Colors.grey[500]),
               const SizedBox(width: 4),
               Text(
-                '${campaign['startDate']} - ${campaign['endDate']}',
+                ad['period'] as String,
                 style: TextStyle(
-                  color: Colors.grey[600],
                   fontSize: 12,
+                  color: Colors.grey[600],
                 ),
               ),
             ],
@@ -1128,80 +1108,28 @@ class _AdvertisingPurchaseScreenState
     );
   }
 
-  String _getAudienceLabel(AdTargetAudience audience) {
-    switch (audience) {
-      case AdTargetAudience.all:
-        return 'All Users';
-      case AdTargetAudience.subscribers:
-        return 'Subscribers';
-      case AdTargetAudience.nonSubscribers:
-        return 'Non-Subscribers';
-      case AdTargetAudience.ageGroup:
-        return 'Age Group';
-      case AdTargetAudience.region:
-        return 'By Region';
-    }
-  }
-
-  String _getAudienceDescription(AdTargetAudience audience) {
-    switch (audience) {
-      case AdTargetAudience.all:
-        return 'Your ad will be shown to all users on the platform.';
-      case AdTargetAudience.subscribers:
-        return 'Target only users who are already subscribed to you.';
-      case AdTargetAudience.nonSubscribers:
-        return 'Target users who haven\'t subscribed yet - great for growth.';
-      case AdTargetAudience.ageGroup:
-        return 'Target specific age demographics (18-24, 25-34, etc.)';
-      case AdTargetAudience.region:
-        return 'Target users from specific countries or regions.';
-    }
-  }
-
-  void _showPurchaseDialog(AdPackage package) {
+  void _showConfirmationDialog(int totalPrice) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
-        title: Row(
-          children: [
-            _buildPackageIcon(package.type),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                package.name,
-                style: const TextStyle(fontSize: 18),
-              ),
-            ),
-          ],
-        ),
+        title: const Text('홍보 신청 확인'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(package.description),
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.grey[100],
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                children: [
-                  _buildDialogRow('Duration', '${package.durationDays} days'),
-                  _buildDialogRow(
-                      'Est. Impressions', '${package.impressions / 1000}K'),
-                  _buildDialogRow('Est. CTR', '${package.clickRate}%'),
-                  const Divider(),
-                  _buildDialogRow(
-                    'Total Price',
-                    '\$${(package.price / 1000).toStringAsFixed(0)}K',
-                    isBold: true,
-                  ),
-                ],
+            Text('선택 섹션: ${_selectedSections.length}개'),
+            Text('홍보 기간: $_promotionDays일'),
+            if (_applicantNameController.text.isNotEmpty)
+              Text('Presented by: ${_applicantNameController.text}'),
+            const Divider(),
+            Text(
+              '결제 금액: ${_formatCurrency(totalPrice)}원',
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.pink,
               ),
             ),
           ],
@@ -1209,47 +1137,25 @@ class _AdvertisingPurchaseScreenState
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: const Text('취소'),
           ),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
-              _showPaymentSuccess(package);
+              _showSuccessDialog();
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.deepPurple,
+              backgroundColor: Colors.pink,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
             ),
-            child: const Text('Purchase'),
+            child: const Text('신청하기'),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildDialogRow(String label, String value, {bool isBold = false}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label),
-          Text(
-            value,
-            style: TextStyle(
-              fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-              color: isBold ? Colors.deepPurple : null,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showPaymentSuccess(AdPackage package) {
+  void _showSuccessDialog() {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -1262,18 +1168,18 @@ class _AdvertisingPurchaseScreenState
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.green.withValues(alpha: 0.1),
+                color: Colors.green.shade50,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.check_circle,
-                color: Colors.green,
+                color: Colors.green.shade400,
                 size: 48,
               ),
             ),
             const SizedBox(height: 16),
             const Text(
-              'Purchase Successful!',
+              '신청 완료!',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -1281,7 +1187,7 @@ class _AdvertisingPurchaseScreenState
             ),
             const SizedBox(height: 8),
             Text(
-              'Your ${package.name} campaign will start shortly.',
+              '검토 후 24시간 내에 광고가 게시됩니다.',
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.grey[600]),
             ),
@@ -1293,16 +1199,13 @@ class _AdvertisingPurchaseScreenState
             child: ElevatedButton(
               onPressed: () {
                 Navigator.pop(context);
-                _tabController.animateTo(2); // Go to My Ads tab
+                _tabController.animateTo(1);
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepPurple,
+                backgroundColor: Colors.pink,
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
               ),
-              child: const Text('View My Campaigns'),
+              child: const Text('내 광고 보기'),
             ),
           ),
         ],
@@ -1310,41 +1213,10 @@ class _AdvertisingPurchaseScreenState
     );
   }
 
-  void _showCreateConfirmation() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        title: const Text('Create Campaign?'),
-        content: const Text(
-          'Your campaign will be reviewed and activated within 24 hours.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Campaign submitted for review!'),
-                  backgroundColor: Colors.green,
-                ),
-              );
-              _tabController.animateTo(2);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.deepPurple,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Submit'),
-          ),
-        ],
-      ),
-    );
+  String _formatCurrency(int amount) {
+    return amount.toString().replaceAllMapped(
+          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+          (Match m) => '${m[1]},',
+        );
   }
 }

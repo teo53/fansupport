@@ -29,6 +29,7 @@ import '../../features/idol/screens/idol_crm_dashboard_screen.dart';
 import '../../features/advertising/screens/advertising_purchase_screen.dart';
 import '../../features/posts/screens/idol_posts_feed_screen.dart';
 import '../../features/splash/screens/splash_screen.dart';
+import '../../features/calendar/screens/genba_calendar_screen.dart';
 import '../../shared/models/idol_model.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -176,6 +177,10 @@ final routerProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => IdolPostsFeedScreen(
               idolId: state.uri.queryParameters['idolId'],
             ),
+          ),
+          GoRoute(
+            path: '/calendar',
+            builder: (context, state) => const GenbaCalendarScreen(),
           ),
         ],
       ),
