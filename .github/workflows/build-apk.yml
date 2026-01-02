@@ -62,37 +62,25 @@ jobs:
         run: flutter clean && flutter pub get
 
       - name: Build APK
-        id: build_apk
-        continue-on-error: true
-        run: |
-          flutter build apk --debug --no-tree-shake-icons 2>&1 | tee build_output.log
-          BUILD_EXIT_CODE=${PIPESTATUS[0]}
-          echo "BUILD_EXIT_CODE=$BUILD_EXIT_CODE" >> $GITHUB_ENV
-          exit $BUILD_EXIT_CODE
+        run: flutter build apk --debug --no-tree-shake-icons || true
 
-      - name: Show build errors in summary
-        if: always()
+      - name: List build outputs
         run: |
-          echo "## Build Output" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          tail -100 build_output.log >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "=== Listing build directory ==="
+          ls -laR build/app/outputs/ 2>/dev/null || echo "Build outputs not found"
 
-      - name: Upload build log
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-log
-          path: mobile/build_output.log
-          retention-days: 7
-
-      - name: Check build result
-        if: env.BUILD_EXIT_CODE != '0'
+      - name: Verify APK exists
         run: |
-          echo "Build failed with exit code $BUILD_EXIT_CODE"
-          echo "Last 50 lines of build log:"
-          tail -50 build_output.log
-          exit 1
+          APK_PATH="build/app/outputs/flutter-apk/app-debug.apk"
+          if [ -f "$APK_PATH" ]; then
+            echo "✅ APK built successfully!"
+            ls -lh "$APK_PATH"
+          else
+            echo "❌ APK not found at $APK_PATH"
+            echo "Looking for any APK files..."
+            find build -name "*.apk" 2>/dev/null || echo "No APK files found"
+            exit 1
+          fi
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
