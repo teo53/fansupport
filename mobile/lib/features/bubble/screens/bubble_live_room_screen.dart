@@ -49,7 +49,7 @@ class _BubbleLiveRoomScreenState extends ConsumerState<BubbleLiveRoomScreen> {
   Timer? _updateTimer;
   int _viewerCount = 1234;
 
-  IdolModel get _idol => _idol ?? MockData.idolModels.first;
+  IdolModel get _idol => widget.idol ?? MockData.idolModels.first;
 
   @override
   void initState() {

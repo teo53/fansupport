@@ -32,7 +32,7 @@ class _IdolCrmDashboardScreenState extends ConsumerState<IdolCrmDashboardScreen>
   int _liveViewers = 0;
   int _newSubscribersToday = 12;
 
-  IdolModel get _idol => _idol ?? MockData.idolModels.first;
+  IdolModel get _idol => widget.idol ?? MockData.idolModels.first;
 
   @override
   void initState() {
