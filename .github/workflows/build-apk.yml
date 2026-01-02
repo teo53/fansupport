@@ -62,11 +62,9 @@ jobs:
         run: flutter clean && flutter pub get
 
       - name: Build APK
-        id: build
-        continue-on-error: true
         run: |
+          set -o pipefail
           flutter build apk --debug --no-tree-shake-icons 2>&1 | tee build_output.log
-          exit ${PIPESTATUS[0]}
 
       - name: Upload build log
         if: always()
@@ -76,14 +74,20 @@ jobs:
           path: mobile/build_output.log
           retention-days: 7
 
+      - name: Check APK exists
+        run: |
+          ls -la build/app/outputs/flutter-apk/ || echo "APK directory not found"
+          if [ -f build/app/outputs/flutter-apk/app-debug.apk ]; then
+            echo "APK found!"
+            ls -lh build/app/outputs/flutter-apk/app-debug.apk
+          else
+            echo "APK not found!"
+            exit 1
+          fi
+
       - name: Upload APK
-        if: steps.build.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: app-${{ github.event.inputs.build_type || 'debug' }}-apk
           path: mobile/build/app/outputs/flutter-apk/app-${{ github.event.inputs.build_type || 'debug' }}.apk
           retention-days: 30
-
-      - name: Fail if build failed
-        if: steps.build.outcome == 'failure'
-        run: exit 1
