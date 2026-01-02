@@ -62,29 +62,25 @@ jobs:
         run: flutter clean && flutter pub get
 
       - name: Build APK
-        id: build
-        continue-on-error: true
         run: |
           echo "Starting Flutter APK build..."
+          set -o pipefail
           flutter build apk --debug --no-tree-shake-icons 2>&1 | tee flutter_build.log
-          echo "BUILD_RESULT=$?" >> $GITHUB_ENV
 
-      - name: Write build output to summary
-        if: always()
+      - name: Verify APK was created
         run: |
-          echo "## Flutter Build Log" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Build result: ${{ env.BUILD_RESULT }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          cat flutter_build.log >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-
-      - name: Check build result
-        if: env.BUILD_RESULT != '0' && env.BUILD_RESULT != ''
-        run: |
-          echo "Build failed! Check the summary above for details."
-          exit 1
+          APK_PATH="build/app/outputs/flutter-apk/app-debug.apk"
+          echo "Checking for APK at: $APK_PATH"
+          ls -la build/app/outputs/flutter-apk/ || true
+          if [ -f "$APK_PATH" ]; then
+            echo "✅ APK created successfully!"
+            ls -lh "$APK_PATH"
+          else
+            echo "❌ APK not found!"
+            echo "Build log tail:"
+            tail -50 flutter_build.log
+            exit 1
+          fi
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
@@ -92,3 +88,4 @@ jobs:
           name: app-debug-apk
           path: mobile/build/app/outputs/flutter-apk/app-debug.apk
           retention-days: 30
+          if-no-files-found: error
