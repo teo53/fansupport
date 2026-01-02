@@ -43,11 +43,7 @@ class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen> {
         actions: [
           IconButton(
             icon: Icon(Icons.search, size: Responsive.sp(24)),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('검색 기능은 준비 중입니다')),
-              );
-            },
+            onPressed: () => _showSearchSheet(context),
           ),
         ],
       ),
@@ -84,11 +80,7 @@ class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen> {
               ),
             ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('글 작성 기능은 준비 중입니다')),
-          );
-        },
+        onPressed: () => _showCreatePostSheet(context),
         backgroundColor: AppColors.primary,
         child: Icon(Icons.edit, color: Colors.white, size: Responsive.sp(24)),
       ),
@@ -249,7 +241,12 @@ class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen> {
                   label: '$likesCount',
                   color: isLiked ? AppColors.primary : AppColors.textSecondary,
                   onTap: () {
-                    // Toggle like
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(isLiked ? '좋아요 취소' : '좋아요!'),
+                        duration: const Duration(milliseconds: 500),
+                      ),
+                    );
                   },
                 ),
                 SizedBox(width: Responsive.wp(4)),
@@ -257,14 +254,14 @@ class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen> {
                   context,
                   icon: Icons.chat_bubble_outline,
                   label: '${post['commentCount'] ?? 0}',
-                  onTap: () {},
+                  onTap: () => _showCommentsSheet(context, post),
                 ),
                 SizedBox(width: Responsive.wp(4)),
                 _buildActionButton(
                   context,
                   icon: Icons.share_outlined,
                   label: '공유',
-                  onTap: () {},
+                  onTap: () => _showShareSheet(context, post),
                 ),
                 const Spacer(),
                 IconButton(
@@ -340,10 +337,273 @@ class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // ... kept simple for brevity
-            ListTile(title: Text('신고하기'), onTap: () => Navigator.pop(context)),
+            ListTile(title: const Text('신고하기'), onTap: () => Navigator.pop(context)),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showSearchSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        child: Container(
+          padding: EdgeInsets.all(Responsive.wp(4)),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                autofocus: true,
+                decoration: InputDecoration(
+                  hintText: '게시물 검색...',
+                  prefixIcon: const Icon(Icons.search),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  filled: true,
+                  fillColor: Colors.grey[100],
+                ),
+                onSubmitted: (value) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('"$value" 검색 결과')),
+                  );
+                },
+              ),
+              SizedBox(height: Responsive.hp(2)),
+              Text('최근 검색어', style: TextStyle(color: Colors.grey[600], fontSize: Responsive.sp(14))),
+              SizedBox(height: Responsive.hp(10)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showCreatePostSheet(BuildContext context) {
+    final textController = TextEditingController();
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        child: Container(
+          padding: EdgeInsets.all(Responsive.wp(4)),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('새 게시물', style: TextStyle(fontSize: Responsive.sp(18), fontWeight: FontWeight.bold)),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      if (textController.text.isNotEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('게시물이 작성되었습니다!')),
+                        );
+                      }
+                    },
+                    child: const Text('게시'),
+                  ),
+                ],
+              ),
+              SizedBox(height: Responsive.hp(2)),
+              TextField(
+                controller: textController,
+                maxLines: 5,
+                decoration: InputDecoration(
+                  hintText: '무슨 생각을 하고 계신가요?',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  filled: true,
+                  fillColor: Colors.grey[100],
+                ),
+              ),
+              SizedBox(height: Responsive.hp(2)),
+              Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.image, color: Colors.green),
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('이미지 선택')),
+                      );
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.gif_box, color: Colors.purple),
+                    onPressed: () {},
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.poll, color: Colors.orange),
+                    onPressed: () {},
+                  ),
+                ],
+              ),
+              SizedBox(height: Responsive.hp(2)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showCommentsSheet(BuildContext context, Map<String, dynamic> post) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.6,
+        minChildSize: 0.4,
+        maxChildSize: 0.9,
+        builder: (context, scrollController) => Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          child: Column(
+            children: [
+              Container(
+                padding: EdgeInsets.all(Responsive.wp(4)),
+                decoration: BoxDecoration(
+                  border: Border(bottom: BorderSide(color: Colors.grey[200]!)),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('댓글 ${post['commentCount'] ?? 0}개', style: TextStyle(fontSize: Responsive.sp(16), fontWeight: FontWeight.bold)),
+                    IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  controller: scrollController,
+                  padding: EdgeInsets.all(Responsive.wp(4)),
+                  itemCount: 5,
+                  itemBuilder: (context, index) => Padding(
+                    padding: EdgeInsets.only(bottom: Responsive.hp(2)),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CircleAvatar(radius: 16, backgroundColor: Colors.grey[300]),
+                        SizedBox(width: Responsive.wp(2)),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('팬${index + 1}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                              const Text('응원합니다! 💕'),
+                              Text('${index + 1}시간 전', style: TextStyle(color: Colors.grey[500], fontSize: 12)),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.all(Responsive.wp(3)),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border(top: BorderSide(color: Colors.grey[200]!)),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        decoration: InputDecoration(
+                          hintText: '댓글 달기...',
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(24), borderSide: BorderSide.none),
+                          filled: true,
+                          fillColor: Colors.grey[100],
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.send, color: AppColors.primary),
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('댓글이 등록되었습니다!')));
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showShareSheet(BuildContext context, Map<String, dynamic> post) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        padding: EdgeInsets.all(Responsive.wp(4)),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('공유하기', style: TextStyle(fontSize: Responsive.sp(18), fontWeight: FontWeight.bold)),
+            SizedBox(height: Responsive.hp(2)),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildShareOption(Icons.link, '링크 복사', Colors.grey, () {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('링크가 복사되었습니다')));
+                }),
+                _buildShareOption(Icons.message, '메시지', Colors.blue, () => Navigator.pop(context)),
+                _buildShareOption(Icons.share, '더보기', Colors.green, () => Navigator.pop(context)),
+              ],
+            ),
+            SizedBox(height: Responsive.hp(2)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildShareOption(IconData icon, String label, Color color, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(color: color.withOpacity(0.1), shape: BoxShape.circle),
+            child: Icon(icon, color: color, size: 28),
+          ),
+          const SizedBox(height: 8),
+          Text(label, style: TextStyle(color: Colors.grey[700], fontSize: 12)),
+        ],
       ),
     );
   }
