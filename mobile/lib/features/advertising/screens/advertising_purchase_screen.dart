@@ -280,7 +280,7 @@ class _AdvertisingPurchaseScreenState
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
+                  color: Colors.white.withOpacity( 0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(Icons.campaign, color: Colors.white),
@@ -313,13 +313,13 @@ class _AdvertisingPurchaseScreenState
       padding: const EdgeInsets.only(top: 4),
       child: Row(
         children: [
-          Icon(Icons.check_circle, color: Colors.white.withValues(alpha: 0.8), size: 16),
+          Icon(Icons.check_circle, color: Colors.white.withOpacity( 0.8), size: 16),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               text,
               style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.9),
+                color: Colors.white.withOpacity( 0.9),
                 fontSize: 13,
               ),
             ),
@@ -337,7 +337,7 @@ class _AdvertisingPurchaseScreenState
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withOpacity( 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -437,7 +437,7 @@ class _AdvertisingPurchaseScreenState
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withOpacity( 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -462,7 +462,7 @@ class _AdvertisingPurchaseScreenState
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: section.color.withValues(alpha: 0.1),
+                  color: section.color.withOpacity( 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(section.icon, color: section.color, size: 28),
@@ -546,7 +546,7 @@ class _AdvertisingPurchaseScreenState
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withOpacity( 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -614,7 +614,7 @@ class _AdvertisingPurchaseScreenState
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withOpacity( 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -684,7 +684,7 @@ class _AdvertisingPurchaseScreenState
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withOpacity( 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -814,7 +814,7 @@ class _AdvertisingPurchaseScreenState
         border: Border.all(color: Colors.pink.shade200),
         boxShadow: [
           BoxShadow(
-            color: Colors.pink.withValues(alpha: 0.1),
+            color: Colors.pink.withOpacity( 0.1),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -950,7 +950,7 @@ class _AdvertisingPurchaseScreenState
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
+                color: Colors.black.withOpacity( 0.05),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -1017,7 +1017,7 @@ class _AdvertisingPurchaseScreenState
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withOpacity( 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),

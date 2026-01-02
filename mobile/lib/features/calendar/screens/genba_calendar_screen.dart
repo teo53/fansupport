@@ -465,7 +465,7 @@ class _GenbaCalendarScreenState extends ConsumerState<GenbaCalendarScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -489,7 +489,7 @@ class _GenbaCalendarScreenState extends ConsumerState<GenbaCalendarScreen> {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: typeInfo.color.withValues(alpha: 0.1),
+                        color: typeInfo.color.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Row(
