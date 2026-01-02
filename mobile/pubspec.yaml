@@ -51,9 +51,9 @@ dependencies:
   json_annotation: ^4.9.0
   freezed_annotation: ^2.4.4
   equatable: ^2.0.7
-  url_launcher: ^6.3.1
-  image_picker: ^1.1.2
-  permission_handler: ^11.3.1
+  # url_launcher: ^6.3.1  # Disabled - not currently used
+  # image_picker: ^1.1.2  # Disabled - not currently used
+  # permission_handler: ^11.3.1  # Disabled - not currently used
 
   # Icons
   cupertino_icons: ^1.0.8
