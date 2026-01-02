@@ -28,17 +28,24 @@ import '../../features/agency/screens/agency_crm_dashboard_screen.dart';
 import '../../features/idol/screens/idol_crm_dashboard_screen.dart';
 import '../../features/advertising/screens/advertising_purchase_screen.dart';
 import '../../features/posts/screens/idol_posts_feed_screen.dart';
+import '../../features/splash/screens/splash_screen.dart';
 import '../../shared/models/idol_model.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authStateProvider);
 
   return GoRouter(
-    initialLocation: '/',
+    initialLocation: '/splash',
     redirect: (context, state) {
       final isLoggedIn = authState.value?.isLoggedIn ?? false;
       final isLoggingIn = state.matchedLocation == '/login' ||
           state.matchedLocation == '/register';
+      final isSplash = state.matchedLocation == '/splash';
+
+      // Allow splash screen to show
+      if (isSplash) {
+        return null;
+      }
 
       if (!isLoggedIn && !isLoggingIn) {
         return '/login';
@@ -51,6 +58,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: [
+      GoRoute(
+        path: '/splash',
+        builder: (context, state) => const SplashScreen(),
+      ),
       GoRoute(
         path: '/login',
         builder: (context, state) => const LoginScreen(),

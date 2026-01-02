@@ -1039,19 +1039,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   Widget _buildPremiumServices(BuildContext context) {
     final services = [
       {
-        'icon': Icons.airplane_ticket_rounded,
-        'title': 'VIP 팬미팅',
-        'subtitle': '소수 정예 오프라인 만남',
-        'price': '응모하기',
+        'icon': Icons.calendar_month_rounded,
+        'title': '오프회 일정',
+        'subtitle': '아이돌과 직접 만나는 날',
+        'price': '일정 보기',
         'route': '/date-tickets',
         'gradient': AppColors.primaryGradient,
       },
       {
-        'icon': Icons.videocam_rounded,
-        'title': '1:1 영상통화',
-        'subtitle': '나만의 위한 응원 메시지',
-        'price': '응모하기',
-        'route': '/date-tickets',
+        'icon': Icons.music_note_rounded,
+        'title': '공연 일정',
+        'subtitle': '라이브 공연 & 이벤트',
+        'price': '일정 보기',
+        'route': '/campaigns',
         'gradient': AppColors.premiumGradient,
       },
     ];

@@ -284,7 +284,7 @@ class IdolDetailScreen extends ConsumerWidget {
                           benefits: [
                             '브론즈 혜택 전체',
                             '라이브 방송 참여',
-                            '팬미팅 우선권',
+                            '오프회 우선권',
                           ],
                           color: AppColors.silver,
                         ),
@@ -294,7 +294,7 @@ class IdolDetailScreen extends ConsumerWidget {
                           name: '골드 팬',
                           benefits: [
                             '실버 혜택 전체',
-                            '1:1 영상 메시지',
+                            '전용 영상 메시지',
                             '사인 굿즈 증정',
                           ],
                           color: AppColors.gold,
