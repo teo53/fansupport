@@ -23,6 +23,11 @@ import '../../features/crm/screens/idol_registration_screen.dart';
 import '../../features/agency/screens/agency_dashboard_screen.dart';
 import '../../features/idol/screens/idol_dashboard_screen.dart';
 import '../../features/message/screens/message_creation_screen.dart';
+import '../../features/bubble/screens/bubble_live_room_screen.dart';
+import '../../features/agency/screens/agency_crm_dashboard_screen.dart';
+import '../../features/idol/screens/idol_crm_dashboard_screen.dart';
+import '../../features/advertising/screens/advertising_purchase_screen.dart';
+import '../../features/posts/screens/idol_posts_feed_screen.dart';
 import '../../shared/models/idol_model.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -136,6 +141,30 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: '/message/create',
             builder: (context, state) =>
                 MessageCreationScreen(idol: state.extra as IdolModel),
+          ),
+          GoRoute(
+            path: '/bubble/live/:roomId',
+            builder: (context, state) => BubbleLiveRoomScreen(
+              roomId: state.pathParameters['roomId']!,
+            ),
+          ),
+          GoRoute(
+            path: '/agency/crm',
+            builder: (context, state) => const AgencyCrmDashboardScreen(),
+          ),
+          GoRoute(
+            path: '/idol/crm',
+            builder: (context, state) => const IdolCrmDashboardScreen(),
+          ),
+          GoRoute(
+            path: '/advertising',
+            builder: (context, state) => const AdvertisingPurchaseScreen(),
+          ),
+          GoRoute(
+            path: '/posts',
+            builder: (context, state) => IdolPostsFeedScreen(
+              idolId: state.uri.queryParameters['idolId'],
+            ),
           ),
         ],
       ),
