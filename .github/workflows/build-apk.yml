@@ -58,16 +58,19 @@ jobs:
       - name: Build APK
         id: build
         run: |
+          set +e
           flutter build apk --${{ github.event.inputs.build_type || 'debug' }} 2>&1 | tee build_output.txt
-          exit ${PIPESTATUS[0]}
-
-      - name: Upload build logs on failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-logs
-          path: mobile/build_output.txt
-          retention-days: 7
+          BUILD_EXIT_CODE=${PIPESTATUS[0]}
+          if [ $BUILD_EXIT_CODE -ne 0 ]; then
+            echo "## Build Failed - Last 100 lines of output:" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            tail -100 build_output.txt >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            echo ""
+            echo "=== BUILD ERROR - LAST 50 LINES ==="
+            tail -50 build_output.txt
+            exit $BUILD_EXIT_CODE
+          fi
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
