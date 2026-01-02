@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/design_tokens.dart';
 import '../../../core/utils/responsive.dart';
 
 class MainScreen extends StatefulWidget {
@@ -72,19 +73,19 @@ class _MainScreenState extends State<MainScreen> {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.06),
-            blurRadius: 20,
-            offset: const Offset(0, -4),
+        border: Border(
+          top: BorderSide(
+            color: AppColors.border.withOpacity(0.3),
+            width: 1,
           ),
-        ],
+        ),
+        boxShadow: Shadows.bottomNav,
       ),
       child: SafeArea(
         top: false,
         child: Container(
-          height: 90,
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+          height: 88,
+          padding: EdgeInsets.symmetric(horizontal: Spacing.sm, vertical: Spacing.sm),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -143,40 +144,40 @@ class _MainScreenState extends State<MainScreen> {
         onTap: () => _onItemTapped(context, index),
         behavior: HitTestBehavior.opaque,
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
+          duration: AnimDurations.normal,
           curve: Curves.easeOutCubic,
-          padding: const EdgeInsets.symmetric(vertical: 6),
+          padding: EdgeInsets.symmetric(vertical: Spacing.xs + 2),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
+                duration: AnimDurations.normal,
                 padding: EdgeInsets.symmetric(
-                  horizontal: isSelected ? 16 : 0,
-                  vertical: isSelected ? 6 : 0,
+                  horizontal: isSelected ? Spacing.base : 0,
+                  vertical: isSelected ? Spacing.xs + 2 : 0,
                 ),
                 decoration: BoxDecoration(
                   color: isSelected
                       ? AppColors.primary.withOpacity(0.1)
                       : Colors.transparent,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(Radii.xl),
                 ),
                 child: Icon(
                   isSelected ? selectedIcon : icon,
-                  size: 24,
+                  size: IconSizes.md,
                   color:
                       isSelected ? AppColors.primary : AppColors.textTertiary,
                 ),
               ),
-              const SizedBox(height: 4),
+              SizedBox(height: Spacing.xs),
               AnimatedDefaultTextStyle(
-                duration: const Duration(milliseconds: 200),
+                duration: AnimDurations.normal,
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                   color:
                       isSelected ? AppColors.primary : AppColors.textTertiary,
-                  fontFamily: 'Pretendard',
+                  fontFamily: TypographyTokens.fontFamily,
                 ),
                 child: Text(label),
               ),
@@ -198,8 +199,8 @@ class _MainScreenState extends State<MainScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 52,
-              height: 52,
+              width: 54,
+              height: 54,
               decoration: BoxDecoration(
                 gradient: isSelected
                     ? AppColors.primaryGradient
@@ -207,8 +208,8 @@ class _MainScreenState extends State<MainScreen> {
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          AppColors.primary.withOpacity(0.8),
-                          AppColors.secondary.withOpacity(0.8),
+                          AppColors.primary400,
+                          AppColors.primary700,
                         ],
                       ),
                 shape: BoxShape.circle,
@@ -244,20 +245,20 @@ class _MainScreenState extends State<MainScreen> {
                   // Bubble icon - core communication feature
                   Icon(
                     Icons.chat_bubble_rounded,
-                    size: 26,
+                    size: IconSizes.lg,
                     color: Colors.white,
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 2),
+            SizedBox(height: Spacing.xs - 2),
             Text(
               '버블',
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
                 color: isSelected ? AppColors.primary : AppColors.textSecondary,
-                fontFamily: 'Pretendard',
+                fontFamily: TypographyTokens.fontFamily,
               ),
             ),
           ],

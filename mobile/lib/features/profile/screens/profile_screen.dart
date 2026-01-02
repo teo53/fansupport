@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/design_tokens.dart';
 import '../../../core/utils/responsive.dart';
+import '../../../shared/widgets/glass_card.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../agency/screens/agency_crm_dashboard_screen.dart';
 import '../../idol/screens/idol_crm_dashboard_screen.dart';
@@ -135,38 +137,33 @@ class ProfileScreen extends ConsumerWidget {
 
             // Quick Stats
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: Responsive.wp(4)),
-              child: Card(
-                elevation: 3,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Padding(
-                  padding: EdgeInsets.all(Responsive.wp(4)),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      _buildStatItem(
-                        context,
-                        _formatCurrency(user?.walletBalance ?? 0),
-                        '보유 코인',
-                        Icons.monetization_on,
-                      ),
-                      Container(
-                        width: 1,
-                        height: Responsive.hp(5),
-                        color: AppColors.divider,
-                      ),
-                      _buildStatItem(
-                          context, '3', '구독 중', Icons.card_membership),
-                      Container(
-                        width: 1,
-                        height: Responsive.hp(5),
-                        color: AppColors.divider,
-                      ),
-                      _buildStatItem(context, '8', '후원 횟수', Icons.favorite),
-                    ],
-                  ),
+              padding: EdgeInsets.symmetric(horizontal: Spacing.screenHorizontal),
+              child: GlassCard(
+                padding: EdgeInsets.all(Spacing.base),
+                borderRadius: Radii.lg,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildStatItem(
+                      context,
+                      _formatCurrency(user?.walletBalance ?? 0),
+                      '보유 코인',
+                      Icons.monetization_on,
+                    ),
+                    Container(
+                      width: 1,
+                      height: 40,
+                      color: AppColors.divider,
+                    ),
+                    _buildStatItem(
+                        context, '3', '구독 중', Icons.card_membership),
+                    Container(
+                      width: 1,
+                      height: 40,
+                      color: AppColors.divider,
+                    ),
+                    _buildStatItem(context, '8', '후원 횟수', Icons.favorite),
+                  ],
                 ),
               ),
             ),
@@ -559,47 +556,27 @@ class ProfileScreen extends ConsumerWidget {
     Color? color,
     required VoidCallback onTap,
   }) {
-    return Card(
-      margin: EdgeInsets.only(bottom: Responsive.hp(1)),
-      child: ListTile(
-        contentPadding: EdgeInsets.symmetric(
-          horizontal: Responsive.wp(4),
-          vertical: Responsive.hp(0.3),
+    return ListTileCard(
+      margin: EdgeInsets.only(bottom: Spacing.sm),
+      padding: EdgeInsets.symmetric(horizontal: Spacing.base, vertical: Spacing.md),
+      leading: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: (color ?? AppColors.primary).withOpacity(0.1),
+          borderRadius: BorderRadius.circular(Radii.sm),
         ),
-        leading: Container(
-          width: Responsive.wp(10),
-          height: Responsive.wp(10),
-          decoration: BoxDecoration(
-            color: (color ?? AppColors.primary).withOpacity(0.1),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Icon(icon,
-              color: color ?? AppColors.primary, size: Responsive.sp(22)),
-        ),
-        title: Text(
-          title,
-          style: TextStyle(
-            color: color,
-            fontWeight: FontWeight.w500,
-            fontSize: Responsive.sp(15),
-          ),
-        ),
-        subtitle: subtitle != null
-            ? Text(
-                subtitle,
-                style: TextStyle(
-                  fontSize: Responsive.sp(12),
-                  color: AppColors.textSecondary,
-                ),
-              )
-            : null,
-        trailing: Icon(
-          Icons.chevron_right,
-          color: AppColors.textSecondary,
-          size: Responsive.sp(22),
-        ),
-        onTap: onTap,
+        child: Icon(icon,
+            color: color ?? AppColors.primary, size: IconSizes.md),
       ),
+      title: title,
+      subtitle: subtitle,
+      trailing: Icon(
+        Icons.chevron_right,
+        color: AppColors.textSecondary,
+        size: IconSizes.md,
+      ),
+      onTap: onTap,
     );
   }
 

@@ -5,11 +5,14 @@ import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'dart:ui';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/design_tokens.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../core/mock/mock_data.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../../shared/models/idol_model.dart';
 import '../../../shared/widgets/story_circle.dart';
+import '../../../shared/widgets/glass_card.dart';
+import '../../../shared/widgets/glass_components.dart';
 import '../../live/screens/incoming_call_screen.dart';
 import '../../chat/screens/chat_screen.dart';
 
@@ -294,39 +297,26 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
         onTap();
       },
       child: Container(
-        width: Responsive.wp(11),
-        height: Responsive.wp(11),
+        width: 44,
+        height: 44,
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
-          boxShadow: AppColors.cardShadow(opacity: 0.06),
+          borderRadius: BorderRadius.circular(Radii.md),
+          border: Border.all(
+            color: AppColors.border.withOpacity(0.5),
+            width: 1,
+          ),
+          boxShadow: Shadows.soft,
         ),
         child: Stack(
           alignment: Alignment.center,
           children: [
-            Icon(icon, size: Responsive.sp(22), color: AppColors.textPrimary),
+            Icon(icon, size: IconSizes.md, color: AppColors.textPrimary),
             if (badge != null)
               Positioned(
-                top: 8,
-                right: 8,
-                child: Container(
-                  width: 16,
-                  height: 16,
-                  decoration: const BoxDecoration(
-                    color: AppColors.primary,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Center(
-                    child: Text(
-                      '$badge',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: Responsive.sp(9),
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
+                top: 6,
+                right: 6,
+                child: NotificationDot(count: badge),
               ),
           ],
         ),
@@ -710,47 +700,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     String? actionText, {
     VoidCallback? onTap,
   }) {
-    return Padding(
+    return SectionHeader(
+      title: title,
+      actionText: actionText,
+      onAction: onTap,
       padding: EdgeInsets.fromLTRB(
-        Responsive.wp(5),
-        Responsive.hp(2),
-        Responsive.wp(5),
-        Responsive.hp(1.5),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: Responsive.sp(20),
-              fontWeight: FontWeight.w800,
-              color: AppColors.textPrimary,
-              letterSpacing: -0.3,
-            ),
-          ),
-          if (actionText != null)
-            GestureDetector(
-              onTap: onTap,
-              child: Row(
-                children: [
-                  Text(
-                    actionText,
-                    style: TextStyle(
-                      fontSize: Responsive.sp(13),
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.primary,
-                    ),
-                  ),
-                  Icon(
-                    Icons.chevron_right_rounded,
-                    size: Responsive.sp(18),
-                    color: AppColors.primary,
-                  ),
-                ],
-              ),
-            ),
-        ],
+        Spacing.screenHorizontal,
+        Spacing.base,
+        Spacing.screenHorizontal,
+        Spacing.md,
       ),
     );
   }
@@ -938,100 +896,99 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     final daysLeft =
         DateTime.parse(campaign['endDate']).difference(DateTime.now()).inDays;
 
-    return GestureDetector(
+    return GlassCard(
+      width: Responsive.wp(70),
+      margin: EdgeInsets.only(right: Spacing.md),
+      padding: EdgeInsets.all(Spacing.base),
+      borderRadius: Radii.xl,
       onTap: () => context.go('/campaigns/${campaign['id']}'),
-      child: Container(
-        width: Responsive.wp(70),
-        margin: EdgeInsets.only(right: Responsive.wp(3)),
-        padding: EdgeInsets.all(Responsive.wp(4)),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: AppColors.cardShadow(opacity: 0.08),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: Responsive.wp(2.5),
-                    vertical: Responsive.hp(0.5),
-                  ),
-                  decoration: BoxDecoration(
-                    color: daysLeft <= 7
-                        ? AppColors.errorSoft
-                        : AppColors.primarySoft,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    daysLeft > 0 ? 'D-$daysLeft' : '마감',
-                    style: TextStyle(
-                      color:
-                          daysLeft <= 7 ? AppColors.error : AppColors.primary,
-                      fontSize: Responsive.sp(11),
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: Spacing.sm + 2,
+                  vertical: Spacing.xs,
                 ),
-                SizedBox(width: Responsive.wp(2)),
-                Expanded(
-                  child: Text(
-                    '${(progress * 100).toInt()}% 달성',
-                    style: TextStyle(
-                      fontSize: Responsive.sp(11),
-                      color: AppColors.textSecondary,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
+                decoration: BoxDecoration(
+                  color: daysLeft <= 7
+                      ? AppColors.errorSoft
+                      : AppColors.primarySoft,
+                  borderRadius: BorderRadius.circular(Radii.sm),
                 ),
-              ],
-            ),
-            SizedBox(height: Responsive.hp(1.5)),
-            Text(
-              campaign['title'] ?? '',
-              style: TextStyle(
-                fontSize: Responsive.sp(16),
-                fontWeight: FontWeight.w700,
-                height: 1.3,
-              ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const Spacer(),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: LinearProgressIndicator(
-                value: progress.clamp(0.0, 1.0),
-                backgroundColor: AppColors.border,
-                valueColor: const AlwaysStoppedAnimation(AppColors.primary),
-                minHeight: 6,
-              ),
-            ),
-            SizedBox(height: Responsive.hp(1)),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  '${_formatCurrency(campaign['currentAmount'])}원',
+                child: Text(
+                  daysLeft > 0 ? 'D-$daysLeft' : '마감',
                   style: TextStyle(
-                    fontSize: Responsive.sp(14),
+                    color:
+                        daysLeft <= 7 ? AppColors.error : AppColors.primary,
+                    fontSize: 11,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.primary,
+                    fontFamily: TypographyTokens.fontFamily,
                   ),
                 ),
-                Text(
-                  '${campaign['supporters']}명 참여',
+              ),
+              SizedBox(width: Spacing.sm),
+              Expanded(
+                child: Text(
+                  '${(progress * 100).toInt()}% 달성',
                   style: TextStyle(
-                    fontSize: Responsive.sp(12),
+                    fontSize: 11,
                     color: AppColors.textSecondary,
+                    fontWeight: FontWeight.w500,
+                    fontFamily: TypographyTokens.fontFamily,
                   ),
                 ),
-              ],
+              ),
+            ],
+          ),
+          SizedBox(height: Spacing.md),
+          Text(
+            campaign['title'] ?? '',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              height: 1.3,
+              fontFamily: TypographyTokens.fontFamily,
             ),
-          ],
-        ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const Spacer(),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(Radii.xs),
+            child: LinearProgressIndicator(
+              value: progress.clamp(0.0, 1.0),
+              backgroundColor: AppColors.grey200,
+              valueColor: const AlwaysStoppedAnimation(AppColors.primary),
+              minHeight: 6,
+            ),
+          ),
+          SizedBox(height: Spacing.sm),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '${_formatCurrency(campaign['currentAmount'])}원',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.primary,
+                  fontFamily: TypographyTokens.fontFamily,
+                ),
+              ),
+              Text(
+                '${campaign['supporters']}명 참여',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: AppColors.textSecondary,
+                  fontFamily: TypographyTokens.fontFamily,
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -1316,88 +1273,48 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     final posts = MockData.posts.take(3).toList();
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: Responsive.wp(5)),
+      padding: EdgeInsets.symmetric(horizontal: Spacing.screenHorizontal),
       child: Column(
         children: posts.map((post) {
           IdolModel? author;
           try {
-            // Find author in idolModels using id
             author =
                 MockData.idolModels.firstWhere((i) => i.id == post['authorId']);
           } catch (_) {}
 
-          // Fallback to searching in generic idols map if not found (backward compatibility)
-          // Actually, let's just use idolModels. If not found, it's null.
           final profileImage = author?.profileImage;
           final stageName = author?.stageName ?? '익명';
           final isVerified = author?.isVerified ?? false;
 
-          return Container(
-            margin: EdgeInsets.only(bottom: Responsive.hp(1.5)),
-            padding: EdgeInsets.all(Responsive.wp(4)),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: AppColors.cardShadow(opacity: 0.05),
-            ),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  radius: Responsive.wp(6),
-                  backgroundColor: AppColors.primarySoft,
-                  backgroundImage: profileImage != null
-                      ? CachedNetworkImageProvider(profileImage)
-                      : null,
-                  child: profileImage == null
-                      ? Icon(Icons.person,
-                          color: AppColors.primary, size: Responsive.sp(20))
-                      : null,
-                ),
-                SizedBox(width: Responsive.wp(3)),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            stageName,
-                            style: TextStyle(
-                              fontSize: Responsive.sp(14),
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          if (isVerified)
-                            Padding(
-                              padding: const EdgeInsets.only(left: 4),
-                              child: Icon(
-                                Icons.verified,
-                                size: Responsive.sp(14),
-                                color: AppColors.primary,
-                              ),
-                            ),
-                        ],
+          return ListTileCard(
+            margin: EdgeInsets.only(bottom: Spacing.md),
+            leading: GlassAvatar(
+              imageUrl: profileImage,
+              name: stageName,
+              size: 44,
+              badge: isVerified
+                  ? Container(
+                      padding: const EdgeInsets.all(2),
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
                       ),
-                      SizedBox(height: Responsive.hp(0.3)),
-                      Text(
-                        post['content'] ?? '',
-                        style: TextStyle(
-                          fontSize: Responsive.sp(12),
-                          color: AppColors.textSecondary,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                      child: Icon(
+                        Icons.verified,
+                        size: 14,
+                        color: AppColors.primary,
                       ),
-                    ],
-                  ),
-                ),
-                Icon(
-                  Icons.chevron_right_rounded,
-                  color: AppColors.textHint,
-                  size: Responsive.sp(20),
-                ),
-              ],
+                    )
+                  : null,
             ),
+            title: stageName,
+            subtitle: post['content'] ?? '',
+            trailing: Icon(
+              Icons.chevron_right_rounded,
+              color: AppColors.textHint,
+              size: IconSizes.sm,
+            ),
+            onTap: () => context.go('/community'),
           );
         }).toList(),
       ),

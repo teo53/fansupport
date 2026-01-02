@@ -3,9 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/design_tokens.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../core/mock/mock_data.dart';
 import '../../../shared/models/idol_model.dart';
+import '../../../shared/widgets/glass_card.dart';
+import '../../../shared/widgets/glass_components.dart';
 
 class RankingScreen extends ConsumerWidget {
   const RankingScreen({super.key});
@@ -181,91 +184,94 @@ class RankingScreen extends ConsumerWidget {
   }
 
   Widget _buildRankingItem(BuildContext context, int rank, IdolModel idol) {
-    return Container(
-      margin: EdgeInsets.only(bottom: Responsive.hp(1.5)),
-      padding: EdgeInsets.all(Responsive.wp(4)),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: AppColors.cardShadow(opacity: 0.05),
-      ),
-      child: InkWell(
-        onTap: () => context.go('/idols/${idol.id}'),
-        child: Row(
-          children: [
-            SizedBox(
-              width: Responsive.wp(10),
-              child: Text(
-                '#$rank',
-                style: TextStyle(
-                  fontSize: Responsive.sp(18),
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textSecondary,
-                ),
-                textAlign: TextAlign.center,
+    return GlassCard(
+      margin: EdgeInsets.only(bottom: Spacing.md),
+      padding: EdgeInsets.all(Spacing.base),
+      borderRadius: Radii.lg,
+      onTap: () => context.go('/idols/${idol.id}'),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 40,
+            child: Text(
+              '#$rank',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textSecondary,
+                fontFamily: TypographyTokens.fontFamily,
               ),
+              textAlign: TextAlign.center,
             ),
-            SizedBox(width: Responsive.wp(3)),
-            CircleAvatar(
-              radius: Responsive.wp(6),
-              backgroundImage: CachedNetworkImageProvider(idol.profileImage),
-            ),
-            SizedBox(width: Responsive.wp(4)),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        idol.stageName,
-                        style: TextStyle(
-                          fontSize: Responsive.sp(16),
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      if (idol.isVerified) ...[
-                        SizedBox(width: Responsive.wp(1)),
-                        Icon(
-                          Icons.verified,
-                          size: Responsive.sp(16),
-                          color: AppColors.primary,
-                        ),
-                      ],
-                    ],
-                  ),
-                  Text(
-                    idol.agencyName ?? '개인',
-                    style: TextStyle(
-                      fontSize: Responsive.sp(12),
-                      color: AppColors.textSecondary,
+          ),
+          SizedBox(width: Spacing.md),
+          GlassAvatar(
+            imageUrl: idol.profileImage,
+            name: idol.stageName,
+            size: 48,
+            badge: idol.isVerified
+                ? Container(
+                    padding: const EdgeInsets.all(2),
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
                     ),
-                  ),
-                ],
-              ),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
+                    child: Icon(
+                      Icons.verified,
+                      size: 12,
+                      color: AppColors.primary,
+                    ),
+                  )
+                : null,
+          ),
+          SizedBox(width: Spacing.base),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _formatNumber(idol.totalSupport),
+                  idol.stageName,
                   style: TextStyle(
-                    fontSize: Responsive.sp(16),
+                    fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.primary,
+                    fontFamily: TypographyTokens.fontFamily,
                   ),
                 ),
+                SizedBox(height: Spacing.xs),
                 Text(
-                  'Point',
+                  idol.agencyName ?? '개인',
                   style: TextStyle(
-                    fontSize: Responsive.sp(10),
-                    color: AppColors.textHint,
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                    fontFamily: TypographyTokens.fontFamily,
                   ),
                 ),
               ],
             ),
-          ],
-        ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                _formatNumber(idol.totalSupport),
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.primary,
+                  fontFamily: TypographyTokens.fontFamily,
+                ),
+              ),
+              Text(
+                'Point',
+                style: TextStyle(
+                  fontSize: 10,
+                  color: AppColors.textHint,
+                  fontFamily: TypographyTokens.fontFamily,
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

@@ -3,8 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/design_tokens.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../core/mock/mock_data.dart';
+import '../../../shared/widgets/glass_card.dart';
+import '../../../shared/widgets/glass_components.dart';
 
 class IdolListScreen extends ConsumerStatefulWidget {
   const IdolListScreen({super.key});
@@ -79,28 +82,18 @@ class _IdolListScreenState extends ConsumerState<IdolListScreen>
       body: Column(
         children: [
           Padding(
-            padding: EdgeInsets.all(Responsive.wp(4)),
-            child: TextField(
+            padding: EdgeInsets.all(Spacing.base),
+            child: SearchInput(
               controller: _searchController,
-              decoration: InputDecoration(
-                hintText: '아이돌 검색',
-                hintStyle: TextStyle(fontSize: Responsive.sp(14)),
-                prefixIcon: Icon(Icons.search, size: Responsive.sp(22)),
-                filled: true,
-                fillColor: AppColors.inputBackground,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: Responsive.wp(4),
-                  vertical: Responsive.hp(1.5),
-                ),
-              ),
-              style: TextStyle(fontSize: Responsive.sp(14)),
+              hint: '아이돌 검색...',
               onChanged: (value) {
                 setState(() {
                   _searchQuery = value;
+                });
+              },
+              onClear: () {
+                setState(() {
+                  _searchQuery = '';
                 });
               },
             ),
@@ -120,35 +113,20 @@ class _IdolListScreenState extends ConsumerState<IdolListScreen>
     final idols = _filterIdols(category);
 
     if (idols.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.search_off,
-              size: Responsive.sp(48),
-              color: AppColors.textSecondary,
-            ),
-            SizedBox(height: Responsive.hp(2)),
-            Text(
-              '검색 결과가 없습니다',
-              style: TextStyle(
-                fontSize: Responsive.sp(16),
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ],
-        ),
+      return EmptyState(
+        icon: Icons.search_off_rounded,
+        title: '검색 결과가 없습니다',
+        description: '다른 검색어로 시도해보세요',
       );
     }
 
     return GridView.builder(
-      padding: EdgeInsets.symmetric(horizontal: Responsive.wp(4)),
+      padding: EdgeInsets.symmetric(horizontal: Spacing.base),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         childAspectRatio: 0.72,
-        crossAxisSpacing: Responsive.wp(3),
-        mainAxisSpacing: Responsive.wp(3),
+        crossAxisSpacing: Spacing.md,
+        mainAxisSpacing: Spacing.md,
       ),
       itemCount: idols.length,
       itemBuilder: (context, index) => _buildIdolCard(idols[index]),
@@ -157,7 +135,7 @@ class _IdolListScreenState extends ConsumerState<IdolListScreen>
 
   Widget _buildIdolCard(Map<String, dynamic> idol) {
     final categoryColors = {
-      'UNDERGROUND_IDOL': AppColors.primary,
+      'UNDERGROUND_IDOL': AppColors.idolCategory,
       'MAID_CAFE': AppColors.maidCategory,
       'COSPLAYER': AppColors.cosplayerCategory,
       'VTuber': AppColors.vtuberCategory,
@@ -172,22 +150,20 @@ class _IdolListScreenState extends ConsumerState<IdolListScreen>
 
     final color = categoryColors[idol['category']] ?? AppColors.primary;
 
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: InkWell(
-        onTap: () => context.go('/idols/${idol['id']}'),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
-              flex: 3,
-              child: Stack(
-                children: [
-                  CachedNetworkImage(
+    return GlassCard(
+      padding: EdgeInsets.zero,
+      borderRadius: Radii.lg,
+      onTap: () => context.go('/idols/${idol['id']}'),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            flex: 3,
+            child: Stack(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(Radii.lg)),
+                  child: CachedNetworkImage(
                     imageUrl: idol['profileImage'],
                     width: double.infinity,
                     height: double.infinity,
@@ -206,125 +182,127 @@ class _IdolListScreenState extends ConsumerState<IdolListScreen>
                       child: Icon(Icons.person, size: 50, color: color),
                     ),
                   ),
-                  Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.transparent,
-                          Colors.black.withOpacity(0.3),
-                        ],
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(Radii.lg)),
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.transparent,
+                        Colors.black.withOpacity(0.3),
+                      ],
+                    ),
+                  ),
+                ),
+                if (idol['ranking'] <= 3)
+                  Positioned(
+                    top: Spacing.sm,
+                    left: Spacing.sm,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: Spacing.sm,
+                        vertical: Spacing.xs,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.getRankingColor(idol['ranking']),
+                        borderRadius: BorderRadius.circular(Radii.xs),
+                      ),
+                      child: Text(
+                        '#${idol['ranking']}',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 11,
+                          fontFamily: TypographyTokens.fontFamily,
+                        ),
                       ),
                     ),
                   ),
-                  if (idol['ranking'] <= 3)
-                    Positioned(
-                      top: Responsive.wp(2),
-                      left: Responsive.wp(2),
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: Responsive.wp(2),
-                          vertical: Responsive.hp(0.5),
-                        ),
-                        decoration: BoxDecoration(
-                          color: [
-                            AppColors.gold,
-                            AppColors.silver,
-                            AppColors.bronze
-                          ][idol['ranking'] - 1],
-                          borderRadius: BorderRadius.circular(6),
-                        ),
+                Positioned(
+                  top: Spacing.sm,
+                  right: Spacing.sm,
+                  child: Container(
+                    padding: EdgeInsets.all(Spacing.xs + 2),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.9),
+                      shape: BoxShape.circle,
+                      boxShadow: Shadows.soft,
+                    ),
+                    child: Icon(
+                      Icons.favorite_border,
+                      size: IconSizes.sm,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Padding(
+              padding: EdgeInsets.all(Spacing.md),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
                         child: Text(
-                          '#${idol['ranking']}',
+                          idol['stageName'],
                           style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: Responsive.sp(11),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: TypographyTokens.fontFamily,
                           ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
+                      if (idol['isVerified'])
+                        Icon(
+                          Icons.verified,
+                          size: 14,
+                          color: AppColors.primary,
+                        ),
+                    ],
+                  ),
+                  SizedBox(height: Spacing.xs),
+                  Text(
+                    categoryNames[idol['category']] ?? '기타',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: color,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: TypographyTokens.fontFamily,
                     ),
-                  Positioned(
-                    top: Responsive.wp(2),
-                    right: Responsive.wp(2),
-                    child: Container(
-                      padding: EdgeInsets.all(Responsive.wp(1.5)),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.9),
-                        shape: BoxShape.circle,
+                  ),
+                  const Spacer(),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.people_outline,
+                        size: 14,
+                        color: AppColors.textSecondary,
                       ),
-                      child: Icon(
-                        Icons.favorite_border,
-                        size: Responsive.sp(18),
-                        color: AppColors.primary,
+                      SizedBox(width: Spacing.xs),
+                      Text(
+                        '${idol['supporterCount']}명',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textSecondary,
+                          fontFamily: TypographyTokens.fontFamily,
+                        ),
                       ),
-                    ),
+                    ],
                   ),
                 ],
               ),
             ),
-            Expanded(
-              flex: 2,
-              child: Padding(
-                padding: EdgeInsets.all(Responsive.wp(3)),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            idol['stageName'],
-                            style: TextStyle(
-                              fontSize: Responsive.sp(14),
-                              fontWeight: FontWeight.w600,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        if (idol['isVerified'])
-                          Icon(
-                            Icons.verified,
-                            size: Responsive.sp(14),
-                            color: AppColors.primary,
-                          ),
-                      ],
-                    ),
-                    SizedBox(height: Responsive.hp(0.5)),
-                    Text(
-                      categoryNames[idol['category']] ?? '기타',
-                      style: TextStyle(
-                        fontSize: Responsive.sp(12),
-                        color: color,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const Spacer(),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.people_outline,
-                          size: Responsive.sp(14),
-                          color: AppColors.textSecondary,
-                        ),
-                        SizedBox(width: Responsive.wp(1)),
-                        Text(
-                          '${idol['supporterCount']}명',
-                          style: TextStyle(
-                            fontSize: Responsive.sp(12),
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
