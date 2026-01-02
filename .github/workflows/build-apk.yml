@@ -59,16 +59,16 @@ jobs:
         id: build
         run: |
           set +e
-          flutter build apk --${{ github.event.inputs.build_type || 'debug' }} 2>&1 | tee build_output.txt
+          flutter build apk --debug --verbose 2>&1 | tee build_output.txt
           BUILD_EXIT_CODE=${PIPESTATUS[0]}
           if [ $BUILD_EXIT_CODE -ne 0 ]; then
-            echo "## Build Failed - Last 100 lines of output:" >> $GITHUB_STEP_SUMMARY
+            echo "## Build Failed - Last 200 lines of output:" >> $GITHUB_STEP_SUMMARY
             echo '```' >> $GITHUB_STEP_SUMMARY
-            tail -100 build_output.txt >> $GITHUB_STEP_SUMMARY
+            tail -200 build_output.txt >> $GITHUB_STEP_SUMMARY
             echo '```' >> $GITHUB_STEP_SUMMARY
             echo ""
-            echo "=== BUILD ERROR - LAST 50 LINES ==="
-            tail -50 build_output.txt
+            echo "=== FULL BUILD OUTPUT ==="
+            cat build_output.txt
             exit $BUILD_EXIT_CODE
           fi
 
