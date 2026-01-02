@@ -45,6 +45,9 @@ jobs:
       - name: Flutter version
         run: flutter --version
 
+      - name: Clean dependency cache
+        run: rm -f pubspec.lock
+
       - name: Install dependencies
         run: flutter pub get
 
