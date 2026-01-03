@@ -11,6 +11,12 @@ on:
         options:
           - release
           - debug
+  push:
+    branches:
+      - 'claude/redesign-ui-login-Ywq9r'
+    paths:
+      - 'mobile/**'
+      - '.github/workflows/build-apk.yml'
 
 defaults:
   run:
@@ -42,12 +48,21 @@ jobs:
       - name: Generate code
         run: dart run build_runner build --delete-conflicting-outputs
 
+      - name: Determine build type
+        id: build-type
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "type=${{ github.event.inputs.build_type }}" >> $GITHUB_OUTPUT
+          else
+            echo "type=debug" >> $GITHUB_OUTPUT
+          fi
+
       - name: Build APK
-        run: flutter build apk --${{ github.event.inputs.build_type }}
+        run: flutter build apk --${{ steps.build-type.outputs.type }}
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: app-${{ github.event.inputs.build_type }}-apk
-          path: mobile/build/app/outputs/flutter-apk/app-${{ github.event.inputs.build_type }}.apk
+          name: app-${{ steps.build-type.outputs.type }}-apk
+          path: mobile/build/app/outputs/flutter-apk/app-${{ steps.build-type.outputs.type }}.apk
           retention-days: 30
