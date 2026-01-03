@@ -22,6 +22,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   bool _agreeToTerms = false;
+  String _selectedRole = 'FAN'; // Default role
 
   @override
   void dispose() {
@@ -101,6 +102,46 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   ),
                   const SizedBox(height: 16),
                 ],
+
+                // Role Selection
+                Text(
+                  '계정 종류',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildRoleOption(
+                        role: 'FAN',
+                        icon: Icons.favorite,
+                        label: '팬',
+                        description: '아이돌 후원',
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildRoleOption(
+                        role: 'IDOL',
+                        icon: Icons.star,
+                        label: '아이돌',
+                        description: '팬과 소통',
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildRoleOption(
+                        role: 'AGENCY',
+                        icon: Icons.business,
+                        label: '소속사',
+                        description: '관리 및 통계',
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
 
                 // Nickname Field
                 CustomTextField(
@@ -266,6 +307,64 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRoleOption({
+    required String role,
+    required IconData icon,
+    required String label,
+    required String description,
+  }) {
+    final isSelected = _selectedRole == role;
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedRole = role;
+        });
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? AppColors.primary.withValues(alpha: 0.12)
+              : AppColors.backgroundAlt,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected
+                ? AppColors.primary
+                : AppColors.border,
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Column(
+          children: [
+            Icon(
+              icon,
+              color: isSelected ? AppColors.primary : AppColors.textSecondary,
+              size: 32,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: isSelected ? AppColors.primary : AppColors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              description,
+              style: TextStyle(
+                fontSize: 10,
+                color: AppColors.textSecondary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
         ),
       ),
     );

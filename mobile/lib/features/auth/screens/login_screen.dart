@@ -101,10 +101,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             ),
             SizedBox(height: Responsive.hp(2)),
             _buildDemoRoleOption(
-              icon: Icons.person,
-              title: '일반 팬 (Fan)',
+              icon: Icons.favorite,
+              title: '팬 (Fan)',
               subtitle: '아이돌을 후원하고 소통하는 사용자',
               color: AppColors.primary,
+              isFeatured: true,
               onTap: () {
                 Navigator.pop(context);
                 ref.read(authStateProvider.notifier).loginAsDemo('FAN');
@@ -145,15 +146,28 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     required String subtitle,
     required Color color,
     required VoidCallback onTap,
+    bool isFeatured = false,
   }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: EdgeInsets.all(Responsive.wp(4)),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.05),
+          color: color.withOpacity(isFeatured ? 0.12 : 0.05),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withOpacity(0.2)),
+          border: Border.all(
+            color: color.withOpacity(isFeatured ? 0.4 : 0.2),
+            width: isFeatured ? 2.0 : 1.0,
+          ),
+          boxShadow: isFeatured
+              ? [
+                  BoxShadow(
+                    color: color.withOpacity(0.2),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  )
+                ]
+              : null,
         ),
         child: Row(
           children: [

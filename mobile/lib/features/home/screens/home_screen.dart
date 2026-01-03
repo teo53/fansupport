@@ -338,18 +338,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     // Mock Banner Data
     final banners = [
       {
-        'title': 'Angel Number 999',
-        'subtitle': 'Live Concert Coming Soon',
-        'image':
-            'https://images.unsplash.com/photo-1493225255756-d9584f8606e9?q=80&w=2070&auto=format&fit=crop',
-        'color': const Color(0xFF6B4DFF),
+        'title': '아이돌 서포트',
+        'subtitle': '좋아하는 아이돌을 응원하세요',
+        'gradient': AppColors.primaryGradient,
+        'color': AppColors.primary,
       },
       {
-        'title': 'New Generation',
-        'subtitle': 'Find Your Favorite Idol',
-        'image':
-            'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=2070&auto=format&fit=crop',
-        'color': const Color(0xFFFF4D8D),
+        'title': '새로운 아이돌 발견',
+        'subtitle': '다양한 아이돌을 만나보세요',
+        'gradient': AppColors.premiumGradient,
+        'color': AppColors.secondary,
       },
     ];
 
@@ -365,10 +363,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
             margin: EdgeInsets.symmetric(horizontal: Responsive.wp(1.5)),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(24),
-              image: DecorationImage(
-                image: NetworkImage(banner['image'] as String),
-                fit: BoxFit.cover,
-              ),
+              gradient: banner['gradient'] as LinearGradient,
               boxShadow: [
                 BoxShadow(
                   color: (banner['color'] as Color).withValues(alpha: 0.3),
@@ -379,20 +374,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
             ),
             child: Stack(
               children: [
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(24),
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.transparent,
-                        Colors.black.withValues(alpha: 0.2),
-                        Colors.black.withValues(alpha: 0.8),
-                      ],
-                    ),
-                  ),
-                ),
                 Padding(
                   padding: EdgeInsets.all(Responsive.wp(5)),
                   child: Column(
