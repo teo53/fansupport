@@ -206,7 +206,7 @@ class _IdolListScreenState extends ConsumerState<IdolListScreen> {
                 height: 80,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
-                  color: Color(int.parse(idol.imageColor)),
+                  color: Color(int.parse(idol.imageColor ?? "0xFF000000")),
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
@@ -214,10 +214,10 @@ class _IdolListScreenState extends ConsumerState<IdolListScreen> {
                     imageUrl: idol.profileImage,
                     fit: BoxFit.cover,
                     placeholder: (context, url) => Container(
-                      color: Color(int.parse(idol.imageColor)),
+                      color: Color(int.parse(idol.imageColor ?? "0xFF000000")),
                     ),
                     errorWidget: (context, url, error) => Container(
-                      color: Color(int.parse(idol.imageColor)),
+                      color: Color(int.parse(idol.imageColor ?? "0xFF000000")),
                       child: const Icon(Icons.person, color: Colors.white, size: 40),
                     ),
                   ),
@@ -302,8 +302,9 @@ class _IdolListScreenState extends ConsumerState<IdolListScreen> {
       case IdolCategory.cosplayer:
         return '코스프레이어';
       case IdolCategory.vtuber:
+      case IdolCategory.streamer:
+        return '스트리머';
         return 'VTuber';
-      case IdolCategory.other:
         return '기타';
     }
   }

@@ -126,10 +126,10 @@ class RankingScreen extends ConsumerWidget {
                 imageUrl: idol.profileImage,
                 fit: BoxFit.cover,
                 placeholder: (context, url) => Container(
-                  color: Color(int.parse(idol.imageColor)),
+                  color: Color(int.parse(idol.imageColor ?? "0xFF000000")),
                 ),
                 errorWidget: (context, url, error) => Container(
-                  color: Color(int.parse(idol.imageColor)),
+                  color: Color(int.parse(idol.imageColor ?? "0xFF000000")),
                   child: const Icon(Icons.person, color: Colors.white),
                 ),
               ),
@@ -227,10 +227,10 @@ class RankingScreen extends ConsumerWidget {
                   imageUrl: idol.profileImage,
                   fit: BoxFit.cover,
                   placeholder: (context, url) => Container(
-                    color: Color(int.parse(idol.imageColor)),
+                    color: Color(int.parse(idol.imageColor ?? "0xFF000000")),
                   ),
                   errorWidget: (context, url, error) => Container(
-                    color: Color(int.parse(idol.imageColor)),
+                    color: Color(int.parse(idol.imageColor ?? "0xFF000000")),
                     child: const Icon(Icons.person, color: Colors.white),
                   ),
                 ),
