@@ -127,6 +127,27 @@ class AuthNotifier extends Notifier<AsyncValue<AuthState>> {
       state = AsyncValue.data(AuthState(user: updatedUser));
     }
   }
+
+  void updateUserProfile({
+    String? nickname,
+    String? bio,
+    String? profileImage,
+  }) {
+    if (state.value?.user != null) {
+      final currentUser = state.value!.user!;
+      final updatedUser = User(
+        id: currentUser.id,
+        email: currentUser.email,
+        nickname: nickname ?? currentUser.nickname,
+        profileImage: profileImage ?? currentUser.profileImage,
+        role: currentUser.role,
+        isVerified: currentUser.isVerified,
+        walletBalance: currentUser.walletBalance,
+        bio: bio ?? currentUser.bio,
+      );
+      state = AsyncValue.data(AuthState(user: updatedUser));
+    }
+  }
 }
 
 final authStateProvider =

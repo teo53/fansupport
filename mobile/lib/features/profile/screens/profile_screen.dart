@@ -48,7 +48,7 @@ class ProfileScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: Icon(Icons.settings_outlined, size: Responsive.sp(24)),
-            onPressed: () => _showSettingsSheet(context),
+            onPressed: () => context.push('/settings'),
           ),
         ],
       ),
@@ -118,7 +118,7 @@ class ProfileScreen extends ConsumerWidget {
                   ),
                   SizedBox(height: Responsive.hp(2)),
                   OutlinedButton.icon(
-                    onPressed: () {},
+                    onPressed: () => context.push('/profile/edit'),
                     icon: Icon(Icons.edit, size: Responsive.sp(18)),
                     label: Text(
                       '프로필 수정',

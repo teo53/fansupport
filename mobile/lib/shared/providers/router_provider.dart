@@ -30,6 +30,9 @@ import '../../features/advertising/screens/advertising_purchase_screen.dart';
 import '../../features/posts/screens/idol_posts_feed_screen.dart';
 import '../../features/splash/screens/splash_screen.dart';
 import '../../features/calendar/screens/genba_calendar_screen.dart';
+import '../../features/search/screens/search_screen.dart';
+import '../../features/settings/screens/settings_screen.dart';
+import '../../features/profile/screens/profile_edit_screen.dart';
 import '../../shared/models/idol_model.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -181,6 +184,18 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/calendar',
             builder: (context, state) => const GenbaCalendarScreen(),
+          ),
+          GoRoute(
+            path: '/search',
+            builder: (context, state) => const SearchScreen(),
+          ),
+          GoRoute(
+            path: '/settings',
+            builder: (context, state) => const SettingsScreen(),
+          ),
+          GoRoute(
+            path: '/profile/edit',
+            builder: (context, state) => const ProfileEditScreen(),
           ),
         ],
       ),

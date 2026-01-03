@@ -272,11 +272,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                 SizedBox(width: Responsive.wp(2)),
                 _buildHeaderButton(
                   icon: Icons.search_rounded,
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('검색 기능은 준비 중입니다')),
-                    );
-                  },
+                  onTap: () => context.push('/search'),
                 ),
               ],
             ),
