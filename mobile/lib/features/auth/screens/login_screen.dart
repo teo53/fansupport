@@ -4,8 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
-import '../../../shared/widgets/custom_button.dart';
-import '../../../shared/widgets/custom_text_field.dart';
 import '../providers/auth_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -15,59 +13,20 @@ class LoginScreen extends ConsumerStatefulWidget {
   ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends ConsumerState<LoginScreen>
-    with TickerProviderStateMixin {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
 
-  late AnimationController _fadeController;
-  late AnimationController _slideController;
-  late Animation<double> _fadeAnimation;
-  late Animation<Offset> _slideAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _fadeController = AnimationController(
-      duration: const Duration(milliseconds: 800),
-      vsync: this,
-    );
-    _slideController = AnimationController(
-      duration: const Duration(milliseconds: 600),
-      vsync: this,
-    );
-
-    _fadeAnimation = CurvedAnimation(
-      parent: _fadeController,
-      curve: Curves.easeOut,
-    );
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.3),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _slideController,
-      curve: Curves.easeOutCubic,
-    ));
-
-    _fadeController.forward();
-    Future.delayed(const Duration(milliseconds: 200), () {
-      _slideController.forward();
-    });
-  }
-
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
-    _fadeController.dispose();
-    _slideController.dispose();
     super.dispose();
   }
 
   Future<void> _handleLogin() async {
-    HapticFeedback.mediumImpact();
     if (_formKey.currentState!.validate()) {
       await ref.read(authStateProvider.notifier).login(
             _emailController.text.trim(),
@@ -76,150 +35,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     }
   }
 
-  Future<void> _handleDemoLogin() async {
-    HapticFeedback.mediumImpact();
-    // Show Role Selection Modal
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        padding: EdgeInsets.all(Responsive.wp(5)),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              '데모 로그인 계정 선택',
-              style: TextStyle(
-                fontSize: Responsive.sp(20),
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(height: Responsive.hp(2)),
-            _buildDemoRoleOption(
-              icon: Icons.favorite,
-              title: '팬 (Fan)',
-              subtitle: '아이돌을 후원하고 소통하는 사용자',
-              color: AppColors.primary,
-              isFeatured: true,
-              onTap: () {
-                Navigator.pop(context);
-                ref.read(authStateProvider.notifier).loginAsDemo('FAN');
-              },
-            ),
-            SizedBox(height: Responsive.hp(1.5)),
-            _buildDemoRoleOption(
-              icon: Icons.star,
-              title: '아이돌 (Idol)',
-              subtitle: '팬들과 소통하고 후원을 받는 아이돌',
-              color: AppColors.secondary,
-              onTap: () {
-                Navigator.pop(context);
-                ref.read(authStateProvider.notifier).loginAsDemo('IDOL');
-              },
-            ),
-            SizedBox(height: Responsive.hp(1.5)),
-            _buildDemoRoleOption(
-              icon: Icons.business,
-              title: '소속사 (Agency)',
-              subtitle: '아이돌을 관리하고 통계를 확인하는 소속사',
-              color: AppColors.textPrimary,
-              onTap: () {
-                Navigator.pop(context);
-                ref.read(authStateProvider.notifier).loginAsDemo('AGENCY');
-              },
-            ),
-            SizedBox(height: Responsive.hp(3)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDemoRoleOption({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required Color color,
-    required VoidCallback onTap,
-    bool isFeatured = false,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: EdgeInsets.all(Responsive.wp(4)),
-        decoration: BoxDecoration(
-          color: color.withOpacity(isFeatured ? 0.12 : 0.05),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: color.withOpacity(isFeatured ? 0.4 : 0.2),
-            width: isFeatured ? 2.0 : 1.0,
-          ),
-          boxShadow: isFeatured
-              ? [
-                  BoxShadow(
-                    color: color.withOpacity(0.2),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  )
-                ]
-              : null,
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: EdgeInsets.all(Responsive.wp(2.5)),
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, color: color, size: Responsive.sp(24)),
-            ),
-            SizedBox(width: Responsive.wp(4)),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: Responsive.sp(16),
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      fontSize: Responsive.sp(12),
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Icon(Icons.chevron_right, color: AppColors.textSecondary),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Future<void> _handleSocialLogin(String provider) async {
-    HapticFeedback.lightImpact();
-    // TODO: Implement social login
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('$provider 로그인 준비 중입니다'),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-    );
+  Future<void> _handleDemoLogin(String role) async {
+    await ref.read(authStateProvider.notifier).loginAsDemo(role);
   }
 
   @override
@@ -230,538 +47,306 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     final error = authState.value?.error;
 
     return Scaffold(
-      body: Stack(
-        children: [
-          // Background Decorations
-          _buildBackgroundDecorations(),
-
-          // Main Content
-          SafeArea(
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              padding: EdgeInsets.symmetric(horizontal: Responsive.wp(6)),
-              child: FadeTransition(
-                opacity: _fadeAnimation,
-                child: SlideTransition(
-                  position: _slideAnimation,
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        SizedBox(height: Responsive.hp(8)),
-
-                        // Logo & Title
-                        _buildHeader(),
-                        SizedBox(height: Responsive.hp(5)),
-
-                        // Error Message
-                        if (error != null) ...[
-                          _buildErrorMessage(error),
-                          SizedBox(height: Responsive.hp(2)),
-                        ],
-
-                        // Login Form Card
-                        _buildLoginForm(),
-                        SizedBox(height: Responsive.hp(2.5)),
-
-                        // Demo Button
-                        _buildDemoButton(isLoading),
-                        SizedBox(height: Responsive.hp(3)),
-
-                        // Divider
-                        _buildDivider(),
-                        SizedBox(height: Responsive.hp(3)),
-
-                        // Social Login Buttons
-                        _buildSocialButtons(),
-                        SizedBox(height: Responsive.hp(4)),
-
-                        // Register Link
-                        _buildRegisterLink(),
-                        SizedBox(height: Responsive.hp(4)),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBackgroundDecorations() {
-    return Container(
-      color: AppColors.background, // Clean white background
-    );
-  }
-
-  Widget _buildHeader() {
-    return Center(
-      child: Column(
-        children: [
-          // Animated Logo
-          TweenAnimationBuilder<double>(
-            tween: Tween(begin: 0.8, end: 1.0),
-            duration: const Duration(milliseconds: 600),
-            curve: Curves.elasticOut,
-            builder: (context, scale, child) {
-              return Transform.scale(scale: scale, child: child);
-            },
-            child: Container(
-              width: Responsive.wp(22),
-              height: Responsive.wp(22),
-              decoration: BoxDecoration(
-                gradient: AppColors.primaryGradient,
-                borderRadius: BorderRadius.circular(Responsive.wp(6)),
-                boxShadow: AppColors.glowShadow(AppColors.primary),
-              ),
-              child: Stack(
-                alignment: Alignment.center,
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            padding: EdgeInsets.symmetric(horizontal: Responsive.wp(6)),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Shimmer effect
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(Responsive.wp(6)),
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Colors.white.withValues(alpha: 0.2),
-                          Colors.transparent,
-                          Colors.white.withValues(alpha: 0.1),
-                        ],
+                  SizedBox(height: Responsive.hp(4)),
+
+                  // Logo
+                  Center(
+                    child: Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        gradient: AppColors.primaryGradient,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: const Icon(
+                        Icons.favorite_rounded,
+                        color: Colors.white,
+                        size: 40,
                       ),
                     ),
                   ),
-                  Icon(
-                    Icons.favorite_rounded,
-                    color: Colors.white,
-                    size: Responsive.wp(11),
+                  SizedBox(height: Responsive.hp(3)),
+
+                  // Title
+                  Text(
+                    '아이돌 서포트',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.textPrimary,
+                      letterSpacing: -1,
+                    ),
                   ),
-                ],
-              ),
-            ),
-          ),
-          SizedBox(height: Responsive.hp(3)),
-
-          // App Name with Gradient
-          ShaderMask(
-            shaderCallback: (bounds) =>
-                AppColors.primaryGradient.createShader(bounds),
-            child: Text(
-              '아이돌 서포트',
-              style: TextStyle(
-                fontSize: Responsive.sp(30),
-                fontWeight: FontWeight.w800,
-                color: Colors.white,
-                letterSpacing: -0.5,
-                fontFamily: 'Pretendard',
-              ),
-            ),
-          ),
-          SizedBox(height: Responsive.hp(1)),
-          Text(
-            '좋아하는 아이돌을 응원하세요',
-            style: TextStyle(
-              fontSize: Responsive.sp(15),
-              color: AppColors.textSecondary,
-              fontFamily: 'Pretendard',
-              letterSpacing: -0.2,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildErrorMessage(String error) {
-    return Container(
-      padding: EdgeInsets.all(Responsive.wp(4)),
-      decoration: BoxDecoration(
-        color: AppColors.error.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: AppColors.error.withValues(alpha: 0.3),
-          width: 1,
-        ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: AppColors.error.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(
-              Icons.error_outline_rounded,
-              color: AppColors.error,
-              size: Responsive.sp(20),
-            ),
-          ),
-          SizedBox(width: Responsive.wp(3)),
-          Expanded(
-            child: Text(
-              error,
-              style: TextStyle(
-                color: AppColors.error,
-                fontSize: Responsive.sp(13),
-                fontWeight: FontWeight.w500,
-                fontFamily: 'Pretendard',
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLoginForm() {
-    final authState = ref.watch(authStateProvider);
-    final isLoading = authState.value?.isLoading ?? false;
-
-    return Container(
-      padding: EdgeInsets.all(Responsive.wp(5)),
-      decoration: BoxDecoration(
-        color: AppColors.cardBackground,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: AppColors.border.withValues(alpha: 0.5),
-          width: 1,
-        ),
-        boxShadow: AppColors.softShadow(),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Email Field
-          _buildInputLabel('이메일'),
-          SizedBox(height: Responsive.hp(1)),
-          CustomTextField(
-            controller: _emailController,
-            hintText: 'example@email.com',
-            keyboardType: TextInputType.emailAddress,
-            prefixIcon: Icons.email_outlined,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return '이메일을 입력해주세요';
-              }
-              if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                  .hasMatch(value)) {
-                return '올바른 이메일 형식이 아닙니다';
-              }
-              return null;
-            },
-          ),
-          SizedBox(height: Responsive.hp(2)),
-
-          // Password Field
-          _buildInputLabel('비밀번호'),
-          SizedBox(height: Responsive.hp(1)),
-          CustomTextField(
-            controller: _passwordController,
-            hintText: '비밀번호를 입력하세요',
-            obscureText: _obscurePassword,
-            prefixIcon: Icons.lock_outlined,
-            suffixIcon: IconButton(
-              icon: Icon(
-                _obscurePassword
-                    ? Icons.visibility_outlined
-                    : Icons.visibility_off_outlined,
-                color: AppColors.textTertiary,
-              ),
-              onPressed: () {
-                HapticFeedback.selectionClick();
-                setState(() {
-                  _obscurePassword = !_obscurePassword;
-                });
-              },
-            ),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return '비밀번호를 입력해주세요';
-              }
-              return null;
-            },
-          ),
-          SizedBox(height: Responsive.hp(1.5)),
-
-          // Forgot Password
-          Align(
-            alignment: Alignment.centerRight,
-            child: GestureDetector(
-              onTap: () {
-                HapticFeedback.selectionClick();
-                // TODO: Navigate to forgot password
-              },
-              child: Text(
-                '비밀번호를 잊으셨나요?',
-                style: TextStyle(
-                  fontSize: Responsive.sp(13),
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.w600,
-                  fontFamily: 'Pretendard',
-                ),
-              ),
-            ),
-          ),
-          SizedBox(height: Responsive.hp(2.5)),
-
-          // Login Button
-          GradientButton(
-            onPressed: isLoading ? null : _handleLogin,
-            isLoading: isLoading,
-            height: 54,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  '로그인',
-                  style: TextStyle(fontSize: Responsive.sp(16)),
-                ),
-                if (!isLoading) ...[
-                  SizedBox(width: Responsive.wp(2)),
-                  Icon(
-                    Icons.arrow_forward_rounded,
-                    size: Responsive.sp(18),
-                    color: Colors.white,
+                  SizedBox(height: Responsive.hp(1)),
+                  Text(
+                    '좋아하는 아이돌을 응원하세요',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: AppColors.textSecondary,
+                    ),
                   ),
-                ],
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+                  SizedBox(height: Responsive.hp(5)),
 
-  Widget _buildInputLabel(String label) {
-    return Text(
-      label,
-      style: TextStyle(
-        fontSize: Responsive.sp(14),
-        fontWeight: FontWeight.w600,
-        color: AppColors.textPrimary,
-        fontFamily: 'Pretendard',
-      ),
-    );
-  }
+                  // Error Message
+                  if (error != null) ...[
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: AppColors.error.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.error_outline, color: AppColors.error, size: 20),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              error,
+                              style: TextStyle(
+                                color: AppColors.error,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: Responsive.hp(2)),
+                  ],
 
-  Widget _buildDemoButton(bool isLoading) {
-    return GestureDetector(
-      onTap: isLoading ? null : _handleDemoLogin,
-      child: Container(
-        height: 54,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-              color: AppColors.primary.withValues(alpha: 0.3), width: 1.5),
-          boxShadow: AppColors.softShadow(opacity: 0.05),
-        ),
-        child: Center(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.rocket_launch_rounded,
-                color: AppColors.primary,
-                size: Responsive.sp(20),
-              ),
-              SizedBox(width: Responsive.wp(2)),
-              Text(
-                '체험하기',
-                style: TextStyle(
-                  color: AppColors.primary,
-                  fontSize: Responsive.sp(16),
-                  fontWeight: FontWeight.w700,
-                  fontFamily: 'Pretendard',
-                  letterSpacing: -0.3,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+                  // Email Field
+                  TextFormField(
+                    controller: _emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: InputDecoration(
+                      labelText: '이메일',
+                      hintText: 'example@email.com',
+                      prefixIcon: const Icon(Icons.email_outlined),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: AppColors.border),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: AppColors.border),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: AppColors.primary, width: 2),
+                      ),
+                      filled: true,
+                      fillColor: AppColors.backgroundAlt,
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return '이메일을 입력해주세요';
+                      }
+                      if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                        return '올바른 이메일 형식이 아닙니다';
+                      }
+                      return null;
+                    },
+                  ),
+                  SizedBox(height: Responsive.hp(2)),
 
-  Widget _buildDivider() {
-    return Row(
-      children: [
-        Expanded(
-          child: Container(
-            height: 1,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Colors.transparent,
-                  AppColors.border,
-                ],
-              ),
-            ),
-          ),
-        ),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: Responsive.wp(4)),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              color: AppColors.backgroundAlt,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppColors.border),
-            ),
-            child: Text(
-              '간편 로그인',
-              style: TextStyle(
-                color: AppColors.textSecondary,
-                fontSize: Responsive.sp(12),
-                fontWeight: FontWeight.w500,
-                fontFamily: 'Pretendard',
-              ),
-            ),
-          ),
-        ),
-        Expanded(
-          child: Container(
-            height: 1,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  AppColors.border,
-                  Colors.transparent,
+                  // Password Field
+                  TextFormField(
+                    controller: _passwordController,
+                    obscureText: _obscurePassword,
+                    decoration: InputDecoration(
+                      labelText: '비밀번호',
+                      hintText: '비밀번호를 입력하세요',
+                      prefixIcon: const Icon(Icons.lock_outlined),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _obscurePassword = !_obscurePassword;
+                          });
+                        },
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: AppColors.border),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: AppColors.border),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: AppColors.primary, width: 2),
+                      ),
+                      filled: true,
+                      fillColor: AppColors.backgroundAlt,
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return '비밀번호를 입력해주세요';
+                      }
+                      return null;
+                    },
+                  ),
+                  SizedBox(height: Responsive.hp(3)),
+
+                  // Login Button
+                  SizedBox(
+                    height: 56,
+                    child: ElevatedButton(
+                      onPressed: isLoading ? null : _handleLogin,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: isLoading
+                          ? const SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : const Text(
+                              '로그인',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                    ),
+                  ),
+                  SizedBox(height: Responsive.hp(2)),
+
+                  // Demo Login Buttons
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: isLoading ? null : () => _handleDemoLogin('FAN'),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            side: BorderSide(color: AppColors.primary),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Column(
+                            children: [
+                              Icon(Icons.favorite, color: AppColors.primary, size: 20),
+                              const SizedBox(height: 4),
+                              Text(
+                                '팬 체험',
+                                style: TextStyle(
+                                  color: AppColors.primary,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: isLoading ? null : () => _handleDemoLogin('IDOL'),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            side: BorderSide(color: AppColors.border),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Column(
+                            children: [
+                              Icon(Icons.star, color: AppColors.textSecondary, size: 20),
+                              const SizedBox(height: 4),
+                              Text(
+                                '아이돌 체험',
+                                style: TextStyle(
+                                  color: AppColors.textSecondary,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: Responsive.hp(3)),
+
+                  // Divider
+                  Row(
+                    children: [
+                      Expanded(child: Divider(color: AppColors.border)),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Text(
+                          '또는',
+                          style: TextStyle(
+                            color: AppColors.textSecondary,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                      Expanded(child: Divider(color: AppColors.border)),
+                    ],
+                  ),
+                  SizedBox(height: Responsive.hp(3)),
+
+                  // Register Link
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        '계정이 없으신가요?',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () => context.go('/register'),
+                        child: Text(
+                          '회원가입',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: Responsive.hp(4)),
                 ],
               ),
             ),
           ),
         ),
-      ],
-    );
-  }
-
-  Widget _buildSocialButtons() {
-    return Column(
-      children: [
-        // Kakao
-        SocialButton.kakao(
-          onPressed: () => _handleSocialLogin('카카오'),
-        ),
-        SizedBox(height: Responsive.hp(1.5)),
-
-        // Row of Naver, Google, Apple
-        Row(
-          children: [
-            Expanded(
-              child: _buildCompactSocialButton(
-                icon: Text(
-                  'N',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w900,
-                    color: Colors.white,
-                  ),
-                ),
-                backgroundColor: AppColors.naver,
-                onTap: () => _handleSocialLogin('네이버'),
-              ),
-            ),
-            SizedBox(width: Responsive.wp(3)),
-            Expanded(
-              child: _buildCompactSocialButton(
-                icon: Text(
-                  'G',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.google,
-                  ),
-                ),
-                backgroundColor: Colors.white,
-                hasBorder: true,
-                onTap: () => _handleSocialLogin('Google'),
-              ),
-            ),
-            SizedBox(width: Responsive.wp(3)),
-            Expanded(
-              child: _buildCompactSocialButton(
-                icon: Icon(Icons.apple, color: Colors.white, size: 22),
-                backgroundColor: AppColors.apple,
-                onTap: () => _handleSocialLogin('Apple'),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildCompactSocialButton({
-    required Widget icon,
-    required Color backgroundColor,
-    required VoidCallback onTap,
-    bool hasBorder = false,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        height: 52,
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          borderRadius: BorderRadius.circular(14),
-          border: hasBorder ? Border.all(color: AppColors.border) : null,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Center(child: icon),
-      ),
-    );
-  }
-
-  Widget _buildRegisterLink() {
-    return Center(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            '계정이 없으신가요?',
-            style: TextStyle(
-              fontSize: Responsive.sp(14),
-              color: AppColors.textSecondary,
-              fontFamily: 'Pretendard',
-            ),
-          ),
-          SizedBox(width: Responsive.wp(1)),
-          GestureDetector(
-            onTap: () {
-              HapticFeedback.selectionClick();
-              context.go('/register');
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                gradient: AppColors.primaryGradient,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                '회원가입',
-                style: TextStyle(
-                  fontSize: Responsive.sp(14),
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
-                  fontFamily: 'Pretendard',
-                ),
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

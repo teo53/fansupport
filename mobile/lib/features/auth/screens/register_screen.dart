@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../shared/widgets/custom_button.dart';
-import '../../../shared/widgets/custom_text_field.dart';
+import '../../../core/utils/responsive.dart';
 import '../providers/auth_provider.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
@@ -21,8 +20,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _nicknameController = TextEditingController();
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
-  bool _agreeToTerms = false;
-  String _selectedRole = 'FAN'; // Default role
+  String _selectedRole = 'FAN';
 
   @override
   void dispose() {
@@ -34,7 +32,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   }
 
   Future<void> _handleRegister() async {
-    if (_formKey.currentState!.validate() && _agreeToTerms) {
+    if (_formKey.currentState!.validate()) {
       await ref.read(authStateProvider.notifier).register(
             _emailController.text.trim(),
             _passwordController.text,
@@ -45,110 +43,143 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    Responsive.init(context);
     final authState = ref.watch(authStateProvider);
     final isLoading = authState.value?.isLoading ?? false;
     final error = authState.value?.error;
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => context.go('/login'),
         ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
+          physics: const BouncingScrollPhysics(),
+          padding: EdgeInsets.symmetric(horizontal: Responsive.wp(6)),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                SizedBox(height: Responsive.hp(2)),
+
+                // Title
                 Text(
                   '회원가입',
-                  style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                  style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.textPrimary,
+                    letterSpacing: -1,
+                  ),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: Responsive.hp(1)),
                 Text(
-                  '아이돌 서포트에 오신 것을 환영합니다',
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
+                  '새로운 계정을 만들어보세요',
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: AppColors.textSecondary,
+                  ),
                 ),
-                const SizedBox(height: 32),
+                SizedBox(height: Responsive.hp(4)),
 
                 // Error Message
                 if (error != null) ...[
                   Container(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: AppColors.error.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
+                      color: AppColors.error.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.error_outline, color: AppColors.error),
-                        const SizedBox(width: 8),
+                        Icon(Icons.error_outline, color: AppColors.error, size: 20),
+                        const SizedBox(width: 12),
                         Expanded(
                           child: Text(
                             error,
-                            style: const TextStyle(color: AppColors.error),
+                            style: TextStyle(
+                              color: AppColors.error,
+                              fontSize: 14,
+                            ),
                           ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: Responsive.hp(2)),
                 ],
 
                 // Role Selection
                 Text(
-                  '계정 종류',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                  '계정 유형',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
                 ),
                 const SizedBox(height: 12),
                 Row(
                   children: [
                     Expanded(
-                      child: _buildRoleOption(
+                      child: _buildRoleCard(
                         role: 'FAN',
                         icon: Icons.favorite,
                         label: '팬',
-                        description: '아이돌 후원',
+                        isSelected: _selectedRole == 'FAN',
                       ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: _buildRoleOption(
+                      child: _buildRoleCard(
                         role: 'IDOL',
                         icon: Icons.star,
                         label: '아이돌',
-                        description: '팬과 소통',
+                        isSelected: _selectedRole == 'IDOL',
                       ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: _buildRoleOption(
+                      child: _buildRoleCard(
                         role: 'AGENCY',
                         icon: Icons.business,
                         label: '소속사',
-                        description: '관리 및 통계',
+                        isSelected: _selectedRole == 'AGENCY',
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: Responsive.hp(3)),
 
                 // Nickname Field
-                CustomTextField(
+                TextFormField(
                   controller: _nicknameController,
-                  label: '닉네임',
-                  hintText: '닉네임을 입력하세요',
-                  prefixIcon: Icons.person_outlined,
+                  decoration: InputDecoration(
+                    labelText: '닉네임',
+                    hintText: '닉네임을 입력하세요',
+                    prefixIcon: const Icon(Icons.person_outlined),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: AppColors.border),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: AppColors.border),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: AppColors.primary, width: 2),
+                    ),
+                    filled: true,
+                    fillColor: AppColors.backgroundAlt,
+                  ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return '닉네임을 입력해주세요';
@@ -159,46 +190,75 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: Responsive.hp(2)),
 
                 // Email Field
-                CustomTextField(
+                TextFormField(
                   controller: _emailController,
-                  label: '이메일',
-                  hintText: 'example@email.com',
                   keyboardType: TextInputType.emailAddress,
-                  prefixIcon: Icons.email_outlined,
+                  decoration: InputDecoration(
+                    labelText: '이메일',
+                    hintText: 'example@email.com',
+                    prefixIcon: const Icon(Icons.email_outlined),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: AppColors.border),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: AppColors.border),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: AppColors.primary, width: 2),
+                    ),
+                    filled: true,
+                    fillColor: AppColors.backgroundAlt,
+                  ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return '이메일을 입력해주세요';
                     }
-                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                        .hasMatch(value)) {
+                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
                       return '올바른 이메일 형식이 아닙니다';
                     }
                     return null;
                   },
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: Responsive.hp(2)),
 
                 // Password Field
-                CustomTextField(
+                TextFormField(
                   controller: _passwordController,
-                  label: '비밀번호',
-                  hintText: '8자 이상 입력하세요',
                   obscureText: _obscurePassword,
-                  prefixIcon: Icons.lock_outlined,
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _obscurePassword
-                          ? Icons.visibility_outlined
-                          : Icons.visibility_off_outlined,
+                  decoration: InputDecoration(
+                    labelText: '비밀번호',
+                    hintText: '8자 이상 입력하세요',
+                    prefixIcon: const Icon(Icons.lock_outlined),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _obscurePassword = !_obscurePassword;
+                        });
+                      },
                     ),
-                    onPressed: () {
-                      setState(() {
-                        _obscurePassword = !_obscurePassword;
-                      });
-                    },
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: AppColors.border),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: AppColors.border),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: AppColors.primary, width: 2),
+                    ),
+                    filled: true,
+                    fillColor: AppColors.backgroundAlt,
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -210,26 +270,40 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: Responsive.hp(2)),
 
                 // Confirm Password Field
-                CustomTextField(
+                TextFormField(
                   controller: _confirmPasswordController,
-                  label: '비밀번호 확인',
-                  hintText: '비밀번호를 다시 입력하세요',
                   obscureText: _obscureConfirmPassword,
-                  prefixIcon: Icons.lock_outlined,
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _obscureConfirmPassword
-                          ? Icons.visibility_outlined
-                          : Icons.visibility_off_outlined,
+                  decoration: InputDecoration(
+                    labelText: '비밀번호 확인',
+                    hintText: '비밀번호를 다시 입력하세요',
+                    prefixIcon: const Icon(Icons.lock_outlined),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscureConfirmPassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _obscureConfirmPassword = !_obscureConfirmPassword;
+                        });
+                      },
                     ),
-                    onPressed: () {
-                      setState(() {
-                        _obscureConfirmPassword = !_obscureConfirmPassword;
-                      });
-                    },
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: AppColors.border),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: AppColors.border),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: AppColors.primary, width: 2),
+                    ),
+                    filled: true,
+                    fillColor: AppColors.backgroundAlt,
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -241,69 +315,66 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 24),
-
-                // Terms Checkbox
-                Row(
-                  children: [
-                    Checkbox(
-                      value: _agreeToTerms,
-                      onChanged: (value) {
-                        setState(() {
-                          _agreeToTerms = value ?? false;
-                        });
-                      },
-                      activeColor: AppColors.primary,
-                    ),
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _agreeToTerms = !_agreeToTerms;
-                          });
-                        },
-                        child: RichText(
-                          text: TextSpan(
-                            style: Theme.of(context).textTheme.bodyMedium,
-                            children: [
-                              const TextSpan(text: '이용약관 및 '),
-                              TextSpan(
-                                text: '개인정보 처리방침',
-                                style: TextStyle(
-                                  color: AppColors.primary,
-                                  decoration: TextDecoration.underline,
-                                ),
-                              ),
-                              const TextSpan(text: '에 동의합니다'),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
+                SizedBox(height: Responsive.hp(4)),
 
                 // Register Button
-                CustomButton(
-                  onPressed:
-                      isLoading || !_agreeToTerms ? null : _handleRegister,
-                  isLoading: isLoading,
-                  child: const Text('회원가입'),
+                SizedBox(
+                  height: 56,
+                  child: ElevatedButton(
+                    onPressed: isLoading ? null : _handleRegister,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: isLoading
+                        ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const Text(
+                            '회원가입',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                  ),
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: Responsive.hp(3)),
 
                 // Login Link
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text('이미 계정이 있으신가요?'),
+                    Text(
+                      '이미 계정이 있으신가요?',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
                     TextButton(
                       onPressed: () => context.go('/login'),
-                      child: const Text('로그인'),
+                      child: Text(
+                        '로그인',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.primary,
+                        ),
+                      ),
                     ),
                   ],
                 ),
+                SizedBox(height: Responsive.hp(4)),
               ],
             ),
           ),
@@ -312,13 +383,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     );
   }
 
-  Widget _buildRoleOption({
+  Widget _buildRoleCard({
     required String role,
     required IconData icon,
     required String label,
-    required String description,
+    required bool isSelected,
   }) {
-    final isSelected = _selectedRole == role;
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -326,16 +396,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         });
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+        padding: const EdgeInsets.symmetric(vertical: 20),
         decoration: BoxDecoration(
-          color: isSelected
-              ? AppColors.primary.withValues(alpha: 0.12)
-              : AppColors.backgroundAlt,
+          color: isSelected ? AppColors.primary.withOpacity(0.1) : AppColors.backgroundAlt,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected
-                ? AppColors.primary
-                : AppColors.border,
+            color: isSelected ? AppColors.primary : AppColors.border,
             width: isSelected ? 2 : 1,
           ),
         ),
@@ -351,18 +417,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               label,
               style: TextStyle(
                 fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: isSelected ? AppColors.primary : AppColors.textPrimary,
+                fontWeight: FontWeight.w600,
+                color: isSelected ? AppColors.primary : AppColors.textSecondary,
               ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              description,
-              style: TextStyle(
-                fontSize: 10,
-                color: AppColors.textSecondary,
-              ),
-              textAlign: TextAlign.center,
             ),
           ],
         ),
