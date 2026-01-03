@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/providers/auth_provider.dart';
 import '../../features/auth/screens/login_screen.dart';
 import '../../features/auth/screens/register_screen.dart';
+import '../../features/auth/screens/forgot_password_screen.dart';
 import '../../features/home/screens/home_screen.dart';
 import '../../features/home/screens/main_screen.dart';
 import '../../features/profile/screens/profile_screen.dart';
@@ -23,17 +24,34 @@ import '../../features/crm/screens/idol_registration_screen.dart';
 import '../../features/agency/screens/agency_dashboard_screen.dart';
 import '../../features/idol/screens/idol_dashboard_screen.dart';
 import '../../features/message/screens/message_creation_screen.dart';
+import '../../features/bubble/screens/bubble_live_room_screen.dart';
+import '../../features/agency/screens/agency_crm_dashboard_screen.dart';
+import '../../features/idol/screens/idol_crm_dashboard_screen.dart';
+import '../../features/advertising/screens/advertising_purchase_screen.dart';
+import '../../features/posts/screens/idol_posts_feed_screen.dart';
+import '../../features/splash/screens/splash_screen.dart';
+import '../../features/calendar/screens/genba_calendar_screen.dart';
+import '../../features/search/screens/search_screen.dart';
+import '../../features/settings/screens/settings_screen.dart';
+import '../../features/profile/screens/profile_edit_screen.dart';
 import '../../shared/models/idol_model.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authStateProvider);
 
   return GoRouter(
-    initialLocation: '/',
+    initialLocation: '/splash',
     redirect: (context, state) {
       final isLoggedIn = authState.value?.isLoggedIn ?? false;
       final isLoggingIn = state.matchedLocation == '/login' ||
-          state.matchedLocation == '/register';
+          state.matchedLocation == '/register' ||
+          state.matchedLocation == '/forgot-password';
+      final isSplash = state.matchedLocation == '/splash';
+
+      // Allow splash screen to show
+      if (isSplash) {
+        return null;
+      }
 
       if (!isLoggedIn && !isLoggingIn) {
         return '/login';
@@ -47,12 +65,20 @@ final routerProvider = Provider<GoRouter>((ref) {
     },
     routes: [
       GoRoute(
+        path: '/splash',
+        builder: (context, state) => const SplashScreen(),
+      ),
+      GoRoute(
         path: '/login',
         builder: (context, state) => const LoginScreen(),
       ),
       GoRoute(
         path: '/register',
         builder: (context, state) => const RegisterScreen(),
+      ),
+      GoRoute(
+        path: '/forgot-password',
+        builder: (context, state) => const ForgotPasswordScreen(),
       ),
       ShellRoute(
         builder: (context, state, child) => MainScreen(child: child),
@@ -136,6 +162,46 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: '/message/create',
             builder: (context, state) =>
                 MessageCreationScreen(idol: state.extra as IdolModel),
+          ),
+          GoRoute(
+            path: '/bubble/live/:roomId',
+            builder: (context, state) => BubbleLiveRoomScreen(
+              roomId: state.pathParameters['roomId']!,
+            ),
+          ),
+          GoRoute(
+            path: '/agency/crm',
+            builder: (context, state) => const AgencyCrmDashboardScreen(),
+          ),
+          GoRoute(
+            path: '/idol/crm',
+            builder: (context, state) => const IdolCrmDashboardScreen(),
+          ),
+          GoRoute(
+            path: '/advertising',
+            builder: (context, state) => const AdvertisingPurchaseScreen(),
+          ),
+          GoRoute(
+            path: '/posts',
+            builder: (context, state) => IdolPostsFeedScreen(
+              idolId: state.uri.queryParameters['idolId'],
+            ),
+          ),
+          GoRoute(
+            path: '/calendar',
+            builder: (context, state) => const GenbaCalendarScreen(),
+          ),
+          GoRoute(
+            path: '/search',
+            builder: (context, state) => const SearchScreen(),
+          ),
+          GoRoute(
+            path: '/settings',
+            builder: (context, state) => const SettingsScreen(),
+          ),
+          GoRoute(
+            path: '/profile/edit',
+            builder: (context, state) => const ProfileEditScreen(),
           ),
         ],
       ),

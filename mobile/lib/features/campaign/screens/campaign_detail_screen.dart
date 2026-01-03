@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../core/mock/mock_data.dart';
@@ -135,10 +136,12 @@ class _CampaignDetailScreenState extends ConsumerState<CampaignDetailScreen> {
             actions: [
               IconButton(
                 icon: Icon(Icons.share, size: Responsive.sp(24)),
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('공유 기능은 준비 중입니다')),
-                  );
+                onPressed: () async {
+                  final title = campaign['title'] as String? ?? '캠페인';
+                  final description = campaign['description'] as String? ?? '';
+                  final creator = _creator?['stageName'] ?? '아이돌';
+                  final shareText = '[$title]\n\n$description\n\n$creator의 캠페인을 응원해주세요!\n\n#IdolSupport #아이돌서포트 #펀딩';
+                  await Share.share(shareText, subject: title);
                 },
               ),
             ],

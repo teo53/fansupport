@@ -1,15 +1,29 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../constants/app_constants.dart';
 
 final apiClientProvider = Provider<ApiClient>((ref) {
   return ApiClient();
 });
 
+/// Simple token storage wrapper using SharedPreferences
+/// Note: For production, use flutter_secure_storage for sensitive data
+class _TokenStorage {
+  Future<String?> read({required String key}) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(key);
+  }
+
+  Future<void> write({required String key, required String value}) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(key, value);
+  }
+}
+
 class ApiClient {
   late final Dio _dio;
-  final FlutterSecureStorage _storage = const FlutterSecureStorage();
+  final _TokenStorage _storage = _TokenStorage();
 
   ApiClient() {
     _dio = Dio(

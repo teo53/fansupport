@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-enum UserRole { fan, idol, maid, admin }
+enum UserRole { fan, idol, maid, agency, admin }
 
 class User extends Equatable {
   final String id;
@@ -10,6 +10,7 @@ class User extends Equatable {
   final String role;
   final bool isVerified;
   final int walletBalance;
+  final String? bio;
 
   const User({
     required this.id,
@@ -19,6 +20,7 @@ class User extends Equatable {
     required this.role,
     required this.isVerified,
     this.walletBalance = 0,
+    this.bio,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -30,6 +32,7 @@ class User extends Equatable {
       role: json['role'] as String? ?? 'FAN',
       isVerified: json['isVerified'] as bool? ?? false,
       walletBalance: json['wallet']?['balance'] as int? ?? 0,
+      bio: json['bio'] as String?,
     );
   }
 
@@ -42,6 +45,7 @@ class User extends Equatable {
       'role': role,
       'isVerified': isVerified,
       'wallet': {'balance': walletBalance},
+      'bio': bio,
     };
   }
 
@@ -53,6 +57,7 @@ class User extends Equatable {
     String? role,
     bool? isVerified,
     int? walletBalance,
+    String? bio,
   }) {
     return User(
       id: id ?? this.id,
@@ -62,9 +67,10 @@ class User extends Equatable {
       role: role ?? this.role,
       isVerified: isVerified ?? this.isVerified,
       walletBalance: walletBalance ?? this.walletBalance,
+      bio: bio ?? this.bio,
     );
   }
 
   @override
-  List<Object?> get props => [id, email, nickname, profileImage, role, isVerified, walletBalance];
+  List<Object?> get props => [id, email, nickname, profileImage, role, isVerified, walletBalance, bio];
 }

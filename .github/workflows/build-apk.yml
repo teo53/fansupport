@@ -1,4 +1,4 @@
-name: Build APK (Manual)
+name: Build APK
 
 on:
   workflow_dispatch:
@@ -11,6 +11,12 @@ on:
         options:
           - release
           - debug
+  push:
+    branches:
+      - 'claude/**'
+    paths:
+      - 'mobile/**'
+      - '.github/workflows/build-apk.yml'
 
 defaults:
   run:
@@ -33,21 +39,53 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: 'beta'
+          flutter-version: '3.24.5'
           cache: false
+
+      - name: Flutter version
+        run: flutter --version
+
+      - name: Clean dependency cache
+        run: rm -f pubspec.lock
 
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Analyze code
+        continue-on-error: true
+        run: flutter analyze --no-fatal-infos || true
+
       - name: Generate code
         run: dart run build_runner build --delete-conflicting-outputs
 
+      - name: Clean build
+        run: flutter clean && flutter pub get
+
       - name: Build APK
-        run: flutter build apk --${{ github.event.inputs.build_type }}
+        run: |
+          echo "Starting Flutter APK build..."
+          set -o pipefail
+          flutter build apk --debug --no-tree-shake-icons 2>&1 | tee flutter_build.log
+
+      - name: Verify APK was created
+        run: |
+          APK_PATH="build/app/outputs/flutter-apk/app-debug.apk"
+          echo "Checking for APK at: $APK_PATH"
+          ls -la build/app/outputs/flutter-apk/ || true
+          if [ -f "$APK_PATH" ]; then
+            echo "✅ APK created successfully!"
+            ls -lh "$APK_PATH"
+          else
+            echo "❌ APK not found!"
+            echo "Build log tail:"
+            tail -50 flutter_build.log
+            exit 1
+          fi
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: app-${{ github.event.inputs.build_type }}-apk
-          path: mobile/build/app/outputs/flutter-apk/app-${{ github.event.inputs.build_type }}.apk
+          name: app-debug-apk
+          path: mobile/build/app/outputs/flutter-apk/app-debug.apk
           retention-days: 30
+          if-no-files-found: error

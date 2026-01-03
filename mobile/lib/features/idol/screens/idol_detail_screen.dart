@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../core/mock/mock_data.dart';
+import '../../../core/services/local_storage_provider.dart';
 import '../../../shared/models/idol_model.dart';
 import '../../../shared/widgets/custom_button.dart';
 
@@ -28,6 +30,8 @@ class IdolDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     Responsive.init(context);
     final idol = _findIdol();
+    final followedIdols = ref.watch(followedIdolsProvider);
+    final isFollowing = followedIdols.contains(idolId);
 
     if (idol == null) {
       return Scaffold(
@@ -56,7 +60,7 @@ class IdolDetailScreen extends ConsumerWidget {
                     imageUrl: idol.profileImage,
                     fit: BoxFit.cover,
                     placeholder: (context, url) => Container(
-                      color: idolColor.withValues(alpha: 0.2),
+                      color: idolColor.withOpacity(0.2),
                     ),
                     errorWidget: (context, url, error) => Container(
                       color: AppColors.background,
@@ -71,8 +75,8 @@ class IdolDetailScreen extends ConsumerWidget {
                         end: Alignment.bottomCenter,
                         colors: [
                           Colors.transparent,
-                          Colors.black.withValues(alpha: 0.2),
-                          Colors.black.withValues(alpha: 0.8),
+                          Colors.black.withOpacity(0.2),
+                          Colors.black.withOpacity(0.8),
                         ],
                         stops: const [0.3, 0.7, 1.0],
                       ),
@@ -108,7 +112,7 @@ class IdolDetailScreen extends ConsumerWidget {
                       border: Border.all(color: AppColors.background, width: 4),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.2),
+                          color: Colors.black.withOpacity(0.2),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
@@ -226,25 +230,33 @@ class IdolDetailScreen extends ConsumerWidget {
                         SizedBox(width: Responsive.wp(3)),
                         Expanded(
                           child: CustomButton(
-                            onPressed: () {
-                              // Follow Logic (Toggle)
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('아이돌을 팔로우했습니다!')),
-                              );
+                            onPressed: () async {
+                              HapticFeedback.mediumImpact();
+                              await ref.read(followedIdolsProvider.notifier).toggle(idolId);
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(isFollowing ? '팔로우를 취소했습니다' : '아이돌을 팔로우했습니다!'),
+                                    backgroundColor: isFollowing ? AppColors.grey600 : AppColors.success,
+                                  ),
+                                );
+                              }
                             },
-                            isOutlined: true,
+                            isOutlined: !isFollowing,
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.star_outline_rounded,
-                                    size: Responsive.sp(20),
-                                    color: AppColors.textPrimary),
+                                Icon(
+                                  isFollowing ? Icons.star_rounded : Icons.star_outline_rounded,
+                                  size: Responsive.sp(20),
+                                  color: isFollowing ? Colors.white : AppColors.textPrimary,
+                                ),
                                 SizedBox(width: Responsive.wp(2)),
                                 Text(
-                                  '팔로우',
+                                  isFollowing ? '팔로잉' : '팔로우',
                                   style: TextStyle(
                                       fontSize: Responsive.sp(15),
-                                      color: AppColors.textPrimary,
+                                      color: isFollowing ? Colors.white : AppColors.textPrimary,
                                       fontWeight: FontWeight.w600),
                                 ),
                               ],
@@ -284,7 +296,7 @@ class IdolDetailScreen extends ConsumerWidget {
                           benefits: [
                             '브론즈 혜택 전체',
                             '라이브 방송 참여',
-                            '팬미팅 우선권',
+                            '오프회 우선권',
                           ],
                           color: AppColors.silver,
                         ),
@@ -294,7 +306,7 @@ class IdolDetailScreen extends ConsumerWidget {
                           name: '골드 팬',
                           benefits: [
                             '실버 혜택 전체',
-                            '1:1 영상 메시지',
+                            '전용 영상 메시지',
                             '사인 굿즈 증정',
                           ],
                           color: AppColors.gold,
@@ -379,7 +391,7 @@ class IdolDetailScreen extends ConsumerWidget {
         boxShadow: isHighlight
             ? [
                 BoxShadow(
-                    color: color.withValues(alpha: 0.15),
+                    color: color.withOpacity(0.15),
                     blurRadius: 15,
                     offset: const Offset(0, 4))
               ]
@@ -393,7 +405,7 @@ class IdolDetailScreen extends ConsumerWidget {
               Container(
                 padding: EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
+                  color: color.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(Icons.star_rounded, color: color, size: 18),
