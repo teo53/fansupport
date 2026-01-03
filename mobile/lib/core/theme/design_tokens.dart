@@ -232,7 +232,7 @@ abstract class Shadows {
   /// Subtle shadow for cards
   static List<BoxShadow> get soft => [
     BoxShadow(
-      color: const Color(0xFF2563EB).withOpacity(0.04),
+      color: const Color(0xFF03569D).withOpacity(0.04),
       offset: const Offset(0, 2),
       blurRadius: 8,
       spreadRadius: 0,
@@ -242,7 +242,7 @@ abstract class Shadows {
   /// Medium shadow for elevated elements
   static List<BoxShadow> get medium => [
     BoxShadow(
-      color: const Color(0xFF2563EB).withOpacity(0.08),
+      color: const Color(0xFF03569D).withOpacity(0.08),
       offset: const Offset(0, 4),
       blurRadius: 16,
       spreadRadius: 0,
@@ -252,7 +252,7 @@ abstract class Shadows {
   /// Strong shadow for floating elements
   static List<BoxShadow> get strong => [
     BoxShadow(
-      color: const Color(0xFF2563EB).withOpacity(0.12),
+      color: const Color(0xFF03569D).withOpacity(0.12),
       offset: const Offset(0, 8),
       blurRadius: 24,
       spreadRadius: 0,
@@ -262,7 +262,7 @@ abstract class Shadows {
   /// Glass shadow for glassmorphism
   static List<BoxShadow> get glass => [
     BoxShadow(
-      color: const Color(0xFF2563EB).withOpacity(0.06),
+      color: const Color(0xFF03569D).withOpacity(0.06),
       offset: const Offset(0, 4),
       blurRadius: 24,
       spreadRadius: -4,
@@ -278,7 +278,7 @@ abstract class Shadows {
   /// Glow effect for active elements
   static List<BoxShadow> get glow => [
     BoxShadow(
-      color: const Color(0xFF2563EB).withOpacity(0.3),
+      color: const Color(0xFF03569D).withOpacity(0.3),
       offset: Offset.zero,
       blurRadius: 20,
       spreadRadius: -4,
@@ -288,7 +288,7 @@ abstract class Shadows {
   /// Bottom navigation shadow
   static List<BoxShadow> get bottomNav => [
     BoxShadow(
-      color: const Color(0xFF2563EB).withOpacity(0.05),
+      color: const Color(0xFF03569D).withOpacity(0.05),
       offset: const Offset(0, -4),
       blurRadius: 16,
       spreadRadius: 0,

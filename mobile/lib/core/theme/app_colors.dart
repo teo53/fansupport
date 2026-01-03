@@ -7,20 +7,20 @@ class AppColors {
   // PRIMARY BLUE PALETTE
   // ============================================
 
-  /// Primary blue - Main brand color
-  static const Color primary = Color(0xFF2563EB);
+  /// Primary blue - Main brand color (based on reference #03569D)
+  static const Color primary = Color(0xFF03569D);
 
-  /// Primary variants
-  static const Color primary50 = Color(0xFFEFF6FF);
-  static const Color primary100 = Color(0xFFDBEAFE);
-  static const Color primary200 = Color(0xFFBFDBFE);
-  static const Color primary300 = Color(0xFF93C5FD);
-  static const Color primary400 = Color(0xFF60A5FA);
-  static const Color primary500 = Color(0xFF3B82F6);
-  static const Color primary600 = Color(0xFF2563EB);
-  static const Color primary700 = Color(0xFF1D4ED8);
-  static const Color primary800 = Color(0xFF1E40AF);
-  static const Color primary900 = Color(0xFF1E3A8A);
+  /// Primary variants (refined blue palette)
+  static const Color primary50 = Color(0xFFE8F4FC);
+  static const Color primary100 = Color(0xFFD1E9F9);
+  static const Color primary200 = Color(0xFFA3D3F3);
+  static const Color primary300 = Color(0xFF75BDED);
+  static const Color primary400 = Color(0xFF47A7E7);
+  static const Color primary500 = Color(0xFF1991E1);
+  static const Color primary600 = Color(0xFF03569D);
+  static const Color primary700 = Color(0xFF024A87);
+  static const Color primary800 = Color(0xFF013D70);
+  static const Color primary900 = Color(0xFF012F59);
 
   /// Legacy aliases
   static const Color primaryDark = primary700;
@@ -59,11 +59,11 @@ class AppColors {
   // BACKGROUND & SURFACE
   // ============================================
 
-  /// Main background - soft white
-  static const Color background = Color(0xFFFAFBFC);
+  /// Main background - light (based on reference #F2F4F7)
+  static const Color background = Color(0xFFF2F4F7);
 
   /// Alternative background
-  static const Color backgroundAlt = Color(0xFFF1F5F9);
+  static const Color backgroundAlt = Color(0xFFE4E7EC);
 
   /// Surface color
   static const Color surface = Color(0xFFFFFFFF);
@@ -170,8 +170,8 @@ class AppColors {
   static const Color neonPink = Color(0xFFEC4899);
   static const Color neonPurple = Color(0xFF8B5CF6);
 
-  /// Shadow base color
-  static const Color shadowColor = Color(0xFF2563EB);
+  /// Shadow base color (matches primary)
+  static const Color shadowColor = Color(0xFF03569D);
 
   // ============================================
   // GRADIENTS
