@@ -198,14 +198,190 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
   Future<void> _handleSocialLogin(String provider) async {
     HapticFeedback.lightImpact();
-    // TODO: Implement social login
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('$provider 로그인 준비 중입니다'),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+
+    // Show social login confirmation dialog
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            _getSocialIcon(provider),
+            SizedBox(width: Responsive.wp(3)),
+            Text(
+              '$provider 로그인',
+              style: TextStyle(
+                fontSize: Responsive.sp(18),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          '$provider 계정으로 로그인하시겠습니까?\n\n데모 모드에서는 팬 계정으로 자동 로그인됩니다.',
+          style: TextStyle(
+            fontSize: Responsive.sp(14),
+            color: AppColors.textSecondary,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(
+              '취소',
+              style: TextStyle(color: AppColors.textSecondary),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: _getSocialColor(provider),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: Text(
+              '로그인',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
       ),
     );
+
+    if (confirmed != true || !mounted) return;
+
+    // Show loading overlay
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => PopScope(
+        canPop: false,
+        child: Center(
+          child: Container(
+            padding: EdgeInsets.all(Responsive.wp(6)),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: AppColors.softShadow(),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation(_getSocialColor(provider)),
+                ),
+                SizedBox(height: Responsive.hp(2)),
+                Text(
+                  '$provider 로그인 중...',
+                  style: TextStyle(
+                    fontSize: Responsive.sp(14),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+
+    // Simulate OAuth delay
+    await Future.delayed(const Duration(milliseconds: 1500));
+
+    if (!mounted) return;
+    Navigator.pop(context); // Close loading dialog
+
+    // Login as demo fan user
+    await ref.read(authStateProvider.notifier).loginAsDemo('FAN');
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              Icon(Icons.check_circle, color: Colors.white),
+              SizedBox(width: Responsive.wp(2)),
+              Text('$provider 로그인 성공!'),
+            ],
+          ),
+          backgroundColor: AppColors.success,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      );
+    }
+  }
+
+  Widget _getSocialIcon(String provider) {
+    switch (provider) {
+      case '카카오':
+        return Container(
+          width: 32,
+          height: 32,
+          decoration: BoxDecoration(
+            color: AppColors.kakao,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Center(
+            child: Icon(Icons.chat_bubble, color: Colors.black87, size: 18),
+          ),
+        );
+      case '네이버':
+        return Container(
+          width: 32,
+          height: 32,
+          decoration: BoxDecoration(
+            color: AppColors.naver,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Center(
+            child: Text('N', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+          ),
+        );
+      case 'Google':
+        return Container(
+          width: 32,
+          height: 32,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: AppColors.border),
+          ),
+          child: Center(
+            child: Text('G', style: TextStyle(color: AppColors.google, fontWeight: FontWeight.bold, fontSize: 16)),
+          ),
+        );
+      case 'Apple':
+        return Container(
+          width: 32,
+          height: 32,
+          decoration: BoxDecoration(
+            color: AppColors.apple,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Center(
+            child: Icon(Icons.apple, color: Colors.white, size: 20),
+          ),
+        );
+      default:
+        return Icon(Icons.login, size: 32);
+    }
+  }
+
+  Color _getSocialColor(String provider) {
+    switch (provider) {
+      case '카카오':
+        return AppColors.kakao;
+      case '네이버':
+        return AppColors.naver;
+      case 'Google':
+        return AppColors.google;
+      case 'Apple':
+        return AppColors.apple;
+      default:
+        return AppColors.primary;
+    }
   }
 
   @override
@@ -481,7 +657,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             child: GestureDetector(
               onTap: () {
                 HapticFeedback.selectionClick();
-                // TODO: Navigate to forgot password
+                context.go('/forgot-password');
               },
               child: Text(
                 '비밀번호를 잊으셨나요?',

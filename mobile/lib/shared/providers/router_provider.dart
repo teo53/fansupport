@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/providers/auth_provider.dart';
 import '../../features/auth/screens/login_screen.dart';
 import '../../features/auth/screens/register_screen.dart';
+import '../../features/auth/screens/forgot_password_screen.dart';
 import '../../features/home/screens/home_screen.dart';
 import '../../features/home/screens/main_screen.dart';
 import '../../features/profile/screens/profile_screen.dart';
@@ -43,7 +44,8 @@ final routerProvider = Provider<GoRouter>((ref) {
     redirect: (context, state) {
       final isLoggedIn = authState.value?.isLoggedIn ?? false;
       final isLoggingIn = state.matchedLocation == '/login' ||
-          state.matchedLocation == '/register';
+          state.matchedLocation == '/register' ||
+          state.matchedLocation == '/forgot-password';
       final isSplash = state.matchedLocation == '/splash';
 
       // Allow splash screen to show
@@ -73,6 +75,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/register',
         builder: (context, state) => const RegisterScreen(),
+      ),
+      GoRoute(
+        path: '/forgot-password',
+        builder: (context, state) => const ForgotPasswordScreen(),
       ),
       ShellRoute(
         builder: (context, state, child) => MainScreen(child: child),
