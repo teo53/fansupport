@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../../shared/models/idol_post_model.dart';
 import '../../../core/mock/mock_analytics_data.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/services/local_storage_provider.dart';
 
 class IdolPostsFeedScreen extends ConsumerStatefulWidget {
   final String? idolId;
@@ -68,8 +72,10 @@ class _IdolPostsFeedScreenState extends ConsumerState<IdolPostsFeedScreen> {
   }
 
   Widget _buildPostCard(IdolPost post) {
-    final isLiked = _likedPosts[post.id] ?? false;
-    final isBookmarked = _bookmarkedPosts[post.id] ?? false;
+    final likedPosts = ref.watch(likedPostsProvider);
+    final bookmarkedPosts = ref.watch(bookmarkedPostsProvider);
+    final isLiked = likedPosts.contains(post.id);
+    final isBookmarked = bookmarkedPosts.contains(post.id);
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -197,11 +203,12 @@ class _IdolPostsFeedScreenState extends ConsumerState<IdolPostsFeedScreen> {
                     icon: isLiked ? Icons.favorite : Icons.favorite_border,
                     label: _formatCount(post.likeCount + (isLiked ? 1 : 0)),
                     color: isLiked ? Colors.red : Colors.grey[600]!,
-                    onTap: () {
-                      setState(() {
-                        _likedPosts[post.id] = !isLiked;
-                      });
-                      _showReactionPicker(post);
+                    onTap: () async {
+                      HapticFeedback.lightImpact();
+                      await ref.read(likedPostsProvider.notifier).toggle(post.id);
+                      if (!isLiked) {
+                        _showReactionPicker(post);
+                      }
                     },
                     onLongPress: () => _showReactionPicker(post),
                   ),
@@ -221,20 +228,22 @@ class _IdolPostsFeedScreenState extends ConsumerState<IdolPostsFeedScreen> {
                     label: _formatCount(
                         post.bookmarkCount + (isBookmarked ? 1 : 0)),
                     color: isBookmarked ? Colors.amber : Colors.grey[600]!,
-                    onTap: () {
-                      setState(() {
-                        _bookmarkedPosts[post.id] = !isBookmarked;
-                      });
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            isBookmarked
-                                ? 'Removed from bookmarks'
-                                : 'Added to bookmarks',
+                    onTap: () async {
+                      HapticFeedback.lightImpact();
+                      await ref.read(bookmarkedPostsProvider.notifier).toggle(post.id);
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              isBookmarked
+                                  ? '북마크가 해제되었습니다'
+                                  : '북마크에 추가되었습니다',
+                            ),
+                            backgroundColor: isBookmarked ? AppColors.grey600 : AppColors.success,
+                            duration: const Duration(seconds: 1),
                           ),
-                          duration: const Duration(seconds: 1),
-                        ),
-                      );
+                        );
+                      }
                     },
                   ),
                 ),
@@ -353,23 +362,36 @@ class _IdolPostsFeedScreenState extends ConsumerState<IdolPostsFeedScreen> {
   }
 
   Widget _buildPollWidget(IdolPost post) {
+    final pollVotes = ref.watch(pollVotesProvider);
+    final hasVoted = pollVotes.containsKey(post.id);
+    final votedOptionIndex = pollVotes[post.id];
+
     final totalVotes =
         post.pollOptions!.fold<int>(0, (sum, option) => sum + option.voteCount);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Column(
-        children: post.pollOptions!.map((option) {
+        children: post.pollOptions!.asMap().entries.map((entry) {
+          final optionIndex = entry.key;
+          final option = entry.value;
+          final isVotedOption = hasVoted && votedOptionIndex == optionIndex;
           final percentage =
               totalVotes > 0 ? (option.voteCount / totalVotes * 100) : 0.0;
           return Container(
             margin: const EdgeInsets.only(bottom: 8),
             child: InkWell(
-              onTap: () {
-                // TODO: Implement voting
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Voted for: ${option.text}')),
-                );
+              onTap: hasVoted ? null : () async {
+                HapticFeedback.mediumImpact();
+                await ref.read(pollVotesProvider.notifier).vote(post.id, optionIndex);
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('${option.text}에 투표했습니다!'),
+                      backgroundColor: AppColors.success,
+                    ),
+                  );
+                }
               },
               child: Container(
                 padding: const EdgeInsets.symmetric(
@@ -377,38 +399,63 @@ class _IdolPostsFeedScreenState extends ConsumerState<IdolPostsFeedScreen> {
                   vertical: 10,
                 ),
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey[300]!),
+                  border: Border.all(
+                    color: isVotedOption ? AppColors.primary : Colors.grey[300]!,
+                    width: isVotedOption ? 2 : 1,
+                  ),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Stack(
                   children: [
                     // Progress background
-                    Positioned.fill(
-                      child: FractionallySizedBox(
-                        alignment: Alignment.centerLeft,
-                        widthFactor: percentage / 100,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.pink.withOpacity( 0.1),
-                            borderRadius: BorderRadius.circular(6),
+                    if (hasVoted)
+                      Positioned.fill(
+                        child: FractionallySizedBox(
+                          alignment: Alignment.centerLeft,
+                          widthFactor: percentage / 100,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: isVotedOption
+                                  ? AppColors.primary.withOpacity(0.15)
+                                  : Colors.grey.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
                           ),
                         ),
                       ),
-                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          option.text,
-                          style: const TextStyle(fontSize: 14),
+                        Row(
+                          children: [
+                            if (isVotedOption)
+                              Padding(
+                                padding: const EdgeInsets.only(right: 8),
+                                child: Icon(
+                                  Icons.check_circle,
+                                  size: 18,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                            Text(
+                              option.text,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: isVotedOption ? FontWeight.w600 : FontWeight.normal,
+                                color: isVotedOption ? AppColors.primary : null,
+                              ),
+                            ),
+                          ],
                         ),
-                        Text(
-                          '${percentage.toStringAsFixed(0)}%',
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                            fontSize: 14,
+                        if (hasVoted)
+                          Text(
+                            '${percentage.toStringAsFixed(0)}%',
+                            style: TextStyle(
+                              color: isVotedOption ? AppColors.primary : Colors.grey[600],
+                              fontSize: 14,
+                              fontWeight: isVotedOption ? FontWeight.w600 : FontWeight.normal,
+                            ),
                           ),
-                        ),
                       ],
                     ),
                   ],
@@ -818,6 +865,8 @@ class _IdolPostsFeedScreenState extends ConsumerState<IdolPostsFeedScreen> {
   }
 
   void _sharePost(IdolPost post) {
+    final shareText = '${post.idolName}의 게시물\n\n${post.content}\n\n#IdolSupport #아이돌서포트';
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -835,7 +884,7 @@ class _IdolPostsFeedScreenState extends ConsumerState<IdolPostsFeedScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
-                    'Share',
+                    '공유하기',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 18,
@@ -851,9 +900,33 @@ class _IdolPostsFeedScreenState extends ConsumerState<IdolPostsFeedScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _buildShareOption(Icons.message, 'Message', Colors.blue),
-                _buildShareOption(Icons.copy, 'Copy Link', Colors.grey),
-                _buildShareOption(Icons.share, 'More', Colors.green),
+                _buildShareOption(
+                  icon: Icons.copy,
+                  label: '링크 복사',
+                  color: Colors.grey,
+                  onTap: () {
+                    Clipboard.setData(ClipboardData(text: shareText));
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Text('클립보드에 복사되었습니다'),
+                        backgroundColor: AppColors.success,
+                      ),
+                    );
+                  },
+                ),
+                _buildShareOption(
+                  icon: Icons.share,
+                  label: '공유',
+                  color: AppColors.primary,
+                  onTap: () async {
+                    Navigator.pop(context);
+                    await Share.share(
+                      shareText,
+                      subject: '${post.idolName}의 게시물',
+                    );
+                  },
+                ),
               ],
             ),
             const SizedBox(height: 24),
@@ -863,20 +936,20 @@ class _IdolPostsFeedScreenState extends ConsumerState<IdolPostsFeedScreen> {
     );
   }
 
-  Widget _buildShareOption(IconData icon, String label, Color color) {
+  Widget _buildShareOption({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
     return InkWell(
-      onTap: () {
-        Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Share via $label')),
-        );
-      },
+      onTap: onTap,
       child: Column(
         children: [
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: color.withOpacity( 0.1),
+              color: color.withOpacity(0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, color: color, size: 28),
