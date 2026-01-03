@@ -621,21 +621,16 @@ class _SplashScreenState extends State<SplashScreen>
           },
         ),
         const SizedBox(height: 16),
-        // Loading text with dots animation
-        AnimatedBuilder(
-          animation: _shimmerController,
-          builder: (context, child) {
-            final dots = '.' * ((_shimmerController.value * 4).floor() % 4);
-            return Text(
-              '앱을 준비하고 있습니다$dots',
-              style: TextStyle(
-                color: Colors.white.withOpacity(0.6),
-                fontSize: 13,
-                fontFamily: TypographyTokens.fontFamily,
-                fontWeight: FontWeight.w400,
-              ),
-            );
-          },
+        // Subtle loading text (static, no dots animation)
+        Text(
+          '준비 중',
+          style: TextStyle(
+            color: Colors.white.withOpacity(0.5),
+            fontSize: 12,
+            fontFamily: TypographyTokens.fontFamily,
+            fontWeight: FontWeight.w400,
+            letterSpacing: 1,
+          ),
         ),
       ],
     );
