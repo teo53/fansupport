@@ -11,9 +11,9 @@ class ProfileScreen extends ConsumerWidget {
 
   String _formatCurrency(int amount) {
     return amount.toString().replaceAllMapped(
-          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-          (Match m) => '${m[1]},',
-        );
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]},',
+    );
   }
 
   @override
@@ -22,14 +22,21 @@ class ProfileScreen extends ConsumerWidget {
     final user = ref.watch(currentUserProvider);
 
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
         title: Text(
           '마이페이지',
-          style: TextStyle(fontSize: Responsive.sp(18)),
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+            color: AppColors.textPrimary,
+          ),
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.settings_outlined, size: Responsive.sp(24)),
+            icon: Icon(Icons.settings_outlined, color: AppColors.textPrimary),
             onPressed: () => _showSettingsSheet(context),
           ),
         ],
@@ -39,77 +46,77 @@ class ProfileScreen extends ConsumerWidget {
           children: [
             // Profile Header
             Container(
+              color: Colors.white,
               padding: EdgeInsets.all(Responsive.wp(6)),
+              margin: EdgeInsets.only(bottom: Responsive.wp(4)),
               child: Column(
                 children: [
                   Container(
+                    width: 100,
+                    height: 100,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      border: Border.all(color: AppColors.primary, width: 3),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.primary.withOpacity(0.3),
-                          blurRadius: 15,
-                          spreadRadius: 2,
-                        ),
-                      ],
+                      border: Border.all(color: AppColors.border, width: 2),
                     ),
-                    child: CircleAvatar(
-                      radius: Responsive.wp(14),
-                      backgroundColor: Colors.white,
-                      backgroundImage: user?.profileImage != null
-                          ? CachedNetworkImageProvider(user!.profileImage!)
-                          : null,
-                      child: user?.profileImage == null
-                          ? Icon(
-                              Icons.person,
-                              size: Responsive.sp(50),
-                              color: AppColors.primary,
+                    child: ClipOval(
+                      child: user?.profileImage != null
+                          ? CachedNetworkImage(
+                              imageUrl: user!.profileImage!,
+                              fit: BoxFit.cover,
                             )
-                          : null,
+                          : Container(
+                              color: AppColors.backgroundAlt,
+                              child: Icon(
+                                Icons.person,
+                                size: 50,
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
                     ),
                   ),
-                  SizedBox(height: Responsive.hp(2)),
+                  const SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
                         user?.nickname ?? '닉네임',
                         style: TextStyle(
-                          fontSize: Responsive.sp(22),
-                          fontWeight: FontWeight.bold,
+                          fontSize: 24,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textPrimary,
                         ),
                       ),
                       if (user?.isVerified ?? false) ...[
-                        SizedBox(width: Responsive.wp(1)),
+                        const SizedBox(width: 6),
                         Icon(
                           Icons.verified,
                           color: AppColors.primary,
-                          size: Responsive.sp(20),
+                          size: 20,
                         ),
                       ],
                     ],
                   ),
-                  SizedBox(height: Responsive.hp(0.5)),
+                  const SizedBox(height: 4),
                   Text(
                     user?.email ?? 'email@example.com',
                     style: TextStyle(
-                      fontSize: Responsive.sp(14),
+                      fontSize: 14,
                       color: AppColors.textSecondary,
                     ),
                   ),
-                  SizedBox(height: Responsive.hp(2)),
-                  OutlinedButton.icon(
-                    onPressed: () {},
-                    icon: Icon(Icons.edit, size: Responsive.sp(18)),
-                    label: Text(
-                      '프로필 수정',
-                      style: TextStyle(fontSize: Responsive.sp(14)),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: Responsive.wp(6),
-                        vertical: Responsive.hp(1.2),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () {},
+                      icon: const Icon(Icons.edit, size: 18),
+                      label: const Text('프로필 수정'),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        side: BorderSide(color: AppColors.border),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
                     ),
                   ),
@@ -119,189 +126,249 @@ class ProfileScreen extends ConsumerWidget {
 
             // Quick Stats
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: Responsive.wp(4)),
-              child: Card(
-                elevation: 3,
-                shape: RoundedRectangleBorder(
+              padding: EdgeInsets.symmetric(horizontal: Responsive.wp(6)),
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.border),
                 ),
-                child: Padding(
-                  padding: EdgeInsets.all(Responsive.wp(4)),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      _buildStatItem(
-                        context,
-                        _formatCurrency(user?.walletBalance ?? 0),
-                        '보유 코인',
-                        Icons.monetization_on,
-                      ),
-                      Container(
-                        width: 1,
-                        height: Responsive.hp(5),
-                        color: AppColors.divider,
-                      ),
-                      _buildStatItem(
-                          context, '3', '구독 중', Icons.card_membership),
-                      Container(
-                        width: 1,
-                        height: Responsive.hp(5),
-                        color: AppColors.divider,
-                      ),
-                      _buildStatItem(context, '8', '후원 횟수', Icons.favorite),
-                    ],
-                  ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildStatItem(
+                      _formatCurrency(user?.walletBalance ?? 0),
+                      '보유 코인',
+                    ),
+                    Container(
+                      width: 1,
+                      height: 40,
+                      color: AppColors.border,
+                    ),
+                    _buildStatItem('3', '구독 중'),
+                    Container(
+                      width: 1,
+                      height: 40,
+                      color: AppColors.border,
+                    ),
+                    _buildStatItem('8', '후원 횟수'),
+                  ],
                 ),
               ),
             ),
-            SizedBox(height: Responsive.hp(3)),
+            SizedBox(height: Responsive.wp(6)),
 
-            // Menu List
+            // Menu List - Activity
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: Responsive.wp(4)),
+              padding: EdgeInsets.symmetric(horizontal: Responsive.wp(6)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     '활동',
                     style: TextStyle(
-                      fontSize: Responsive.sp(14),
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textSecondary,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary,
                     ),
                   ),
-                  SizedBox(height: Responsive.hp(1)),
-                  _buildMenuItem(
-                    context,
-                    icon: Icons.account_balance_wallet,
-                    title: '지갑',
-                    subtitle: '잔액 확인 및 충전',
-                    onTap: () => context.go('/wallet'),
-                  ),
-                  _buildMenuItem(
-                    context,
-                    icon: Icons.card_membership,
-                    title: '내 구독',
-                    subtitle: '구독 중인 아이돌 관리',
-                    onTap: () => _showSubscriptionList(context),
-                  ),
-                  _buildMenuItem(
-                    context,
-                    icon: Icons.favorite,
-                    title: '후원 내역',
-                    subtitle: '보낸 후원 확인',
-                    onTap: () {},
-                  ),
-                  _buildMenuItem(
-                    context,
-                    icon: Icons.campaign,
-                    title: '참여한 펀딩',
-                    subtitle: '펀딩 참여 내역',
-                    onTap: () {},
-                  ),
-                  _buildMenuItem(
-                    context,
-                    icon: Icons.calendar_today,
-                    title: '예약 내역',
-                    subtitle: '메이드카페 예약 확인',
-                    onTap: () {},
-                  ),
-                  SizedBox(height: Responsive.hp(3)),
-                  Text(
-                    '설정',
-                    style: TextStyle(
-                      fontSize: Responsive.sp(14),
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textSecondary,
+                  const SizedBox(height: 12),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppColors.border),
                     ),
-                  ),
-                  SizedBox(height: Responsive.hp(1)),
-                  _buildMenuItem(
-                    context,
-                    icon: Icons.notifications,
-                    title: '알림 설정',
-                    onTap: () {},
-                  ),
-                  _buildMenuItem(
-                    context,
-                    icon: Icons.payment,
-                    title: '결제 수단',
-                    onTap: () {},
-                  ),
-                  _buildMenuItem(
-                    context,
-                    icon: Icons.security,
-                    title: '보안 설정',
-                    onTap: () {},
-                  ),
-                  _buildMenuItem(
-                    context,
-                    icon: Icons.help,
-                    title: '고객센터',
-                    onTap: () {},
-                  ),
-                  _buildMenuItem(
-                    context,
-                    icon: Icons.info,
-                    title: '앱 정보',
-                    subtitle: '버전 1.0.0',
-                    onTap: () {},
-                  ),
-                  SizedBox(height: Responsive.hp(2)),
-                  _buildMenuItem(
-                    context,
-                    icon: Icons.logout,
-                    title: '로그아웃',
-                    color: AppColors.error,
-                    onTap: () => _showLogoutDialog(context, ref),
+                    child: Column(
+                      children: [
+                        _buildMenuItem(
+                          context,
+                          icon: Icons.account_balance_wallet,
+                          title: '지갑',
+                          onTap: () => context.go('/wallet'),
+                        ),
+                        Divider(height: 1, color: AppColors.border),
+                        _buildMenuItem(
+                          context,
+                          icon: Icons.card_membership,
+                          title: '내 구독',
+                          onTap: () {},
+                        ),
+                        Divider(height: 1, color: AppColors.border),
+                        _buildMenuItem(
+                          context,
+                          icon: Icons.favorite,
+                          title: '후원 내역',
+                          onTap: () {},
+                        ),
+                        Divider(height: 1, color: AppColors.border),
+                        _buildMenuItem(
+                          context,
+                          icon: Icons.campaign,
+                          title: '참여한 펀딩',
+                          onTap: () {},
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
-            SizedBox(height: Responsive.hp(4)),
+            SizedBox(height: Responsive.wp(6)),
 
-            // Developer Menu (For Verification)
+            // Menu List - Settings
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: Responsive.wp(4)),
+              padding: EdgeInsets.symmetric(horizontal: Responsive.wp(6)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '개발자 메뉴 (Debug)',
+                    '설정',
                     style: TextStyle(
-                      fontSize: Responsive.sp(14),
-                      fontWeight: FontWeight.w600,
-                      color: Colors.redAccent,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary,
                     ),
                   ),
-                  SizedBox(height: Responsive.hp(1)),
-                  _buildMenuItem(
-                    context,
-                    icon: Icons.business,
-                    title: 'Agency Dashboard',
-                    color: Colors.redAccent,
-                    onTap: () => context.push('/agency'),
-                  ),
-                  _buildMenuItem(
-                    context,
-                    icon: Icons.mic_external_on,
-                    title: 'Idol Dashboard',
-                    color: Colors.redAccent,
-                    onTap: () {
-                      // Mock passing the first idol
-                      // In real app, fetch from auth/user
-                      // import MockData? Or just don't pass if not required?
-                      // Wait, route requires extra object.
-                      // I need to import MockData.
-                      // For now, I'll assume MockData is available or I'll just push without extra and handle null in screen?
-                      // No, screen expects it.
-                      // I will import MockData at top of file.
-                    },
+                  const SizedBox(height: 12),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppColors.border),
+                    ),
+                    child: Column(
+                      children: [
+                        _buildMenuItem(
+                          context,
+                          icon: Icons.notifications,
+                          title: '알림 설정',
+                          onTap: () {},
+                        ),
+                        Divider(height: 1, color: AppColors.border),
+                        _buildMenuItem(
+                          context,
+                          icon: Icons.payment,
+                          title: '결제 수단',
+                          onTap: () {},
+                        ),
+                        Divider(height: 1, color: AppColors.border),
+                        _buildMenuItem(
+                          context,
+                          icon: Icons.security,
+                          title: '보안 설정',
+                          onTap: () {},
+                        ),
+                        Divider(height: 1, color: AppColors.border),
+                        _buildMenuItem(
+                          context,
+                          icon: Icons.help,
+                          title: '고객센터',
+                          onTap: () {},
+                        ),
+                        Divider(height: 1, color: AppColors.border),
+                        _buildMenuItem(
+                          context,
+                          icon: Icons.info,
+                          title: '앱 정보',
+                          trailing: Text(
+                            'v1.0.0',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                          onTap: () {},
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
-            SizedBox(height: Responsive.hp(4)),
+            SizedBox(height: Responsive.wp(6)),
+
+            // Logout
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: Responsive.wp(6)),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.border),
+                ),
+                child: _buildMenuItem(
+                  context,
+                  icon: Icons.logout,
+                  title: '로그아웃',
+                  color: AppColors.error,
+                  onTap: () => _showLogoutDialog(context, ref),
+                ),
+              ),
+            ),
+            const SizedBox(height: 32),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatItem(String value, String label) {
+    return Column(
+      children: [
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+            color: AppColors.textPrimary,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 13,
+            color: AppColors.textSecondary,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMenuItem(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    Widget? trailing,
+    Color? color,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Icon(icon, color: color ?? AppColors.textPrimary, size: 24),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                title,
+                style: TextStyle(
+                  color: color ?? AppColors.textPrimary,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 15,
+                ),
+              ),
+            ),
+            trailing ??
+                Icon(
+                  Icons.chevron_right,
+                  color: AppColors.textSecondary,
+                  size: 20,
+                ),
           ],
         ),
       ),
@@ -312,8 +379,11 @@ class ProfileScreen extends ConsumerWidget {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (context) => Container(
-        padding: EdgeInsets.all(Responsive.wp(4)),
+        padding: const EdgeInsets.all(24),
         decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -322,14 +392,14 @@ class ProfileScreen extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: Responsive.wp(10),
+              width: 40,
               height: 4,
               decoration: BoxDecoration(
                 color: AppColors.border,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-            SizedBox(height: Responsive.hp(2)),
+            const SizedBox(height: 20),
             ListTile(
               leading: const Icon(Icons.dark_mode),
               title: const Text('다크 모드'),
@@ -354,210 +424,9 @@ class ProfileScreen extends ConsumerWidget {
                 activeColor: AppColors.primary,
               ),
             ),
-            SizedBox(height: Responsive.hp(2)),
+            const SizedBox(height: 16),
           ],
         ),
-      ),
-    );
-  }
-
-  void _showSubscriptionList(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        height: Responsive.hp(60),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        child: Column(
-          children: [
-            Padding(
-              padding: EdgeInsets.all(Responsive.wp(4)),
-              child: Column(
-                children: [
-                  Container(
-                    width: Responsive.wp(10),
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: AppColors.border,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                  SizedBox(height: Responsive.hp(2)),
-                  Text(
-                    '내 구독',
-                    style: TextStyle(
-                      fontSize: Responsive.sp(18),
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: ListView(
-                padding: EdgeInsets.symmetric(horizontal: Responsive.wp(4)),
-                children: [
-                  _buildSubscriptionItem(context, '하늘별', '골드', AppColors.gold),
-                  _buildSubscriptionItem(context, '루나', '실버', AppColors.silver),
-                  _buildSubscriptionItem(
-                      context, '유키', '브론즈', AppColors.bronze),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSubscriptionItem(
-      BuildContext context, String name, String tier, Color tierColor) {
-    return Card(
-      margin: EdgeInsets.only(bottom: Responsive.hp(1.5)),
-      child: ListTile(
-        contentPadding: EdgeInsets.all(Responsive.wp(3)),
-        leading: CircleAvatar(
-          radius: Responsive.wp(6),
-          backgroundColor: AppColors.primary.withOpacity(0.1),
-          child: Icon(Icons.person,
-              color: AppColors.primary, size: Responsive.sp(24)),
-        ),
-        title: Row(
-          children: [
-            Text(
-              name,
-              style: TextStyle(
-                fontSize: Responsive.sp(15),
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            SizedBox(width: Responsive.wp(1)),
-            Icon(Icons.verified,
-                color: AppColors.primary, size: Responsive.sp(16)),
-          ],
-        ),
-        subtitle: Row(
-          children: [
-            Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: Responsive.wp(2),
-                vertical: Responsive.hp(0.3),
-              ),
-              decoration: BoxDecoration(
-                color: tierColor,
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Text(
-                tier,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: Responsive.sp(10),
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            SizedBox(width: Responsive.wp(2)),
-            Text(
-              '다음 결제: 2025.01.15',
-              style: TextStyle(
-                fontSize: Responsive.sp(12),
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ],
-        ),
-        trailing: TextButton(
-          onPressed: () {},
-          child: Text(
-            '관리',
-            style: TextStyle(fontSize: Responsive.sp(13)),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStatItem(
-    BuildContext context,
-    String value,
-    String label,
-    IconData icon,
-  ) {
-    return Column(
-      children: [
-        Icon(icon, color: AppColors.primary, size: Responsive.sp(24)),
-        SizedBox(height: Responsive.hp(1)),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: Responsive.sp(16),
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        SizedBox(height: Responsive.hp(0.5)),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: Responsive.sp(12),
-            color: AppColors.textSecondary,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildMenuItem(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    String? subtitle,
-    Color? color,
-    required VoidCallback onTap,
-  }) {
-    return Card(
-      margin: EdgeInsets.only(bottom: Responsive.hp(1)),
-      child: ListTile(
-        contentPadding: EdgeInsets.symmetric(
-          horizontal: Responsive.wp(4),
-          vertical: Responsive.hp(0.3),
-        ),
-        leading: Container(
-          width: Responsive.wp(10),
-          height: Responsive.wp(10),
-          decoration: BoxDecoration(
-            color: (color ?? AppColors.primary).withOpacity(0.1),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Icon(icon,
-              color: color ?? AppColors.primary, size: Responsive.sp(22)),
-        ),
-        title: Text(
-          title,
-          style: TextStyle(
-            color: color,
-            fontWeight: FontWeight.w500,
-            fontSize: Responsive.sp(15),
-          ),
-        ),
-        subtitle: subtitle != null
-            ? Text(
-                subtitle,
-                style: TextStyle(
-                  fontSize: Responsive.sp(12),
-                  color: AppColors.textSecondary,
-                ),
-              )
-            : null,
-        trailing: Icon(
-          Icons.chevron_right,
-          color: AppColors.textSecondary,
-          size: Responsive.sp(22),
-        ),
-        onTap: onTap,
       ),
     );
   }
@@ -567,21 +436,12 @@ class ProfileScreen extends ConsumerWidget {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(
-          '로그아웃',
-          style: TextStyle(fontSize: Responsive.sp(18)),
-        ),
-        content: Text(
-          '정말 로그아웃 하시겠습니까?',
-          style: TextStyle(fontSize: Responsive.sp(14)),
-        ),
+        title: const Text('로그아웃'),
+        content: const Text('정말 로그아웃 하시겠습니까?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(
-              '취소',
-              style: TextStyle(fontSize: Responsive.sp(14)),
-            ),
+            child: const Text('취소'),
           ),
           ElevatedButton(
             onPressed: () {
@@ -592,10 +452,7 @@ class ProfileScreen extends ConsumerWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.error,
             ),
-            child: Text(
-              '로그아웃',
-              style: TextStyle(fontSize: Responsive.sp(14)),
-            ),
+            child: const Text('로그아웃'),
           ),
         ],
       ),

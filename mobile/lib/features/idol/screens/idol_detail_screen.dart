@@ -6,7 +6,6 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../core/mock/mock_data.dart';
 import '../../../shared/models/idol_model.dart';
-import '../../../shared/widgets/custom_button.dart';
 
 class IdolDetailScreen extends ConsumerWidget {
   final String idolId;
@@ -31,23 +30,34 @@ class IdolDetailScreen extends ConsumerWidget {
 
     if (idol == null) {
       return Scaffold(
-        appBar: AppBar(),
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+        ),
         body: const Center(child: Text('아이돌을 찾을 수 없습니다')),
       );
     }
 
-    // Parse idol image color for dynamic theming
-    final idolColor =
-        AppColors.fromHex(idol.imageColor, defaultColor: AppColors.primary);
-
     return Scaffold(
+      backgroundColor: AppColors.background,
       body: CustomScrollView(
         slivers: [
-          // Header Image
+          // App Bar with Cover Image
           SliverAppBar(
-            expandedHeight: Responsive.hp(35),
+            expandedHeight: 300,
             pinned: true,
-            backgroundColor: idolColor,
+            backgroundColor: Colors.white,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              onPressed: () => context.pop(),
+            ),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.share, color: Colors.white),
+                onPressed: () {},
+              ),
+            ],
             flexibleSpace: FlexibleSpaceBar(
               background: Stack(
                 fit: StackFit.expand,
@@ -56,12 +66,11 @@ class IdolDetailScreen extends ConsumerWidget {
                     imageUrl: idol.profileImage,
                     fit: BoxFit.cover,
                     placeholder: (context, url) => Container(
-                      color: idolColor.withValues(alpha: 0.2),
+                      color: Color(int.parse(idol.imageColor)),
                     ),
                     errorWidget: (context, url, error) => Container(
-                      color: AppColors.background,
-                      child: Center(
-                          child: Icon(Icons.error, color: AppColors.error)),
+                      color: Color(int.parse(idol.imageColor)),
+                      child: const Icon(Icons.person, color: Colors.white, size: 80),
                     ),
                   ),
                   Container(
@@ -70,289 +79,260 @@ class IdolDetailScreen extends ConsumerWidget {
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          Colors.transparent,
-                          Colors.black.withValues(alpha: 0.2),
-                          Colors.black.withValues(alpha: 0.8),
+                          Colors.black.withOpacity(0.3),
+                          Colors.black.withOpacity(0.7),
                         ],
-                        stops: const [0.3, 0.7, 1.0],
                       ),
                     ),
                   ),
                 ],
               ),
             ),
-            actions: [
-              IconButton(
-                icon: Icon(Icons.share_rounded,
-                    size: Responsive.sp(22), color: Colors.white),
-                onPressed: () {},
-              ),
-              IconButton(
-                icon: Icon(Icons.more_vert_rounded,
-                    size: Responsive.sp(22), color: Colors.white),
-                onPressed: () {},
-              ),
-            ],
           ),
 
-          // Profile Section
+          // Content
           SliverToBoxAdapter(
-            child: Transform.translate(
-              offset: Offset(0, -Responsive.hp(5)),
-              child: Column(
-                children: [
-                  // Profile Image
-                  Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: AppColors.background, width: 4),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.2),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: CircleAvatar(
-                      radius: Responsive.wp(16),
-                      backgroundColor: AppColors.background,
-                      backgroundImage:
-                          CachedNetworkImageProvider(idol.profileImage),
-                    ),
-                  ),
-                  SizedBox(height: Responsive.hp(2)),
-
-                  // Name & Badge
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Profile Info
+                Container(
+                  color: Colors.white,
+                  padding: EdgeInsets.all(Responsive.wp(6)),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        idol.stageName,
-                        style: TextStyle(
-                          fontSize: Responsive.sp(26),
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                      if (idol.isVerified) ...[
-                        SizedBox(width: Responsive.wp(1.5)),
-                        Icon(
-                          Icons.verified,
-                          color: AppColors.primary,
-                          size: Responsive.sp(22),
-                        ),
-                      ],
-                    ],
-                  ),
-                  if (idol.groupName != null) ...[
-                    SizedBox(height: 4),
-                    Text(
-                      idol.groupName!,
-                      style: TextStyle(
-                        fontSize: Responsive.sp(14),
-                        color: AppColors.textSecondary,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                  SizedBox(height: Responsive.hp(2.5)),
-
-                  // Stats Row
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: Responsive.wp(8)),
-                    child: Container(
-                      padding: EdgeInsets.symmetric(vertical: Responsive.hp(2)),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: AppColors.cardShadow(opacity: 0.05),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      Row(
                         children: [
-                          _buildStat(context, '${idol.supporterCount}', '팔로워',
-                              idolColor),
-                          Container(
-                            width: 1,
-                            height: Responsive.hp(4),
-                            color: AppColors.border,
+                          Expanded(
+                            child: Text(
+                              idol.stageName,
+                              style: TextStyle(
+                                fontSize: 28,
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
                           ),
-                          _buildStat(
-                              context, '${idol.ranking}위', '현재 순위', idolColor),
-                          Container(
-                            width: 1,
-                            height: Responsive.hp(4),
-                            color: AppColors.border,
-                          ),
-                          _buildStat(
-                              context,
-                              'Lv.${(idol.totalSupport / 100000).floor() + 1}',
-                              '레벨', // Simplified label
-                              idolColor),
+                          if (idol.isVerified)
+                            Icon(
+                              Icons.verified,
+                              color: AppColors.primary,
+                              size: 24,
+                            ),
                         ],
                       ),
-                    ),
+                      if (idol.groupName != null) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          idol.groupName!,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: 16),
+                      Text(
+                        _getCategoryText(idol.category),
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
                   ),
-                  SizedBox(height: Responsive.hp(3)),
+                ),
 
-                  // Action Buttons
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: Responsive.wp(4)),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: GradientButton(
+                // Stats
+                Container(
+                  margin: EdgeInsets.all(Responsive.wp(6)),
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AppColors.border),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      _buildStatItem(
+                        '팔로워',
+                        _formatNumber(idol.supporterCount),
+                      ),
+                      Container(
+                        width: 1,
+                        height: 40,
+                        color: AppColors.border,
+                      ),
+                      _buildStatItem(
+                        '현재 순위',
+                        '${idol.ranking}위',
+                      ),
+                      Container(
+                        width: 1,
+                        height: 40,
+                        color: AppColors.border,
+                      ),
+                      _buildStatItem(
+                        '후원 금액',
+                        _formatNumber(idol.totalSupport),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Action Buttons
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: Responsive.wp(6)),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: SizedBox(
+                          height: 56,
+                          child: ElevatedButton(
                             onPressed: () => context.go('/support/${idol.id}'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 0,
+                            ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.favorite_rounded,
-                                    color: Colors.white,
-                                    size: Responsive.sp(20)),
-                                SizedBox(width: Responsive.wp(2)),
+                              children: const [
+                                Icon(Icons.favorite, size: 20),
+                                SizedBox(width: 8),
                                 Text(
                                   '후원하기',
                                   style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: Responsive.sp(15),
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
                                   ),
                                 ),
                               ],
                             ),
                           ),
                         ),
-                        SizedBox(width: Responsive.wp(3)),
-                        Expanded(
-                          child: CustomButton(
-                            onPressed: () {
-                              // Follow Logic (Toggle)
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('아이돌을 팔로우했습니다!')),
-                              );
-                            },
-                            isOutlined: true,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.star_outline_rounded,
-                                    size: Responsive.sp(20),
-                                    color: AppColors.textPrimary),
-                                SizedBox(width: Responsive.wp(2)),
-                                Text(
-                                  '팔로우',
-                                  style: TextStyle(
-                                      fontSize: Responsive.sp(15),
-                                      color: AppColors.textPrimary,
-                                      fontWeight: FontWeight.w600),
-                                ),
-                              ],
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: SizedBox(
+                          height: 56,
+                          child: OutlinedButton(
+                            onPressed: () {},
+                            style: OutlinedButton.styleFrom(
+                              side: BorderSide(color: AppColors.border),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: Icon(
+                              Icons.star_outline,
+                              color: AppColors.textPrimary,
+                              size: 24,
                             ),
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                  SizedBox(height: Responsive.hp(4)),
+                ),
+                const SizedBox(height: 24),
 
-                  // Membership Benefits
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: Responsive.wp(4)),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '멤버십 등급 혜택',
-                          style: TextStyle(
-                            fontSize: Responsive.sp(18),
-                            fontWeight: FontWeight.w800,
-                            color: AppColors.textPrimary,
+                // Membership Tiers
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: Responsive.wp(6)),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '멤버십 등급 혜택',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      _buildMembershipTier(
+                        '브론즈 팬',
+                        ['독점 게시물 열람', '월간 인사 메시지'],
+                        AppColors.bronze,
+                      ),
+                      const SizedBox(height: 12),
+                      _buildMembershipTier(
+                        '실버 팬',
+                        ['브론즈 혜택 전체', '라이브 방송 참여', '팬미팅 우선권'],
+                        AppColors.silver,
+                      ),
+                      const SizedBox(height: 12),
+                      _buildMembershipTier(
+                        '골드 팬',
+                        ['실버 혜택 전체', '1:1 영상 메시지', '사인 굿즈 증정'],
+                        AppColors.gold,
+                        isRecommended: true,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 32),
+
+                // Top Supporters
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: Responsive.wp(6)),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            '베스트 서포터',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.textPrimary,
+                            ),
                           ),
-                        ),
-                        SizedBox(height: Responsive.hp(2)),
-                        _buildBenefitTier(
-                          context,
-                          name: '브론즈 팬',
-                          benefits: ['독점 게시물 열람', '월간 인사 메시지'],
-                          color: AppColors.bronze,
-                        ),
-                        SizedBox(height: Responsive.hp(1.5)),
-                        _buildBenefitTier(
-                          context,
-                          name: '실버 팬',
-                          benefits: [
-                            '브론즈 혜택 전체',
-                            '라이브 방송 참여',
-                            '팬미팅 우선권',
-                          ],
-                          color: AppColors.silver,
-                        ),
-                        SizedBox(height: Responsive.hp(1.5)),
-                        _buildBenefitTier(
-                          context,
-                          name: '골드 팬',
-                          benefits: [
-                            '실버 혜택 전체',
-                            '1:1 영상 메시지',
-                            '사인 굿즈 증정',
-                          ],
-                          color: AppColors.gold,
-                          isHighlight: true,
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: Responsive.hp(2)),
-
-                  // Top Supporters
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: Responsive.wp(4)),
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              '베스트 서포터',
+                          TextButton(
+                            onPressed: () {},
+                            child: Text(
+                              '전체보기',
                               style: TextStyle(
-                                fontSize: Responsive.sp(18),
-                                fontWeight: FontWeight.w800,
-                                color: AppColors.textPrimary,
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
-                            TextButton(
-                              onPressed: () {},
-                              child: Text(
-                                '전체 보기',
-                                style: TextStyle(
-                                    fontSize: Responsive.sp(13),
-                                    color: AppColors.textSecondary),
-                              ),
-                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: AppColors.border),
+                        ),
+                        child: Column(
+                          children: [
+                            _buildSupporterItem('최고의팬', 'VIP 1등급', AppColors.gold, 1),
+                            const Divider(height: 24),
+                            _buildSupporterItem('열정서포터', 'VIP 2등급', AppColors.silver, 2),
+                            const Divider(height: 24),
+                            _buildSupporterItem('응원단장', 'VIP 3등급', AppColors.bronze, 3),
                           ],
                         ),
-                        SizedBox(height: Responsive.hp(1)),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: AppColors.cardShadow(opacity: 0.05),
-                          ),
-                          padding: EdgeInsets.all(Responsive.wp(4)),
-                          child: Column(
-                            children: List.generate(
-                              3,
-                              (index) => _buildSupporterItem(context, index),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                  SizedBox(height: Responsive.hp(12)),
-                ],
-              ),
+                ),
+                const SizedBox(height: 32),
+              ],
             ),
           ),
         ],
@@ -360,30 +340,40 @@ class IdolDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildBenefitTier(
-    BuildContext context, {
-    required String name,
-    required List<String> benefits,
-    required Color color,
-    bool isHighlight = false,
-  }) {
+  Widget _buildStatItem(String label, String value) {
+    return Column(
+      children: [
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+            color: AppColors.textPrimary,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 13,
+            color: AppColors.textSecondary,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMembershipTier(String name, List<String> benefits, Color color,
+      {bool isRecommended = false}) {
     return Container(
-      padding: EdgeInsets.all(Responsive.wp(4)),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isHighlight ? color : Colors.transparent,
-          width: 1.5,
+          color: isRecommended ? color : AppColors.border,
+          width: isRecommended ? 2 : 1,
         ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: isHighlight
-            ? [
-                BoxShadow(
-                    color: color.withValues(alpha: 0.15),
-                    blurRadius: 15,
-                    offset: const Offset(0, 4))
-              ]
-            : AppColors.cardShadow(opacity: 0.03),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -391,35 +381,35 @@ class IdolDetailScreen extends ConsumerWidget {
           Row(
             children: [
               Container(
-                padding: EdgeInsets.all(8),
+                padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
+                  color: color.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(Icons.star_rounded, color: color, size: 18),
+                child: Icon(Icons.star, color: color, size: 20),
               ),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               Text(
                 name,
                 style: TextStyle(
-                  fontSize: Responsive.sp(16),
+                  fontSize: 16,
                   fontWeight: FontWeight.w700,
                   color: AppColors.textPrimary,
                 ),
               ),
-              if (isHighlight) ...[
-                SizedBox(width: 8),
+              if (isRecommended) ...[
+                const SizedBox(width: 8),
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: color,
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Text(
+                  child: const Text(
                     '추천',
                     style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
                       color: Colors.white,
                     ),
                   ),
@@ -427,19 +417,20 @@ class IdolDetailScreen extends ConsumerWidget {
               ],
             ],
           ),
-          SizedBox(height: Responsive.hp(1.5)),
+          const SizedBox(height: 12),
           ...benefits.map((benefit) => Padding(
-                padding: const EdgeInsets.only(bottom: 6),
+                padding: const EdgeInsets.only(bottom: 8),
                 child: Row(
                   children: [
-                    Icon(Icons.check_circle_rounded, size: 16, color: color),
-                    SizedBox(width: 8),
-                    Text(
-                      benefit,
-                      style: TextStyle(
-                        fontSize: Responsive.sp(13),
-                        color: AppColors.textSecondary,
-                        fontWeight: FontWeight.w500,
+                    Icon(Icons.check_circle, size: 16, color: color),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        benefit,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: AppColors.textSecondary,
+                        ),
                       ),
                     ),
                   ],
@@ -450,78 +441,86 @@ class IdolDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStat(
-      BuildContext context, String value, String label, Color color) {
-    return Column(
+  Widget _buildSupporterItem(String name, String tier, Color color, int rank) {
+    return Row(
       children: [
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: Responsive.sp(18),
-            fontWeight: FontWeight.w800,
-            color: color,
+        Container(
+          width: 32,
+          height: 32,
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.1),
+            shape: BoxShape.circle,
+          ),
+          child: Center(
+            child: Text(
+              '$rank',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: color,
+              ),
+            ),
           ),
         ),
-        SizedBox(height: Responsive.hp(0.5)),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: Responsive.sp(12),
-            color: AppColors.textSecondary,
-            fontWeight: FontWeight.w500,
+        const SizedBox(width: 12),
+        Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: AppColors.backgroundAlt,
+            shape: BoxShape.circle,
+          ),
+          child: Icon(Icons.person, color: AppColors.textSecondary),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                name,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                tier,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ],
           ),
         ),
       ],
     );
   }
 
-  Widget _buildSupporterItem(BuildContext context, int index) {
-    final medals = [
-      Icons.looks_one_rounded,
-      Icons.looks_two_rounded,
-      Icons.looks_3_rounded
-    ];
-    final colors = [AppColors.gold, AppColors.silver, AppColors.bronze];
-    final names = ['최고의팬', '열정서포터', '응원단장'];
+  String _getCategoryText(IdolCategory category) {
+    switch (category) {
+      case IdolCategory.undergroundIdol:
+        return '지하돌';
+      case IdolCategory.maidCafe:
+        return '메이드 카페';
+      case IdolCategory.cosplayer:
+        return '코스프레이어';
+      case IdolCategory.vtuber:
+        return 'VTuber';
+      case IdolCategory.other:
+        return '기타';
+    }
+  }
 
-    return Padding(
-      padding: EdgeInsets.only(bottom: index == 2 ? 0 : Responsive.hp(1.5)),
-      child: Row(
-        children: [
-          Icon(medals[index], color: colors[index], size: Responsive.sp(28)),
-          SizedBox(width: Responsive.wp(3)),
-          CircleAvatar(
-            radius: Responsive.wp(5),
-            backgroundColor: AppColors.backgroundAlt,
-            backgroundImage: CachedNetworkImageProvider(
-              'https://i.pravatar.cc/100?img=${index + 10}',
-            ),
-          ),
-          SizedBox(width: Responsive.wp(3)),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  names[index],
-                  style: TextStyle(
-                    fontSize: Responsive.sp(14),
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                Text(
-                  'VIP ${index + 1}등급',
-                  style: TextStyle(
-                    fontSize: Responsive.sp(12),
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
+  String _formatNumber(int number) {
+    if (number >= 1000000) {
+      return '${(number / 1000000).toStringAsFixed(1)}M';
+    } else if (number >= 1000) {
+      return '${(number / 1000).toStringAsFixed(1)}K';
+    }
+    return number.toString();
   }
 }
