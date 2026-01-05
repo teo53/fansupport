@@ -10,6 +10,7 @@ import '../../../core/mock/mock_data.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../../shared/models/idol_model.dart';
 import '../../../shared/widgets/story_circle.dart';
+import '../widgets/activity_feed_widget.dart';
 
 /// 🏠 PIPO - Bubble Style Home Screen (Complete Edition)
 /// 모든 필수 기능 포함 + 토스/당근처럼 깔끔한 UI
@@ -219,6 +220,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       ),
                     ],
                   ),
+                ),
+              ),
+
+              const SliverToBoxAdapter(child: SizedBox(height: 32)),
+
+              // ============================================
+              // 🔥 Activity Feed (크리에이터 최근 활동)
+              // ============================================
+              SliverToBoxAdapter(
+                child: ActivityFeedWidget(
+                  activities: MockData.getRecentActivities(limit: 5),
+                  onViewAll: () {
+                    context.go('/community');
+                  },
                 ),
               ),
 
