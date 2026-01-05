@@ -6,6 +6,8 @@ import '../../shared/models/date_ticket_model.dart';
 import '../../shared/models/advertisement_model.dart';
 import '../../shared/models/event_model.dart';
 import '../../shared/models/activity_stats.dart';
+import '../../shared/models/supporter_model.dart';
+import '../../features/idol/widgets/pinned_announcement_section.dart';
 
 class MockData {
   // ============ 데모 유저 ============
@@ -1600,5 +1602,27 @@ class MockData {
     final supporters = getSupportersForIdol(idolId);
     supporters.sort((a, b) => b.totalAmount.compareTo(a.totalAmount));
     return supporters.take(3).toList();
+  }
+
+  // ============ 고정 공지사항 ============
+  static final Map<String, PinnedAnnouncement> _pinnedAnnouncements = {
+    'idol-001': PinnedAnnouncement(
+      id: 'announcement-001',
+      title: '🎉 3월 단독 팬미팅 오픈 안내',
+      content: '안녕하세요 여러분! 드디어 3월에 단독 팬미팅을 개최하게 되었습니다. 여러분들의 많은 사랑과 응원 덕분에 이런 자리를 마련할 수 있게 되었어요. 자세한 일정과 티켓 오픈 시간은 곧 공지드릴게요!',
+      createdAt: DateTime.now().subtract(const Duration(hours: 2)),
+      isImportant: true,
+    ),
+    'idol-002': PinnedAnnouncement(
+      id: 'announcement-002',
+      title: '💝 2월 버블 메시지 이벤트',
+      content: '2월 한 달간 매일 아침 9시에 특별한 메시지를 보내드려요! 버블 구독자 여러분께 감사의 마음을 담아 준비했습니다.',
+      createdAt: DateTime.now().subtract(const Duration(days: 1)),
+      isImportant: false,
+    ),
+  };
+
+  static PinnedAnnouncement? getPinnedAnnouncementForIdol(String idolId) {
+    return _pinnedAnnouncements[idolId];
   }
 }

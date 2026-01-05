@@ -7,6 +7,10 @@ import '../../../core/utils/responsive.dart';
 import '../../../core/mock/mock_data.dart';
 import '../../../shared/models/idol_model.dart';
 import '../widgets/supporter_ranking_section.dart';
+import '../widgets/activity_stats_section.dart';
+import '../widgets/channel_intro_section.dart';
+import '../widgets/social_links_section.dart';
+import '../widgets/pinned_announcement_section.dart';
 
 class IdolDetailScreen extends ConsumerWidget {
   final String idolId;
@@ -242,7 +246,39 @@ class IdolDetailScreen extends ConsumerWidget {
                     ],
                   ),
                 ),
-                const SizedBox(height: 24),
+
+                // 고정 공지사항
+                Builder(
+                  builder: (context) {
+                    final announcement = MockData.getPinnedAnnouncementForIdol(idol.id);
+                    if (announcement != null) {
+                      return PinnedAnnouncementSection(
+                        announcement: announcement,
+                        onTap: () {
+                          // 공지사항 상세 화면으로 이동
+                        },
+                      );
+                    }
+                    return const SizedBox(height: 24);
+                  },
+                ),
+
+                // 채널 소개
+                ChannelIntroSection(
+                  bio: idol.bio,
+                  description: idol.description,
+                ),
+                const SizedBox(height: 16),
+
+                // 소셜 미디어 링크
+                SocialLinksSection(
+                  twitterUrl: idol.twitterUrl,
+                  instagramUrl: idol.instagramUrl,
+                  youtubeUrl: idol.youtubeUrl,
+                  tiktokUrl: idol.tiktokUrl,
+                  fanCafeUrl: idol.fanCafeUrl,
+                ),
+                const SizedBox(height: 16),
 
                 // Membership Tiers
                 Padding(
@@ -290,6 +326,17 @@ class IdolDetailScreen extends ConsumerWidget {
                   },
                 ),
                 const SizedBox(height: 24),
+
+                // 활동 통계 섹션
+                if (idol.activityStats != null)
+                  ActivityStatsSection(
+                    stats: idol.activityStats!,
+                    onViewDetails: () {
+                      // 상세 통계 화면으로 이동
+                    },
+                  ),
+                if (idol.activityStats != null)
+                  const SizedBox(height: 24),
               ],
             ),
           ),
