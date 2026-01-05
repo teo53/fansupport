@@ -24,6 +24,7 @@ import '../../features/agency/screens/agency_dashboard_screen.dart';
 import '../../features/idol/screens/idol_dashboard_screen.dart';
 import '../../features/message/screens/message_creation_screen.dart';
 import '../../shared/models/idol_model.dart';
+import '../../shared/widgets/error_page.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authStateProvider);
@@ -140,10 +141,8 @@ final routerProvider = Provider<GoRouter>((ref) {
         ],
       ),
     ],
-    errorBuilder: (context, state) => Scaffold(
-      body: Center(
-        child: Text('Page not found: ${state.error}'),
-      ),
+    errorBuilder: (context, state) => ErrorPage(
+      errorMessage: state.error?.toString(),
     ),
   );
 });

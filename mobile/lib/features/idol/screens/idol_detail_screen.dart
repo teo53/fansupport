@@ -509,10 +509,9 @@ class IdolDetailScreen extends ConsumerWidget {
       case IdolCategory.cosplayer:
         return '코스프레이어';
       case IdolCategory.vtuber:
+        return 'VTuber';
       case IdolCategory.streamer:
         return '스트리머';
-        return 'VTuber';
-        return '기타';
     }
   }
 

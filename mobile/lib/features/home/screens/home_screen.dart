@@ -169,7 +169,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           if (isLive) {
                             _showLiveComingSoonDialog(context, idol);
                           } else {
-                            context.go('/home/idols/${idol.id}');
+                            context.go('/idols/${idol.id}');
                           }
                         },
                       );
@@ -194,7 +194,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         icon: Icons.star_rounded,
                         label: '멤버십',
                         color: const Color(0xFF6B4DFF),
-                        onTap: () => context.go('/home/idols'),
+                        onTap: () => context.go('/idols'),
                       ),
                       _buildQuickAction(
                         context,
@@ -268,7 +268,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         ],
                       ),
                       TextButton(
-                        onPressed: () => context.go('/home/idols'),
+                        onPressed: () => context.go('/idols'),
                         style: TextButton.styleFrom(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 12,
@@ -514,7 +514,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final imageColor = Color(int.parse(idol.imageColor ?? "0xFFFF7169"));
 
     return GestureDetector(
-      onTap: () => context.go('/home/idols/${idol.id}'),
+      onTap: () => context.go('/idols/${idol.id}'),
       child: Container(
         width: Responsive.wp(55),
         margin: EdgeInsets.only(right: Responsive.wp(4)),
@@ -1005,7 +1005,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           return GestureDetector(
             onTap: () {
               HapticFeedback.lightImpact();
-              context.go('/home/idols?category=${cat['value']}');
+              context.go('/idols?category=${cat['value']}');
             },
             child: Container(
               width: Responsive.wp(20),
