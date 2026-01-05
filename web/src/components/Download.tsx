@@ -78,7 +78,7 @@ export default function Download() {
               <div className="relative w-64 h-[520px] bg-gray-900 rounded-[2.5rem] p-2.5 shadow-2xl">
                 <div className="absolute top-3 left-1/2 transform -translate-x-1/2 w-16 h-5 bg-gray-900 rounded-full z-10" />
                 <div className="w-full h-full bg-white rounded-[2rem] overflow-hidden">
-                  <div className="h-full bg-gradient-to-b from-pink-100 to-purple-100 p-4">
+                  <div className="h-full bg-gradient-to-b from-rose-50 to-rose-100 p-4">
                     <div className="h-8 flex items-center justify-center text-sm text-gray-600 font-medium">
                       아이돌 서포트
                     </div>

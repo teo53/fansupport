@@ -23,7 +23,7 @@ const features = [
     title: '구독 멤버십',
     description:
       '월간 구독으로 독점 콘텐츠, 팬미팅 우선권 등 특별한 혜택을 받아보세요.',
-    color: 'from-purple-500 to-indigo-500',
+    color: 'from-rose-400 to-rose-500',
   },
   {
     icon: Trophy,
@@ -51,7 +51,7 @@ const features = [
     title: '실시간 알림',
     description:
       '아이돌의 새 게시물, 라이브 방송, 이벤트 소식을 실시간으로 받아보세요.',
-    color: 'from-fuchsia-500 to-pink-500',
+    color: 'from-rose-400 to-rose-300',
   },
 ]
 
@@ -113,7 +113,7 @@ export default function Features() {
               >
                 <feature.icon className="w-7 h-7 text-white" />
               </div>
-              <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
+              <h3 className="text-xl font-bold mb-3 text-gray-900">{feature.title}</h3>
               <p className="text-gray-600 leading-relaxed">
                 {feature.description}
               </p>

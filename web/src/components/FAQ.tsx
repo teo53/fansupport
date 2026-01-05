@@ -51,13 +51,13 @@ export default function FAQ() {
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <span className="inline-block px-4 py-2 bg-primary/10 rounded-full text-primary font-medium text-sm mb-4">
+          <span className="inline-block px-4 py-2 bg-rose-400/20 rounded-full text-rose-500 font-medium text-sm mb-4">
             FAQ
           </span>
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900">
             자주 묻는 질문
           </h2>
-          <p className="text-gray-600">
+          <p className="text-gray-700">
             궁금한 점이 있으신가요? 자주 묻는 질문을 확인해보세요.
           </p>
         </motion.div>
@@ -81,9 +81,8 @@ export default function FAQ() {
                   {faq.question}
                 </span>
                 <ChevronDown
-                  className={`w-5 h-5 text-gray-500 transition-transform duration-300 ${
-                    openIndex === index ? 'rotate-180' : ''
-                  }`}
+                  className={`w-5 h-5 text-gray-500 transition-transform duration-300 ${openIndex === index ? 'rotate-180' : ''
+                    }`}
                 />
               </button>
               <AnimatePresence>
