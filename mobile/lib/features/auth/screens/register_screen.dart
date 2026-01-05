@@ -18,9 +18,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _nicknameController = TextEditingController();
+  final _dateOfBirthController = TextEditingController();
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   String _selectedRole = 'FAN';
+  bool _termsConsent = false;
+  bool _privacyConsent = false;
+  bool _marketingConsent = false;
+  DateTime? _selectedDate;
 
   @override
   void dispose() {
@@ -28,17 +33,69 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     _nicknameController.dispose();
+    _dateOfBirthController.dispose();
     super.dispose();
   }
 
-  Future<void> _handleRegister() async {
-    if (_formKey.currentState!.validate()) {
-      await ref.read(authStateProvider.notifier).register(
-            _emailController.text.trim(),
-            _passwordController.text,
-            _nicknameController.text.trim(),
-          );
+  Future<void> _selectDateOfBirth() async {
+    final now = DateTime.now();
+    final initialDate = DateTime(now.year - 20, now.month, now.day);
+    final firstDate = DateTime(now.year - 100);
+    final lastDate = DateTime(now.year - 14); // Must be at least 14 years old
+
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: firstDate,
+      lastDate: lastDate,
+      builder: (context, child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            primaryColor: AppColors.primary,
+            colorScheme: ColorScheme.light(primary: AppColors.primary),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null) {
+      setState(() {
+        _selectedDate = picked;
+        _dateOfBirthController.text =
+            '${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
+      });
     }
+  }
+
+  Future<void> _handleRegister() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    if (_selectedDate == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('생년월일을 선택해주세요')),
+      );
+      return;
+    }
+
+    if (!_termsConsent || !_privacyConsent) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('필수 약관에 동의해주세요')),
+      );
+      return;
+    }
+
+    await ref.read(authStateProvider.notifier).register(
+          _emailController.text.trim(),
+          _passwordController.text,
+          _nicknameController.text.trim(),
+          _dateOfBirthController.text,
+          _termsConsent,
+          _privacyConsent,
+          _marketingConsent,
+        );
   }
 
   @override
@@ -233,7 +290,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   obscureText: _obscurePassword,
                   decoration: InputDecoration(
                     labelText: '비밀번호',
-                    hintText: '8자 이상 입력하세요',
+                    hintText: '대문자, 소문자, 숫자, 특수문자 포함',
                     prefixIcon: const Icon(Icons.lock_outlined),
                     suffixIcon: IconButton(
                       icon: Icon(
@@ -265,7 +322,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       return '비밀번호를 입력해주세요';
                     }
                     if (value.length < 8) {
-                      return '비밀번호는 8자 이상이어야 합니다';
+                      return '비밀번호는 최소 8자 이상이어야 합니다';
+                    }
+                    if (!RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]').hasMatch(value)) {
+                      return '대문자, 소문자, 숫자, 특수문자(@\$!%*?&)를 각각 1개 이상 포함해야 합니다';
                     }
                     return null;
                   },
@@ -314,6 +374,184 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     }
                     return null;
                   },
+                ),
+                SizedBox(height: Responsive.hp(2)),
+
+                // Date of Birth Field
+                TextFormField(
+                  controller: _dateOfBirthController,
+                  readOnly: true,
+                  onTap: _selectDateOfBirth,
+                  decoration: InputDecoration(
+                    labelText: '생년월일',
+                    hintText: '생년월일을 선택하세요 (만 14세 이상)',
+                    prefixIcon: const Icon(Icons.cake_outlined),
+                    suffixIcon: const Icon(Icons.calendar_today_outlined),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: AppColors.border),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: AppColors.border),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: AppColors.primary, width: 2),
+                    ),
+                    filled: true,
+                    fillColor: AppColors.backgroundAlt,
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return '생년월일을 선택해주세요';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: Responsive.hp(3)),
+
+                // Legal Consent Section
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppColors.backgroundAlt,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.border),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '약관 동의',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Terms of Service
+                      CheckboxListTile(
+                        value: _termsConsent,
+                        onChanged: (value) {
+                          setState(() {
+                            _termsConsent = value ?? false;
+                          });
+                        },
+                        controlAffinity: ListTileControlAffinity.leading,
+                        contentPadding: EdgeInsets.zero,
+                        dense: true,
+                        activeColor: AppColors.primary,
+                        title: Row(
+                          children: [
+                            const Text(
+                              '[필수] 이용약관',
+                              style: TextStyle(fontSize: 14),
+                            ),
+                            const SizedBox(width: 4),
+                            GestureDetector(
+                              onTap: () {
+                                // Navigate to Terms screen
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: const Text('이용약관'),
+                                    content: const SingleChildScrollView(
+                                      child: Text('이용약관 내용이 여기에 표시됩니다.'),
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: const Text('닫기'),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                              child: Text(
+                                '보기',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.primary,
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // Privacy Policy
+                      CheckboxListTile(
+                        value: _privacyConsent,
+                        onChanged: (value) {
+                          setState(() {
+                            _privacyConsent = value ?? false;
+                          });
+                        },
+                        controlAffinity: ListTileControlAffinity.leading,
+                        contentPadding: EdgeInsets.zero,
+                        dense: true,
+                        activeColor: AppColors.primary,
+                        title: Row(
+                          children: [
+                            const Text(
+                              '[필수] 개인정보처리방침',
+                              style: TextStyle(fontSize: 14),
+                            ),
+                            const SizedBox(width: 4),
+                            GestureDetector(
+                              onTap: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: const Text('개인정보처리방침'),
+                                    content: const SingleChildScrollView(
+                                      child: Text('개인정보처리방침 내용이 여기에 표시됩니다.'),
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: const Text('닫기'),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                              child: Text(
+                                '보기',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.primary,
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // Marketing Consent (Optional)
+                      CheckboxListTile(
+                        value: _marketingConsent,
+                        onChanged: (value) {
+                          setState(() {
+                            _marketingConsent = value ?? false;
+                          });
+                        },
+                        controlAffinity: ListTileControlAffinity.leading,
+                        contentPadding: EdgeInsets.zero,
+                        dense: true,
+                        activeColor: AppColors.primary,
+                        title: const Text(
+                          '[선택] 마케팅 정보 수신 동의',
+                          style: TextStyle(fontSize: 14),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 SizedBox(height: Responsive.hp(4)),
 
