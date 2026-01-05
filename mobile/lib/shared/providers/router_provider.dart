@@ -24,7 +24,15 @@ import '../../features/crm/screens/idol_registration_screen.dart';
 import '../../features/agency/screens/agency_dashboard_screen.dart';
 import '../../features/idol/screens/idol_dashboard_screen.dart';
 import '../../features/message/screens/message_creation_screen.dart';
+import '../../features/community/screens/post_create_screen.dart';
+import '../../features/community/screens/post_detail_screen.dart';
+import '../../features/community/screens/unanswered_cheki_list_screen.dart';
+import '../../features/bubble/screens/bubble_compose_screen.dart';
+import '../../features/search/screens/unified_search_screen.dart';
+import '../../features/notification/screens/notification_center_screen.dart';
+import '../../features/payment/screens/subscription_payment_screen.dart';
 import '../../shared/models/idol_model.dart';
+import '../../shared/models/post_model.dart';
 import '../../shared/widgets/error_page.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -146,6 +154,48 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: '/message/create',
             builder: (context, state) =>
                 MessageCreationScreen(idol: state.extra as IdolModel),
+          ),
+          // Community - Post Management
+          GoRoute(
+            path: '/community/post/create',
+            builder: (context, state) => const PostCreateScreen(),
+          ),
+          GoRoute(
+            path: '/community/post/:id',
+            builder: (context, state) => PostDetailScreen(
+              post: state.extra as Post,
+            ),
+          ),
+          GoRoute(
+            path: '/community/cheki/unanswered',
+            builder: (context, state) => const UnansweredChekiListScreen(),
+          ),
+          // Bubble - Message Compose
+          GoRoute(
+            path: '/bubble/compose',
+            builder: (context, state) => const BubbleComposeScreen(),
+          ),
+          // Search
+          GoRoute(
+            path: '/search',
+            builder: (context, state) => const UnifiedSearchScreen(),
+          ),
+          // Notifications
+          GoRoute(
+            path: '/notifications',
+            builder: (context, state) => const NotificationCenterScreen(),
+          ),
+          // Payment - Subscription
+          GoRoute(
+            path: '/subscription/payment/:idolId',
+            builder: (context, state) {
+              final extra = state.extra as Map<String, dynamic>?;
+              return SubscriptionPaymentScreen(
+                idolId: state.pathParameters['idolId']!,
+                idolName: extra?['idolName'] ?? '',
+                idolProfileImage: extra?['idolProfileImage'],
+              );
+            },
           ),
         ],
       ),
