@@ -8,6 +8,7 @@ import '../../shared/models/event_model.dart';
 import '../../shared/models/activity_stats.dart';
 import '../../shared/models/supporter_model.dart';
 import '../../features/idol/widgets/pinned_announcement_section.dart';
+import '../../shared/models/activity_feed_model.dart';
 
 class MockData {
   // ============ 데모 유저 ============
@@ -1624,5 +1625,122 @@ class MockData {
 
   static PinnedAnnouncement? getPinnedAnnouncementForIdol(String idolId) {
     return _pinnedAnnouncements[idolId];
+  }
+
+  // ============ 활동 피드 ============
+  static final List<ActivityFeedItem> activityFeeds = [
+    // 하늘별 - 라이브 방송
+    ActivityFeedItem(
+      id: 'activity-001',
+      idolId: 'idol-001',
+      idolName: '하늘별',
+      idolProfileImage: idolModels[0].profileImage,
+      type: ActivityType.live,
+      title: '🔴 LIVE: 팬 여러분과 함께하는 저녁 수다',
+      content: '안녕하세요! 오늘 저녁 8시에 라이브 방송 시작해요. 함께 수다 떨어요~',
+      thumbnailUrl: idolModels[0].profileImage,
+      createdAt: DateTime.now().subtract(const Duration(minutes: 15)),
+      likeCount: 142,
+      commentCount: 38,
+      isLive: true,
+    ),
+
+    // 사쿠라미 - 사진 업로드
+    ActivityFeedItem(
+      id: 'activity-002',
+      idolId: 'idol-002',
+      idolName: '사쿠라미',
+      idolProfileImage: idolModels[1].profileImage,
+      type: ActivityType.photo,
+      title: '오늘 카페 촬영 비하인드💕',
+      content: '오늘 촬영 너무 재밌었어요! 다음 주에 영상 올릴게요 ㅎㅎ',
+      thumbnailUrl: idolModels[1].profileImage,
+      createdAt: DateTime.now().subtract(const Duration(hours: 1)),
+      likeCount: 256,
+      commentCount: 47,
+    ),
+
+    // 루나 - 이벤트 등록
+    ActivityFeedItem(
+      id: 'activity-003',
+      idolId: 'idol-003',
+      idolName: '루나',
+      idolProfileImage: idolModels[2].profileImage,
+      type: ActivityType.event,
+      title: '🎉 3월 팬미팅 티켓 오픈!',
+      content: '드디어 3월 팬미팅 티켓이 오픈됩니다! 많은 관심 부탁드려요~',
+      createdAt: DateTime.now().subtract(const Duration(hours: 2)),
+      likeCount: 389,
+      commentCount: 92,
+    ),
+
+    // 미야코 - 버블 메시지
+    ActivityFeedItem(
+      id: 'activity-004',
+      idolId: 'idol-004',
+      idolName: '미야코',
+      idolProfileImage: idolModels[3].profileImage,
+      type: ActivityType.bubble,
+      title: '💬 오늘의 버블 메시지',
+      content: '여러분 오늘 하루도 고생하셨어요! 힘내세요 💪',
+      createdAt: DateTime.now().subtract(const Duration(hours: 3)),
+      likeCount: 178,
+      commentCount: 24,
+    ),
+
+    // 아야카 - 영상 업로드
+    ActivityFeedItem(
+      id: 'activity-005',
+      idolId: 'idol-005',
+      idolName: '아야카',
+      idolProfileImage: idolModels[4].profileImage,
+      type: ActivityType.video,
+      title: '🎬 신곡 커버 영상 공개!',
+      content: '드디어 커버 영상 완성했어요! 많이 봐주세요 ㅠㅠ',
+      thumbnailUrl: idolModels[4].profileImage,
+      createdAt: DateTime.now().subtract(const Duration(hours: 5)),
+      likeCount: 512,
+      commentCount: 128,
+    ),
+
+    // 하늘별 - 공지사항
+    ActivityFeedItem(
+      id: 'activity-006',
+      idolId: 'idol-001',
+      idolName: '하늘별',
+      idolProfileImage: idolModels[0].profileImage,
+      type: ActivityType.announcement,
+      title: '📢 중요 공지: 스케줄 변경 안내',
+      content: '이번 주 금요일 일정이 변경되었습니다. 자세한 내용은 공지사항을 확인해주세요.',
+      createdAt: DateTime.now().subtract(const Duration(hours: 6)),
+      likeCount: 234,
+      commentCount: 56,
+    ),
+
+    // 사쿠라미 - 일반 게시글
+    ActivityFeedItem(
+      id: 'activity-007',
+      idolId: 'idol-002',
+      idolName: '사쿠라미',
+      idolProfileImage: idolModels[1].profileImage,
+      type: ActivityType.post,
+      title: '오늘 날씨가 너무 좋네요!',
+      content: '여러분 오늘 날씨 정말 좋죠? 산책하기 딱 좋은 날씨예요~ 다들 즐거운 하루 보내세요!',
+      createdAt: DateTime.now().subtract(const Duration(hours: 8)),
+      likeCount: 198,
+      commentCount: 42,
+    ),
+  ];
+
+  /// 최근 활동 피드 조회 (최신순, 제한된 개수)
+  static List<ActivityFeedItem> getRecentActivities({int limit = 5}) {
+    final sorted = List<ActivityFeedItem>.from(activityFeeds);
+    sorted.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return sorted.take(limit).toList();
+  }
+
+  /// 특정 아이돌의 활동 피드 조회
+  static List<ActivityFeedItem> getActivitiesForIdol(String idolId) {
+    return activityFeeds.where((activity) => activity.idolId == idolId).toList();
   }
 }
