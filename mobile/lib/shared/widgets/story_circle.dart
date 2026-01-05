@@ -72,18 +72,31 @@ class StoryCircle extends StatelessWidget {
                   bottom: -2,
                   child: Container(
                     padding:
-                        const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFF0055),
-                      borderRadius: BorderRadius.circular(4),
+                      gradient: LinearGradient(
+                        colors: [
+                          const Color(0xFFFF9500), // Orange
+                          const Color(0xFFFFCC00), // Yellow-Orange
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(6),
                       border: Border.all(color: Colors.white, width: 1.5),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFFFF9500).withOpacity(0.4),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
                     child: Text(
-                      'LIVE',
+                      'SOON',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 8,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 0.5,
                       ),
                     ),
                   ),

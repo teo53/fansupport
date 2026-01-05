@@ -167,9 +167,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         isLive: isLive,
                         onTap: () {
                           if (isLive) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('라이브 기능은 준비 중입니다')),
-                            );
+                            _showLiveComingSoonDialog(context, idol);
                           } else {
                             context.go('/home/idols/${idol.id}');
                           }
@@ -1173,6 +1171,187 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           );
         }).toList(),
       ),
+    );
+  }
+
+  /// 🔔 라이브 기능 준비 중 다이얼로그 (Coming Soon)
+  void _showLiveComingSoonDialog(BuildContext context, IdolModel idol) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(28), // Bubble style
+        ),
+        child: Container(
+          padding: const EdgeInsets.all(32),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(28),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Icon with Gradient Background
+              Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      const Color(0xFFFF9500),
+                      const Color(0xFFFFCC00),
+                    ],
+                  ),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFFFF9500).withValues(alpha: 0.3),
+                      blurRadius: 20,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.videocam_rounded,
+                  color: Colors.white,
+                  size: 40,
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Title
+              Text(
+                '라이브 기능 준비 중',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.textPrimary,
+                  letterSpacing: -0.5,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+
+              // Description
+              Text(
+                '${idol.stageName}님과 실시간으로 소통할 수 있는\n라이브 스트리밍 기능을 준비하고 있습니다.',
+                style: TextStyle(
+                  fontSize: 15,
+                  color: AppColors.textSecondary,
+                  height: 1.5,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+
+              // Features Preview
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: AppColors.primarySoft,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '출시 예정 기능',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    _buildFeatureItem(Icons.videocam_rounded, '실시간 영상 스트리밍'),
+                    const SizedBox(height: 8),
+                    _buildFeatureItem(Icons.chat_bubble_rounded, '실시간 채팅'),
+                    const SizedBox(height: 8),
+                    _buildFeatureItem(Icons.favorite_rounded, '하트 & 선물 보내기'),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Buttons
+              Row(
+                children: [
+                  Expanded(
+                    child: CustomButton(
+                      onPressed: () => Navigator.pop(context),
+                      text: '닫기',
+                      height: 52,
+                      isOutlined: true,
+                      backgroundColor: Colors.transparent,
+                      foregroundColor: AppColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    flex: 2,
+                    child: GradientButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Row(
+                              children: [
+                                Icon(Icons.notifications_active_rounded, color: Colors.white),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    '라이브 기능 출시 시 알려드리겠습니다!',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            backgroundColor: AppColors.success,
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            margin: const EdgeInsets.all(16),
+                          ),
+                        );
+                      },
+                      text: '알림 받기',
+                      height: 52,
+                      gradient: LinearGradient(
+                        colors: [
+                          const Color(0xFFFF9500),
+                          const Color(0xFFFFCC00),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// 📋 Feature Item
+  Widget _buildFeatureItem(IconData icon, String text) {
+    return Row(
+      children: [
+        Icon(icon, size: 18, color: AppColors.primary),
+        const SizedBox(width: 10),
+        Text(
+          text,
+          style: TextStyle(
+            fontSize: 14,
+            color: AppColors.textPrimary,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
     );
   }
 }
