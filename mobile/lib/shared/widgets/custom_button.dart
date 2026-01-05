@@ -10,7 +10,10 @@ import '../../core/theme/app_colors.dart';
 // ============================================
 class CustomButton extends StatefulWidget {
   final VoidCallback? onPressed;
-  final Widget child;
+  final Widget? child;
+  final String? text;
+  final IconData? prefixIcon;
+  final IconData? suffixIcon;
   final bool isLoading;
   final bool isOutlined;
   final double? width;
@@ -24,7 +27,10 @@ class CustomButton extends StatefulWidget {
   const CustomButton({
     super.key,
     required this.onPressed,
-    required this.child,
+    this.child,
+    this.text,
+    this.prefixIcon,
+    this.suffixIcon,
     this.isLoading = false,
     this.isOutlined = false,
     this.width,
@@ -34,7 +40,7 @@ class CustomButton extends StatefulWidget {
     this.borderRadius,
     this.padding,
     this.enableGlow = true,
-  });
+  }) : assert(child != null || text != null, 'Either child or text must be provided');
 
   @override
   State<CustomButton> createState() => _CustomButtonState();
@@ -155,7 +161,40 @@ class _CustomButtonState extends State<CustomButton>
                                 fontFamily: 'Pretendard',
                                 letterSpacing: -0.2,
                               ),
-                              child: widget.child,
+                              child: widget.child ??
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      if (widget.prefixIcon != null) ...[
+                                        Icon(
+                                          widget.prefixIcon,
+                                          size: 20,
+                                          color: widget.isOutlined
+                                              ? (widget.foregroundColor ?? AppColors.primary)
+                                              : (widget.foregroundColor ?? Colors.white),
+                                        ),
+                                        const SizedBox(width: 8),
+                                      ],
+                                      Flexible(
+                                        child: Text(
+                                          widget.text!,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      if (widget.suffixIcon != null) ...[
+                                        const SizedBox(width: 8),
+                                        Icon(
+                                          widget.suffixIcon,
+                                          size: 20,
+                                          color: widget.isOutlined
+                                              ? (widget.foregroundColor ?? AppColors.primary)
+                                              : (widget.foregroundColor ?? Colors.white),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
                             ),
                     ),
                   ),
@@ -174,11 +213,15 @@ class _CustomButtonState extends State<CustomButton>
 // ============================================
 class GradientButton extends StatefulWidget {
   final VoidCallback? onPressed;
-  final Widget child;
+  final Widget? child;
+  final String? text;
+  final IconData? prefixIcon;
+  final IconData? suffixIcon;
   final bool isLoading;
   final double? width;
   final double height;
-  final Gradient gradient;
+  final Gradient? gradient;
+  final Color? foregroundColor;
   final BorderRadius? borderRadius;
   final bool enableGlow;
   final bool enableHaptic;
@@ -186,15 +229,19 @@ class GradientButton extends StatefulWidget {
   const GradientButton({
     super.key,
     required this.onPressed,
-    required this.child,
+    this.child,
+    this.text,
+    this.prefixIcon,
+    this.suffixIcon,
     this.isLoading = false,
     this.width,
     this.height = 60,
-    this.gradient = AppColors.ctaGradient, // CTA gradient 사용
+    this.gradient, // CTA gradient 사용
+    this.foregroundColor,
     this.borderRadius,
     this.enableGlow = true,
     this.enableHaptic = true,
-  });
+  }) : assert(child != null || text != null, 'Either child or text must be provided');
 
   @override
   State<GradientButton> createState() => _GradientButtonState();
@@ -262,7 +309,7 @@ class _GradientButtonState extends State<GradientButton>
               width: widget.width ?? double.infinity,
               height: widget.height,
               decoration: BoxDecoration(
-                gradient: isEnabled ? widget.gradient : null,
+                gradient: isEnabled ? (widget.gradient ?? AppColors.ctaGradient) : null,
                 color: isEnabled ? null : AppColors.disabled,
                 borderRadius: radius,
                 boxShadow: isEnabled && widget.enableGlow
@@ -296,14 +343,43 @@ class _GradientButtonState extends State<GradientButton>
                             ),
                           )
                         : DefaultTextStyle(
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                              color: widget.foregroundColor ?? Colors.white,
                               fontSize: 17,
                               fontWeight: FontWeight.w800,
                               fontFamily: 'Pretendard',
                               letterSpacing: -0.2,
                             ),
-                            child: widget.child,
+                            child: widget.child ??
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    if (widget.prefixIcon != null) ...[
+                                      Icon(
+                                        widget.prefixIcon,
+                                        size: 20,
+                                        color: widget.foregroundColor ?? Colors.white,
+                                      ),
+                                      const SizedBox(width: 8),
+                                    ],
+                                    Flexible(
+                                      child: Text(
+                                        widget.text!,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    if (widget.suffixIcon != null) ...[
+                                      const SizedBox(width: 8),
+                                      Icon(
+                                        widget.suffixIcon,
+                                        size: 20,
+                                        color: widget.foregroundColor ?? Colors.white,
+                                      ),
+                                    ],
+                                  ],
+                                ),
                           ),
                   ),
                 ),
