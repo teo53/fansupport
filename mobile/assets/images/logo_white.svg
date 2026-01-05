@@ -1,0 +1,13 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Heart Icon -->
+  <path d="M100 170C100 170 30 130 30 80C30 60 45 45 65 45C80 45 90 55 100 65C110 55 120 45 135 45C155 45 170 60 170 80C170 130 100 170 100 170Z"
+        fill="white"
+        stroke="white"
+        stroke-width="3"/>
+
+  <!-- Decorative Circle -->
+  <circle cx="100" cy="100" r="85" stroke="white" stroke-width="2" fill="none" opacity="0.3"/>
+
+  <!-- Inner Glow Effect -->
+  <circle cx="100" cy="100" r="70" fill="white" opacity="0.1"/>
+</svg>

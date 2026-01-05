@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'dart:math' as math;
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../shared/widgets/custom_button.dart';
 import '../../../shared/widgets/custom_text_field.dart';
 import '../providers/auth_provider.dart';
 
-/// 🎨 PIPO - Bubble Style Login Screen
-/// 애니메이션 + 깔끔한 UI + Coral Pink
+/// 🎨 PIPO - Bubble Style Login Screen with Animations
+/// 로고 애니메이션 + 배경 그라데이션 애니메이션 + Coral Pink
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
@@ -24,27 +26,55 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
 
+  // Animations
   late AnimationController _fadeController;
   late AnimationController _slideController;
+  late AnimationController _logoController;
+  late AnimationController _backgroundController;
+
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
+  late Animation<double> _logoScaleAnimation;
+  late Animation<double> _logoFadeAnimation;
+  late Animation<double> _logoRotationAnimation;
+  late Animation<double> _logoPulseAnimation;
+  late Animation<double> _backgroundAnimation;
 
   @override
   void initState() {
     super.initState();
+
+    // Fade animation
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
+
+    // Slide animation
     _slideController = AnimationController(
       duration: const Duration(milliseconds: 600),
       vsync: this,
     );
 
+    // Logo animation
+    _logoController = AnimationController(
+      duration: const Duration(milliseconds: 1200),
+      vsync: this,
+    );
+
+    // Background animation (continuous)
+    _backgroundController = AnimationController(
+      duration: const Duration(seconds: 10),
+      vsync: this,
+    )..repeat();
+
+    // Fade
     _fadeAnimation = CurvedAnimation(
       parent: _fadeController,
       curve: Curves.easeOut,
     );
+
+    // Slide
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.3),
       end: Offset.zero,
@@ -53,8 +83,62 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       curve: Curves.easeOutCubic,
     ));
 
-    _fadeController.forward();
-    Future.delayed(const Duration(milliseconds: 200), () {
+    // Logo Scale (bounce in)
+    _logoScaleAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _logoController,
+      curve: Curves.elasticOut,
+    ));
+
+    // Logo Fade
+    _logoFadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _logoController,
+      curve: const Interval(0.0, 0.6, curve: Curves.easeIn),
+    ));
+
+    // Logo Rotation (subtle)
+    _logoRotationAnimation = Tween<double>(
+      begin: -0.1,
+      end: 0.0,
+    ).animate(CurvedAnimation(
+      parent: _logoController,
+      curve: Curves.easeOutCubic,
+    ));
+
+    // Logo Pulse (continuous after initial)
+    _logoPulseAnimation = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 1.0, end: 1.05),
+        weight: 50,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 1.05, end: 1.0),
+        weight: 50,
+      ),
+    ]).animate(CurvedAnimation(
+      parent: _logoController,
+      curve: const Interval(0.6, 1.0, curve: Curves.easeInOut),
+    ));
+
+    // Background gradient animation
+    _backgroundAnimation = Tween<double>(
+      begin: 0.0,
+      end: 2 * math.pi,
+    ).animate(_backgroundController);
+
+    // Start animations with delays
+    _logoController.forward();
+    Future.delayed(const Duration(milliseconds: 400), () {
+      if (mounted) {
+        _fadeController.forward();
+      }
+    });
+    Future.delayed(const Duration(milliseconds: 600), () {
       if (mounted) {
         _slideController.forward();
       }
@@ -67,6 +151,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     _passwordController.dispose();
     _fadeController.dispose();
     _slideController.dispose();
+    _logoController.dispose();
+    _backgroundController.dispose();
     super.dispose();
   }
 
@@ -260,259 +346,400 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     final error = authState.value?.error;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            padding: EdgeInsets.symmetric(horizontal: Responsive.wp(6)),
-            child: FadeTransition(
-              opacity: _fadeAnimation,
-              child: SlideTransition(
-                position: _slideAnimation,
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      SizedBox(height: Responsive.hp(4)),
+      body: Stack(
+        children: [
+          // ============================================
+          // 🎨 Animated Background (Coral Pink Gradient)
+          // ============================================
+          Positioned.fill(
+            child: AnimatedBuilder(
+              animation: _backgroundAnimation,
+              builder: (context, child) {
+                return Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment(
+                        math.cos(_backgroundAnimation.value),
+                        math.sin(_backgroundAnimation.value),
+                      ),
+                      end: Alignment(
+                        -math.cos(_backgroundAnimation.value),
+                        -math.sin(_backgroundAnimation.value),
+                      ),
+                      colors: [
+                        AppColors.primary,
+                        AppColors.primaryLight,
+                        AppColors.primary,
+                      ],
+                      stops: const [0.0, 0.5, 1.0],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
 
-                      // ============================================
-                      // 🎨 Logo (Bubble Style with Gradient)
-                      // ============================================
-                      Center(
-                        child: Container(
-                          width: 96,
-                          height: 96,
-                          decoration: BoxDecoration(
-                            gradient: AppColors.primaryGradient,
-                            borderRadius: BorderRadius.circular(28), // Bubble style
-                            boxShadow: AppColors.glowShadow(
-                              AppColors.primary,
-                              opacity: 0.25,
+          // ============================================
+          // ✨ Decorative Floating Bubbles
+          // ============================================
+          Positioned.fill(
+            child: AnimatedBuilder(
+              animation: _backgroundAnimation,
+              builder: (context, child) {
+                return Stack(
+                  children: [
+                    _buildFloatingBubble(
+                      top: 100 + math.sin(_backgroundAnimation.value) * 20,
+                      left: 50 + math.cos(_backgroundAnimation.value) * 15,
+                      size: 80,
+                      opacity: 0.1,
+                    ),
+                    _buildFloatingBubble(
+                      bottom: 150 + math.cos(_backgroundAnimation.value * 0.7) * 25,
+                      right: 30 + math.sin(_backgroundAnimation.value * 0.7) * 20,
+                      size: 120,
+                      opacity: 0.08,
+                    ),
+                    _buildFloatingBubble(
+                      top: 300 + math.sin(_backgroundAnimation.value * 1.3) * 30,
+                      right: 80 + math.cos(_backgroundAnimation.value * 1.3) * 25,
+                      size: 60,
+                      opacity: 0.12,
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+
+          // ============================================
+          // 📱 Main Content
+          // ============================================
+          SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                padding: EdgeInsets.symmetric(horizontal: Responsive.wp(6)),
+                child: FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: SlideTransition(
+                    position: _slideAnimation,
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          SizedBox(height: Responsive.hp(4)),
+
+                          // ============================================
+                          // 🎨 Animated Logo (White SVG with Animations)
+                          // ============================================
+                          Center(
+                            child: AnimatedBuilder(
+                              animation: Listenable.merge([
+                                _logoScaleAnimation,
+                                _logoFadeAnimation,
+                                _logoRotationAnimation,
+                                _logoPulseAnimation,
+                              ]),
+                              builder: (context, child) {
+                                return Opacity(
+                                  opacity: _logoFadeAnimation.value,
+                                  child: Transform.scale(
+                                    scale: _logoScaleAnimation.value *
+                                           _logoPulseAnimation.value,
+                                    child: Transform.rotate(
+                                      angle: _logoRotationAnimation.value,
+                                      child: Container(
+                                        width: 120,
+                                        height: 120,
+                                        decoration: BoxDecoration(
+                                          color: Colors.white.withValues(alpha: 0.15),
+                                          borderRadius: BorderRadius.circular(32),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.white.withValues(alpha: 0.3),
+                                              blurRadius: 30,
+                                              spreadRadius: 5,
+                                            ),
+                                          ],
+                                        ),
+                                        child: Center(
+                                          child: SvgPicture.asset(
+                                            'assets/images/logo_white.svg',
+                                            width: 70,
+                                            height: 70,
+                                            colorFilter: const ColorFilter.mode(
+                                              Colors.white,
+                                              BlendMode.srcIn,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
                           ),
-                          child: const Icon(
-                            Icons.favorite_rounded,
-                            color: Colors.white,
-                            size: 48,
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: Responsive.hp(3)),
+                          SizedBox(height: Responsive.hp(3)),
 
-                      // ============================================
-                      // 📝 Title
-                      // ============================================
-                      Text(
-                        'PIPO',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 40, // Bubble style - larger
-                          fontWeight: FontWeight.w900,
-                          color: AppColors.textPrimary,
-                          letterSpacing: -1.5,
-                          height: 1.1,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        '좋아하는 아이돌을 응원하세요',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.textSecondary,
-                          letterSpacing: -0.2,
-                        ),
-                      ),
-                      SizedBox(height: Responsive.hp(5)),
-
-                      // ============================================
-                      // ⚠️ Error Message
-                      // ============================================
-                      if (error != null) ...[
-                        Container(
-                          padding: const EdgeInsets.all(18), // Bubble style
-                          decoration: BoxDecoration(
-                            color: AppColors.errorSoft,
-                            borderRadius: BorderRadius.circular(16), // Bubble style
-                            border: Border.all(
-                              color: AppColors.error.withValues(alpha: 0.2),
+                          // ============================================
+                          // 📝 Title
+                          // ============================================
+                          Text(
+                            'PIPO',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 48, // Bubble style - larger
+                              fontWeight: FontWeight.w900,
+                              color: Colors.white,
+                              letterSpacing: -2.0,
+                              height: 1.1,
+                              shadows: [
+                                Shadow(
+                                  color: Colors.black.withValues(alpha: 0.1),
+                                  offset: const Offset(0, 4),
+                                  blurRadius: 10,
+                                ),
+                              ],
                             ),
                           ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.error_outline_rounded,
-                                color: AppColors.error,
-                                size: 22,
+                          const SizedBox(height: 8),
+                          Text(
+                            '좋아하는 아이돌을 응원하세요',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white.withValues(alpha: 0.95),
+                              letterSpacing: -0.2,
+                            ),
+                          ),
+                          SizedBox(height: Responsive.hp(5)),
+
+                          // ============================================
+                          // ⚠️ Error Message
+                          // ============================================
+                          if (error != null) ...[
+                            Container(
+                              padding: const EdgeInsets.all(18),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
                               ),
-                              const SizedBox(width: 14),
-                              Expanded(
-                                child: Text(
-                                  error,
-                                  style: TextStyle(
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.error_outline_rounded,
                                     color: AppColors.error,
+                                    size: 22,
+                                  ),
+                                  const SizedBox(width: 14),
+                                  Expanded(
+                                    child: Text(
+                                      error,
+                                      style: TextStyle(
+                                        color: AppColors.error,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(height: Responsive.hp(2)),
+                          ],
+
+                          // ============================================
+                          // ✏️ Email Field
+                          // ============================================
+                          CustomTextField(
+                            controller: _emailController,
+                            label: '이메일',
+                            hintText: 'example@email.com',
+                            keyboardType: TextInputType.emailAddress,
+                            prefixIcon: Icons.email_outlined,
+                            textInputAction: TextInputAction.next,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return '이메일을 입력해주세요';
+                              }
+                              if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                                  .hasMatch(value)) {
+                                return '올바른 이메일 형식이 아닙니다';
+                              }
+                              return null;
+                            },
+                          ),
+                          SizedBox(height: Responsive.hp(2)),
+
+                          // ============================================
+                          // 🔒 Password Field
+                          // ============================================
+                          CustomTextField(
+                            controller: _passwordController,
+                            label: '비밀번호',
+                            hintText: '비밀번호를 입력하세요',
+                            obscureText: _obscurePassword,
+                            prefixIcon: Icons.lock_outlined,
+                            textInputAction: TextInputAction.done,
+                            onFieldSubmitted: (_) => _handleLogin(),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _obscurePassword
+                                    ? Icons.visibility_outlined
+                                    : Icons.visibility_off_outlined,
+                                color: AppColors.textSecondary,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _obscurePassword = !_obscurePassword;
+                                });
+                              },
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return '비밀번호를 입력해주세요';
+                              }
+                              return null;
+                            },
+                          ),
+                          SizedBox(height: Responsive.hp(3)),
+
+                          // ============================================
+                          // 🔵 Login Button
+                          // ============================================
+                          GradientButton(
+                            onPressed: isLoading ? null : _handleLogin,
+                            text: '로그인',
+                            height: 60,
+                            gradient: const LinearGradient(
+                              colors: [Colors.white, Colors.white],
+                            ),
+                            foregroundColor: AppColors.primary,
+                            isLoading: isLoading,
+                            enableGlow: false,
+                          ),
+                          SizedBox(height: Responsive.hp(2)),
+
+                          // ============================================
+                          // 🎯 Demo Login Button
+                          // ============================================
+                          CustomButton(
+                            onPressed: isLoading ? null : _handleDemoLogin,
+                            text: '데모 계정으로 체험하기',
+                            height: 60,
+                            isOutlined: true,
+                            backgroundColor: Colors.white.withValues(alpha: 0.15),
+                            foregroundColor: Colors.white,
+                            prefixIcon: Icons.rocket_launch_rounded,
+                          ),
+                          SizedBox(height: Responsive.hp(3)),
+
+                          // ============================================
+                          // 📌 Divider
+                          // ============================================
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Divider(
+                                  color: Colors.white.withValues(alpha: 0.3),
+                                  thickness: 1,
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 16),
+                                child: Text(
+                                  '또는',
+                                  style: TextStyle(
+                                    color: Colors.white.withValues(alpha: 0.8),
                                     fontSize: 14,
-                                    fontWeight: FontWeight.w600,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: Divider(
+                                  color: Colors.white.withValues(alpha: 0.3),
+                                  thickness: 1,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: Responsive.hp(3)),
+
+                          // ============================================
+                          // 🔗 Register Link
+                          // ============================================
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                '계정이 없으신가요?',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.white.withValues(alpha: 0.9),
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () => context.go('/register'),
+                                style: TextButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
+                                ),
+                                child: Text(
+                                  '회원가입',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.white,
                                   ),
                                 ),
                               ),
                             ],
                           ),
-                        ),
-                        SizedBox(height: Responsive.hp(2)),
-                      ],
-
-                      // ============================================
-                      // ✏️ Email Field (CustomTextField)
-                      // ============================================
-                      CustomTextField(
-                        controller: _emailController,
-                        label: '이메일',
-                        hintText: 'example@email.com',
-                        keyboardType: TextInputType.emailAddress,
-                        prefixIcon: Icons.email_outlined,
-                        textInputAction: TextInputAction.next,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return '이메일을 입력해주세요';
-                          }
-                          if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                              .hasMatch(value)) {
-                            return '올바른 이메일 형식이 아닙니다';
-                          }
-                          return null;
-                        },
-                      ),
-                      SizedBox(height: Responsive.hp(2)),
-
-                      // ============================================
-                      // 🔒 Password Field (CustomTextField)
-                      // ============================================
-                      CustomTextField(
-                        controller: _passwordController,
-                        label: '비밀번호',
-                        hintText: '비밀번호를 입력하세요',
-                        obscureText: _obscurePassword,
-                        prefixIcon: Icons.lock_outlined,
-                        textInputAction: TextInputAction.done,
-                        onFieldSubmitted: (_) => _handleLogin(),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscurePassword
-                                ? Icons.visibility_outlined
-                                : Icons.visibility_off_outlined,
-                            color: AppColors.textSecondary,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _obscurePassword = !_obscurePassword;
-                            });
-                          },
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return '비밀번호를 입력해주세요';
-                          }
-                          return null;
-                        },
-                      ),
-                      SizedBox(height: Responsive.hp(3)),
-
-                      // ============================================
-                      // 🔵 Login Button (CustomButton - Gradient)
-                      // ============================================
-                      GradientButton(
-                        onPressed: isLoading ? null : _handleLogin,
-                        text: '로그인',
-                        height: 60,
-                        gradient: AppColors.ctaGradient, // CTA gradient
-                        isLoading: isLoading,
-                        enableGlow: true,
-                      ),
-                      SizedBox(height: Responsive.hp(2)),
-
-                      // ============================================
-                      // 🎯 Demo Login Button
-                      // ============================================
-                      CustomButton(
-                        onPressed: isLoading ? null : _handleDemoLogin,
-                        text: '데모 계정으로 체험하기',
-                        height: 60,
-                        isOutlined: true,
-                        backgroundColor: Colors.transparent,
-                        foregroundColor: AppColors.primary,
-                        prefixIcon: Icons.rocket_launch_rounded,
-                      ),
-                      SizedBox(height: Responsive.hp(3)),
-
-                      // ============================================
-                      // 📌 Divider
-                      // ============================================
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Divider(color: AppColors.border, thickness: 1),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: Text(
-                              '또는',
-                              style: TextStyle(
-                                color: AppColors.textSecondary,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: Divider(color: AppColors.border, thickness: 1),
-                          ),
+                          SizedBox(height: Responsive.hp(4)),
                         ],
                       ),
-                      SizedBox(height: Responsive.hp(3)),
-
-                      // ============================================
-                      // 🔗 Register Link
-                      // ============================================
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            '계정이 없으신가요?',
-                            style: TextStyle(
-                              fontSize: 15,
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: () => context.go('/register'),
-                            style: TextButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                            ),
-                            child: Text(
-                              '회원가입',
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.primary,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: Responsive.hp(4)),
-                    ],
+                    ),
                   ),
                 ),
               ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 🫧 Floating Bubble Widget
+  Widget _buildFloatingBubble({
+    double? top,
+    double? bottom,
+    double? left,
+    double? right,
+    required double size,
+    required double opacity,
+  }) {
+    return Positioned(
+      top: top,
+      bottom: bottom,
+      left: left,
+      right: right,
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Colors.white.withValues(alpha: opacity),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: opacity * 0.5),
+            width: 1,
           ),
         ),
       ),
