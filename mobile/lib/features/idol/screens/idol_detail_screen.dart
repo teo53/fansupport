@@ -6,6 +6,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../core/mock/mock_data.dart';
 import '../../../shared/models/idol_model.dart';
+import '../widgets/supporter_ranking_section.dart';
 
 class IdolDetailScreen extends ConsumerWidget {
   final String idolId;
@@ -279,59 +280,16 @@ class IdolDetailScreen extends ConsumerWidget {
                     ],
                   ),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 24),
 
-                // Top Supporters
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: Responsive.wp(6)),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            '베스트 서포터',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.textPrimary,
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: () {},
-                            child: Text(
-                              '전체보기',
-                              style: TextStyle(
-                                color: AppColors.primary,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: AppColors.border),
-                        ),
-                        child: Column(
-                          children: [
-                            _buildSupporterItem('최고의팬', 'VIP 1등급', AppColors.gold, 1),
-                            const Divider(height: 24),
-                            _buildSupporterItem('열정서포터', 'VIP 2등급', AppColors.silver, 2),
-                            const Divider(height: 24),
-                            _buildSupporterItem('응원단장', 'VIP 3등급', AppColors.bronze, 3),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+                // 후원자 랭킹 섹션 (치지직 스타일)
+                SupporterRankingSection(
+                  supporters: MockData.getSupportersForIdol(idol.id),
+                  onViewAll: () {
+                    // 전체 랭킹 화면으로 이동
+                  },
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 24),
               ],
             ),
           ),

@@ -1446,4 +1446,159 @@ class MockData {
 
     return dates.toList()..sort();
   }
+
+  // ============ 서포터 랭킹 데이터 ============
+
+  /// 하늘별 서포터 랭킹
+  static final List<SupporterModel> skystarSupporters = [
+    SupporterModel(
+      id: 'supporter-001',
+      userId: 'user-001',
+      nickname: 'Kpop으로영어공부하기',
+      profileImage: 'https://ui-avatars.com/api/?name=Kpop&background=4CAF50&color=fff&size=100',
+      isVerified: true,
+      totalSupport: 3500000, // 후원 350만원
+      totalFunding: 1500000, // 펀딩 150만원
+      totalAmount: 5000000, // 총 500만원
+      supportCount: 24,
+      fundingCount: 3,
+      firstSupportDate: DateTime(2023, 5, 1),
+      lastSupportDate: DateTime.now(),
+      isSubscriber: true,
+      subscriptionTier: 'VIP',
+      subscriptionStartDate: DateTime(2023, 5, 1),
+      badges: ['first_supporter', 'vip_supporter', 'loyal_supporter'],
+    ),
+    SupporterModel(
+      id: 'supporter-002',
+      userId: 'user-002',
+      nickname: '박철호',
+      profileImage: 'https://ui-avatars.com/api/?name=박철호&background=2196F3&color=fff&size=100',
+      isVerified: false,
+      totalSupport: 2000000,
+      totalFunding: 800000,
+      totalAmount: 2800000,
+      supportCount: 18,
+      fundingCount: 2,
+      firstSupportDate: DateTime(2023, 6, 15),
+      lastSupportDate: DateTime.now(),
+      isSubscriber: true,
+      subscriptionTier: '프리미엄',
+      subscriptionStartDate: DateTime(2023, 7, 1),
+      badges: ['subscriber_supporter'],
+    ),
+    SupporterModel(
+      id: 'supporter-003',
+      userId: 'user-003',
+      nickname: '광복간',
+      profileImage: 'https://ui-avatars.com/api/?name=광복간&background=FF9800&color=fff&size=100',
+      isVerified: false,
+      totalSupport: 1200000,
+      totalFunding: 500000,
+      totalAmount: 1700000,
+      supportCount: 12,
+      fundingCount: 1,
+      firstSupportDate: DateTime(2023, 8, 1),
+      lastSupportDate: DateTime.now(),
+      isSubscriber: true,
+      subscriptionTier: '프리미엄',
+      badges: [],
+    ),
+    SupporterModel(
+      id: 'supporter-004',
+      userId: 'user-004',
+      nickname: '느어버린전주역',
+      profileImage: null,
+      isVerified: false,
+      totalSupport: 800000,
+      totalFunding: 200000,
+      totalAmount: 1000000,
+      supportCount: 8,
+      fundingCount: 1,
+      firstSupportDate: DateTime(2024, 1, 1),
+      lastSupportDate: DateTime(2025, 12, 15),
+      isSubscriber: false,
+      badges: [],
+    ),
+    SupporterModel(
+      id: 'supporter-005',
+      userId: 'user-005',
+      nickname: 'lllSTONElll',
+      profileImage: null,
+      isVerified: false,
+      totalSupport: 650000,
+      totalFunding: 150000,
+      totalAmount: 800000,
+      supportCount: 6,
+      fundingCount: 1,
+      firstSupportDate: DateTime(2024, 3, 1),
+      lastSupportDate: DateTime(2025, 11, 20),
+      isSubscriber: true,
+      subscriptionTier: '라이트',
+      badges: [],
+    ),
+    SupporterModel(
+      id: 'supporter-006',
+      userId: 'user-006',
+      nickname: '유튜브식인한TV',
+      profileImage: null,
+      isVerified: false,
+      totalSupport: 450000,
+      totalFunding: 100000,
+      totalAmount: 550000,
+      supportCount: 5,
+      fundingCount: 1,
+      firstSupportDate: DateTime(2024, 4, 1),
+      lastSupportDate: DateTime(2025, 10, 10),
+      isSubscriber: false,
+      badges: [],
+    ),
+    SupporterModel(
+      id: 'supporter-007',
+      userId: 'user-007',
+      nickname: 'parkha',
+      profileImage: null,
+      isVerified: false,
+      totalSupport: 350000,
+      totalFunding: 50000,
+      totalAmount: 400000,
+      supportCount: 4,
+      fundingCount: 1,
+      firstSupportDate: DateTime(2024, 6, 1),
+      lastSupportDate: DateTime(2025, 9, 5),
+      isSubscriber: false,
+      badges: [],
+    ),
+    SupporterModel(
+      id: 'supporter-008',
+      userId: 'user-008',
+      nickname: '하나애',
+      profileImage: null,
+      isVerified: false,
+      totalSupport: 250000,
+      totalFunding: 0,
+      totalAmount: 250000,
+      supportCount: 3,
+      fundingCount: 0,
+      firstSupportDate: DateTime(2024, 7, 1),
+      lastSupportDate: DateTime(2025, 8, 15),
+      isSubscriber: true,
+      subscriptionTier: '라이트',
+      badges: [],
+    ),
+  ];
+
+  /// 아이돌별 서포터 랭킹 조회
+  static List<SupporterModel> getSupportersForIdol(String idolId) {
+    // 실제로는 idolId별로 다른 데이터를 반환해야 하지만
+    // 데모에서는 하늘별의 데이터를 반환
+    return skystarSupporters;
+  }
+
+  /// TOP 3 서포터 조회
+  static List<SupporterModel> getTop3Supporters(String idolId) {
+    final supporters = getSupportersForIdol(idolId);
+    supporters.sort((a, b) => b.totalAmount.compareTo(a.totalAmount));
+    return supporters.take(3).toList();
+  }
 }
