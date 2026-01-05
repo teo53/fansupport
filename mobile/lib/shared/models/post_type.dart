@@ -15,8 +15,8 @@ enum PostType {
   /// 가장 중요한 타입. 아이돌의 답글이 필수
   cheki,
 
-  /// 히든정산 - 구독자 전용 비공개 정산
-  /// 프리미엄 구독자만 볼 수 있음
+  /// 히든정산 - 1:1 비공개 정산
+  /// 작성한 팬과 아이돌만 볼 수 있음
   hiddenCheki,
 
   /// 메시 (飯) - 식사 체키
@@ -59,7 +59,7 @@ extension PostTypeExtension on PostType {
       case PostType.cheki:
         return '공연 후 체키 인증';
       case PostType.hiddenCheki:
-        return '구독자 전용 정산';
+        return '나와 아이돌만 보는 1:1 정산';
       case PostType.mealDate:
         return '식사 체키';
       case PostType.birthdayTime:
@@ -115,13 +115,8 @@ extension PostTypeExtension on PostType {
     return this == PostType.cheki || this == PostType.hiddenCheki;
   }
 
-  /// 구독자 전용 타입인지
-  bool get isSubscriberOnly {
-    return this == PostType.hiddenCheki;
-  }
-
-  /// 프리미엄 전용 타입인지
-  bool get isPremiumOnly {
+  /// 1:1 비공개 타입인지 (작성자와 아이돌만 볼 수 있음)
+  bool get isPrivateOneOnOne {
     return this == PostType.hiddenCheki;
   }
 }
@@ -141,8 +136,8 @@ class PostTypeUtils {
     PostType.mealDate,
   ];
 
-  /// 구독자만 볼 수 있는 타입들
-  static const List<PostType> subscriberOnlyTypes = [
+  /// 1:1 비공개 타입들 (작성자와 아이돌만 볼 수 있음)
+  static const List<PostType> privateOneOnOneTypes = [
     PostType.hiddenCheki,
   ];
 

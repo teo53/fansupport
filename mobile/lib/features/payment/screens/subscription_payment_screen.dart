@@ -38,8 +38,6 @@ class _SubscriptionPaymentScreenState
         return 0;
       case SubscriptionTier.standard:
         return 3900;
-      case SubscriptionTier.premium:
-        return 9900;
     }
   }
 
@@ -173,7 +171,7 @@ class _SubscriptionPaymentScreenState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            '구독 플랜 선택',
+            '구독 플랜',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -182,36 +180,19 @@ class _SubscriptionPaymentScreenState
           ),
           const SizedBox(height: 16),
 
-          // Standard tier
+          // Standard tier (only option)
           _buildTierCard(
             tier: SubscriptionTier.standard,
             name: '일반 구독',
             price: 3900,
             icon: Icons.favorite,
-            color: AppColors.info,
+            color: AppColors.primary,
             features: [
               'Bubble 메시지 수신',
-              '정산 게시글 열람',
+              '히든정산 작성 (나와 아이돌만 보기)',
+              '정산 게시글 작성',
               '댓글 작성',
             ],
-          ),
-
-          const SizedBox(height: 12),
-
-          // Premium tier
-          _buildTierCard(
-            tier: SubscriptionTier.premium,
-            name: '프리미엄 구독',
-            price: 9900,
-            icon: Icons.star,
-            color: AppColors.neonPurple,
-            features: [
-              '일반 구독 혜택 전체',
-              '히든정산 열람',
-              '우선 답글',
-              '생일 축하 영상',
-            ],
-            isRecommended: true,
           ),
         ],
       ),
@@ -347,7 +328,7 @@ class _SubscriptionPaymentScreenState
         gradient: LinearGradient(
           colors: [
             AppColors.primary.withValues(alpha: 0.1),
-            AppColors.neonPurple.withValues(alpha: 0.1),
+            AppColors.primary.withValues(alpha: 0.05),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -364,7 +345,7 @@ class _SubscriptionPaymentScreenState
           Row(
             children: [
               Icon(
-                Icons.workspace_premium,
+                Icons.favorite,
                 color: AppColors.primary,
                 size: 24,
               ),
@@ -381,9 +362,9 @@ class _SubscriptionPaymentScreenState
           ),
           const SizedBox(height: 16),
           _buildBenefitItem('💌', 'Bubble 메시지로 아이돌과 소통'),
-          _buildBenefitItem('📸', '정산 게시글 무제한 열람'),
-          _buildBenefitItem('💬', '우선 답글 및 특별 혜택 (프리미엄)'),
-          _buildBenefitItem('🎁', '생일 축하 영상 (프리미엄)'),
+          _buildBenefitItem('🔒', '히든정산으로 1:1 비공개 소통'),
+          _buildBenefitItem('📸', '정산 게시글 작성 및 열람'),
+          _buildBenefitItem('💬', '댓글 작성 및 소통'),
         ],
       ),
     );

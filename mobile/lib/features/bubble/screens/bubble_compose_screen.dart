@@ -10,46 +10,8 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../shared/models/subscription_tier.dart';
 
-enum BubbleTargetAudience {
-  all,       // 전체 구독자 (일반 + 프리미엄)
-  standard,  // 일반 구독자만
-  premium,   // 프리미엄 구독자만
-}
-
-extension BubbleTargetAudienceExtension on BubbleTargetAudience {
-  String get displayName {
-    switch (this) {
-      case BubbleTargetAudience.all:
-        return '전체 구독자';
-      case BubbleTargetAudience.standard:
-        return '일반 구독자';
-      case BubbleTargetAudience.premium:
-        return '프리미엄 구독자';
-    }
-  }
-
-  IconData get icon {
-    switch (this) {
-      case BubbleTargetAudience.all:
-        return Icons.people;
-      case BubbleTargetAudience.standard:
-        return Icons.favorite;
-      case BubbleTargetAudience.premium:
-        return Icons.star;
-    }
-  }
-
-  Color get color {
-    switch (this) {
-      case BubbleTargetAudience.all:
-        return AppColors.primary;
-      case BubbleTargetAudience.standard:
-        return AppColors.info;
-      case BubbleTargetAudience.premium:
-        return AppColors.neonPurple;
-    }
-  }
-}
+// Note: 프리미엄 구독이 제거됨에 따라 타겟 선택 옵션 불필요
+// 모든 Bubble 메시지는 전체 구독자에게 발송됨
 
 class BubbleComposeScreen extends ConsumerStatefulWidget {
   const BubbleComposeScreen({super.key});
@@ -63,24 +25,10 @@ class _BubbleComposeScreenState extends ConsumerState<BubbleComposeScreen> {
   final _messageController = TextEditingController();
   final _imagePicker = ImagePicker();
   final List<XFile> _selectedImages = [];
-  BubbleTargetAudience _targetAudience = BubbleTargetAudience.all;
   bool _isSending = false;
 
-  // Mock subscriber counts - TODO: Replace with actual data
+  // Mock subscriber count - TODO: Replace with actual data
   final int _totalSubscribers = 1247;
-  final int _standardSubscribers = 823;
-  final int _premiumSubscribers = 424;
-
-  int get _targetSubscriberCount {
-    switch (_targetAudience) {
-      case BubbleTargetAudience.all:
-        return _totalSubscribers;
-      case BubbleTargetAudience.standard:
-        return _standardSubscribers;
-      case BubbleTargetAudience.premium:
-        return _premiumSubscribers;
-    }
-  }
 
   @override
   void dispose() {
@@ -147,7 +95,6 @@ class _BubbleComposeScreenState extends ConsumerState<BubbleComposeScreen> {
       // await _sendBubbleMessage(
       //   message: _messageController.text.trim(),
       //   images: imageUrls,
-      //   targetAudience: _targetAudience,
       // );
 
       // Mock delay
@@ -157,7 +104,7 @@ class _BubbleComposeScreenState extends ConsumerState<BubbleComposeScreen> {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('메시지가 ${_targetSubscriberCount}명의 구독자에게 전송되었습니다'),
+            content: Text('메시지가 $_totalSubscribers명의 구독자에게 전송되었습니다'),
             backgroundColor: AppColors.success,
           ),
         );
@@ -238,8 +185,8 @@ class _BubbleComposeScreenState extends ConsumerState<BubbleComposeScreen> {
                 vertical: 16,
               ),
               children: [
-                // Target audience selector
-                _buildTargetAudienceSelector(),
+                // Subscriber info
+                _buildSubscriberInfo(),
 
                 const SizedBox(height: 20),
 
@@ -269,7 +216,7 @@ class _BubbleComposeScreenState extends ConsumerState<BubbleComposeScreen> {
     );
   }
 
-  Widget _buildTargetAudienceSelector() {
+  Widget _buildSubscriberInfo() {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -277,54 +224,39 @@ class _BubbleComposeScreenState extends ConsumerState<BubbleComposeScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: AppColors.softShadow(),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          const Text(
-            '수신 대상',
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              fontFamily: 'Pretendard',
-            ),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: _buildAudienceChip(BubbleTargetAudience.all),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildAudienceChip(BubbleTargetAudience.standard),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildAudienceChip(BubbleTargetAudience.premium),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: _targetAudience.color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
+              color: AppColors.primary.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
             ),
-            child: Row(
+            child: Icon(
+              Icons.people,
+              color: AppColors.primary,
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(
-                  _targetAudience.icon,
-                  size: 16,
-                  color: _targetAudience.color,
+                const Text(
+                  '전체 구독자',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: 'Pretendard',
+                  ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(height: 4),
                 Text(
-                  '$_targetSubscriberCount명에게 전송됩니다',
+                  '$_totalSubscribers명에게 메시지가 전송됩니다',
                   style: TextStyle(
                     fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    color: _targetAudience.color,
+                    color: AppColors.textSecondary,
                     fontFamily: 'Pretendard',
                   ),
                 ),
@@ -332,47 +264,6 @@ class _BubbleComposeScreenState extends ConsumerState<BubbleComposeScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildAudienceChip(BubbleTargetAudience audience) {
-    final isSelected = _targetAudience == audience;
-
-    return GestureDetector(
-      onTap: () => setState(() => _targetAudience = audience),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? audience.color.withValues(alpha: 0.15)
-              : AppColors.backgroundAlt,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isSelected ? audience.color : Colors.transparent,
-            width: 2,
-          ),
-        ),
-        child: Column(
-          children: [
-            Icon(
-              audience.icon,
-              size: 20,
-              color: isSelected ? audience.color : AppColors.textSecondary,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              audience.displayName,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                color: isSelected ? audience.color : AppColors.textSecondary,
-                fontFamily: 'Pretendard',
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
