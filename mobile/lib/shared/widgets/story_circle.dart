@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../shared/models/idol_model.dart';
 import '../../core/utils/responsive.dart';
+import 'idol_avatar.dart';
 
 class StoryCircle extends StatelessWidget {
   final IdolModel idol;
@@ -61,9 +62,10 @@ class StoryCircle extends StatelessWidget {
                     color: Colors.white,
                     shape: BoxShape.circle,
                   ),
-                  child: CircleAvatar(
-                    radius: Responsive.wp(8).clamp(24.0, 36.0),
-                    backgroundImage: NetworkImage(idol.profileImage),
+                  child: IdolAvatar(
+                    imageUrl: idol.profileImage,
+                    category: idol.category,
+                    size: Responsive.wp(16).clamp(48.0, 72.0),
                   ),
                 ),
               ),

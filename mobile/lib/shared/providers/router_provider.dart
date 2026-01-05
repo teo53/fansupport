@@ -13,7 +13,7 @@ import '../../features/idol/screens/idol_list_screen.dart';
 import '../../features/idol/screens/idol_detail_screen.dart';
 import '../../features/campaign/screens/campaign_list_screen.dart';
 import '../../features/campaign/screens/campaign_detail_screen.dart';
-import '../../features/booking/screens/booking_screen.dart';
+import '../../features/booking/screens/event_calendar_screen.dart';
 import '../../features/community/screens/community_feed_screen.dart';
 import '../../features/ranking/screens/ranking_screen.dart';
 import '../../features/bubble/screens/bubble_list_screen.dart';
@@ -88,7 +88,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: '/booking',
-            builder: (context, state) => const BookingScreen(),
+            builder: (context, state) => const EventCalendarScreen(),
           ),
           GoRoute(
             path: '/community',

@@ -4,6 +4,8 @@ import '../../shared/models/campaign_model.dart';
 import '../../shared/models/bubble_message_model.dart';
 import '../../shared/models/date_ticket_model.dart';
 import '../../shared/models/advertisement_model.dart';
+import '../../shared/models/event_model.dart';
+import '../../shared/models/activity_stats.dart';
 
 class MockData {
   // ============ 데모 유저 ============
@@ -47,6 +49,24 @@ class MockData {
       ranking: 1,
       monthlyRanking: 1,
       rating: 4.9,
+      activityStats: ActivityStats.withCalculatedScore(
+        totalPosts: 156,
+        postsThisWeek: 8,
+        postsThisMonth: 32,
+        totalBubbleMessages: 423,
+        bubbleMessagesThisWeek: 15,
+        totalEvents: 12,
+        upcomingEvents: 2,
+        totalActiveDays: 245,
+        consecutiveActiveDays: 28,
+        lastActiveDate: DateTime.now(),
+        totalComments: 892,
+        commentsThisWeek: 34,
+        fanResponseRate: 0.92,
+        totalLiveHours: 48,
+        liveHoursThisWeek: 3,
+        badges: ['streak_7', 'streak_30', 'posts_100', 'fan_favorite'],
+      ),
       galleryImages: [
         'https://placehold.co/400x400/E91E63/ffffff?text=Photo+1',
         'https://placehold.co/400x400/E91E63/ffffff?text=Photo+2',
@@ -1100,4 +1120,240 @@ class MockData {
       'description': '꿈같은 메이드들이 기다리는 파라다이스',
     },
   ];
+
+  // ============ 이벤트/일정 데이터 ============
+  static final List<EventModel> events = [
+    // 지하돌 이벤트
+    EventModel(
+      id: 'event-001',
+      title: '하늘별 신곡 쇼케이스',
+      description: '신곡 Starlight 첫 공개! 소규모 팬미팅과 함께 진행됩니다.',
+      date: DateTime(2026, 1, 15, 19, 0),
+      type: EventType.performance,
+      idolId: 'idol-001',
+      category: IdolCategory.undergroundIdol,
+      location: '홍대 라이브홀',
+      price: 25000,
+      maxParticipants: 50,
+      currentParticipants: 32,
+      imageUrl: 'https://placehold.co/600x400/E91E63/ffffff?text=하늘별+쇼케이스',
+      isOnline: false,
+    ),
+    EventModel(
+      id: 'event-002',
+      title: '하늘별 생일 팬미팅',
+      description: '하늘별과 함께하는 특별한 생일 파티! 케이크 & 선물 증정',
+      date: DateTime(2026, 8, 12, 15, 0),
+      type: EventType.birthday,
+      idolId: 'idol-001',
+      category: IdolCategory.undergroundIdol,
+      location: '강남 팬미팅홀',
+      price: 35000,
+      maxParticipants: 80,
+      currentParticipants: 45,
+      imageUrl: 'https://placehold.co/600x400/E91E63/ffffff?text=생일+파티',
+      isOnline: false,
+    ),
+    EventModel(
+      id: 'event-003',
+      title: '루나 버스킹 공연',
+      description: '거리에서 만나는 루나! 자유롭게 참여 가능합니다.',
+      date: DateTime(2026, 1, 18, 14, 0),
+      type: EventType.performance,
+      idolId: 'idol-003',
+      category: IdolCategory.undergroundIdol,
+      location: '신촌 거리',
+      price: 0,
+      maxParticipants: null,
+      currentParticipants: 0,
+      imageUrl: 'https://placehold.co/600x400/9C27B0/ffffff?text=루나+버스킹',
+      isOnline: false,
+    ),
+    EventModel(
+      id: 'event-004',
+      title: '루나 포토카드 교환회',
+      description: '팬들과 함께하는 포토카드 교환 & 사인회',
+      date: DateTime(2026, 1, 25, 13, 0),
+      type: EventType.photocard,
+      idolId: 'idol-003',
+      category: IdolCategory.undergroundIdol,
+      location: '홍대 카페 루나',
+      price: 10000,
+      maxParticipants: 30,
+      currentParticipants: 18,
+      imageUrl: 'https://placehold.co/600x400/9C27B0/ffffff?text=포토카드+교환회',
+      isOnline: false,
+    ),
+    EventModel(
+      id: 'event-005',
+      title: '세라 아카펠라 라이브',
+      description: '세라의 청아한 목소리로 듣는 아카펠라 무대',
+      date: DateTime(2026, 2, 2, 19, 30),
+      type: EventType.performance,
+      idolId: 'idol-005',
+      category: IdolCategory.undergroundIdol,
+      location: '대학로 소극장',
+      price: 20000,
+      maxParticipants: 40,
+      currentParticipants: 28,
+      imageUrl: 'https://placehold.co/600x400/00BCD4/ffffff?text=세라+아카펠라',
+      isOnline: false,
+    ),
+
+    // 메이드카페 이벤트
+    EventModel(
+      id: 'event-006',
+      title: '미유 메이드 생일 카페 이벤트',
+      description: '미유의 생일을 축하하는 특별 메뉴 & 포토타임',
+      date: DateTime(2026, 4, 22, 14, 0),
+      endDate: DateTime(2026, 4, 22, 18, 0),
+      type: EventType.birthday,
+      idolId: 'idol-002',
+      category: IdolCategory.maidCafe,
+      location: 'StarLight Cafe 아키하바라',
+      price: 15000,
+      maxParticipants: 20,
+      currentParticipants: 15,
+      imageUrl: 'https://placehold.co/600x400/FFD54F/333333?text=미유+생일+이벤트',
+      isOnline: false,
+    ),
+    EventModel(
+      id: 'event-007',
+      title: '발렌타인 초콜릿 만들기 클래스',
+      description: '미유와 함께 초콜릿을 만들어요! (선착순)',
+      date: DateTime(2026, 2, 14, 11, 0),
+      endDate: DateTime(2026, 2, 14, 16, 0),
+      type: EventType.cafeEvent,
+      idolId: 'idol-002',
+      category: IdolCategory.maidCafe,
+      location: 'StarLight Cafe',
+      price: 30000,
+      maxParticipants: 10,
+      currentParticipants: 10,
+      imageUrl: 'https://placehold.co/600x400/FFD54F/333333?text=초콜릿+클래스',
+      isOnline: false,
+    ),
+
+    // 코스프레이어 이벤트
+    EventModel(
+      id: 'event-008',
+      title: '사쿠라 코믹마켓 부스',
+      description: '코믹마켓에서 만나는 사쿠라! 한정판 포토북 판매',
+      date: DateTime(2026, 1, 20, 10, 0),
+      endDate: DateTime(2026, 1, 20, 18, 0),
+      type: EventType.cosplayEvent,
+      idolId: 'idol-004',
+      category: IdolCategory.cosplayer,
+      location: '코엑스 전시장',
+      price: 0,
+      maxParticipants: null,
+      currentParticipants: 0,
+      imageUrl: 'https://placehold.co/600x400/FF5722/ffffff?text=코믹마켓',
+      isOnline: false,
+    ),
+    EventModel(
+      id: 'event-009',
+      title: '사쿠라 코스프레 촬영회',
+      description: '새 코스프레 의상 공개! 1:1 촬영 기회',
+      date: DateTime(2026, 1, 28, 13, 0),
+      type: EventType.fanmeeting,
+      idolId: 'idol-004',
+      category: IdolCategory.cosplayer,
+      location: '강남 스튜디오',
+      price: 50000,
+      maxParticipants: 15,
+      currentParticipants: 12,
+      imageUrl: 'https://placehold.co/600x400/FF5722/ffffff?text=촬영회',
+      isOnline: false,
+    ),
+    EventModel(
+      id: 'event-010',
+      title: '사쿠라 코스프레 워크샵',
+      description: '코스프레 제작 노하우를 배워보세요!',
+      date: DateTime(2026, 2, 10, 15, 0),
+      type: EventType.other,
+      idolId: 'idol-004',
+      category: IdolCategory.cosplayer,
+      location: '홍대 작업실',
+      price: 40000,
+      maxParticipants: 12,
+      currentParticipants: 7,
+      imageUrl: 'https://placehold.co/600x400/FF5722/ffffff?text=워크샵',
+      isOnline: false,
+    ),
+
+    // 온라인 이벤트
+    EventModel(
+      id: 'event-011',
+      title: '세라 온라인 팬미팅',
+      description: '언제 어디서나 세라와 함께! 온라인 영상통화 팬미팅',
+      date: DateTime(2026, 1, 22, 20, 0),
+      type: EventType.fanmeeting,
+      idolId: 'idol-005',
+      category: IdolCategory.undergroundIdol,
+      location: null,
+      price: 15000,
+      maxParticipants: 50,
+      currentParticipants: 35,
+      imageUrl: 'https://placehold.co/600x400/00BCD4/ffffff?text=온라인+팬미팅',
+      isOnline: true,
+      meetingLink: 'https://meet.pipo.com/sera-fanmeeting',
+    ),
+  ];
+
+  /// 특정 날짜의 이벤트 가져오기
+  static List<EventModel> getEventsForDate(DateTime date) {
+    return events.where((event) {
+      final eventDate = DateTime(event.date.year, event.date.month, event.date.day);
+      final targetDate = DateTime(date.year, date.month, date.day);
+
+      if (event.endDate != null) {
+        // 여러 날짜에 걸친 이벤트
+        final endDate = DateTime(event.endDate!.year, event.endDate!.month, event.endDate!.day);
+        return targetDate.isAtSameMomentAs(eventDate) ||
+               targetDate.isAtSameMomentAs(endDate) ||
+               (targetDate.isAfter(eventDate) && targetDate.isBefore(endDate));
+      } else {
+        return eventDate.isAtSameMomentAs(targetDate);
+      }
+    }).toList();
+  }
+
+  /// 특정 카테고리의 이벤트 가져오기
+  static List<EventModel> getEventsByCategory(Set<IdolCategory> categories) {
+    return events.where((event) => categories.contains(event.category)).toList();
+  }
+
+  /// 특정 날짜 & 카테고리의 이벤트 가져오기
+  static List<EventModel> getEventsForDateAndCategory(
+    DateTime date,
+    Set<IdolCategory> categories,
+  ) {
+    return getEventsForDate(date)
+        .where((event) => categories.contains(event.category))
+        .toList();
+  }
+
+  /// 이벤트가 있는 날짜 목록 가져오기 (특정 카테고리)
+  static List<DateTime> getEventDates(Set<IdolCategory> categories) {
+    final dates = <DateTime>{};
+
+    for (final event in events) {
+      if (categories.contains(event.category)) {
+        final eventDate = DateTime(event.date.year, event.date.month, event.date.day);
+        dates.add(eventDate);
+
+        if (event.endDate != null) {
+          var current = eventDate;
+          final end = DateTime(event.endDate!.year, event.endDate!.month, event.endDate!.day);
+          while (current.isBefore(end) || current.isAtSameMomentAs(end)) {
+            dates.add(current);
+            current = current.add(const Duration(days: 1));
+          }
+        }
+      }
+    }
+
+    return dates.toList()..sort();
+  }
 }
