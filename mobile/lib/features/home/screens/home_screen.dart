@@ -6,6 +6,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'dart:ui';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
+import '../../../core/utils/format_utils.dart';
 import '../../../core/mock/mock_data.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../../shared/models/idol_model.dart';
@@ -22,21 +23,6 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  String _formatCurrency(int amount) {
-    return amount.toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]},',
-    );
-  }
-
-  String _formatNumber(int number) {
-    if (number >= 1000000) {
-      return '${(number / 1000000).toStringAsFixed(1)}M';
-    } else if (number >= 1000) {
-      return '${(number / 1000).toStringAsFixed(1)}K';
-    }
-    return number.toString();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -661,7 +647,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       Icon(Icons.favorite_rounded, color: AppColors.primary, size: 14),
                       const SizedBox(width: 4),
                       Text(
-                        '${_formatNumber(idol.totalSupport)} 서포트',
+                        '${FormatUtils.formatCount(idol.totalSupport)} 서포트',
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.9),
                           fontSize: 13,
@@ -756,7 +742,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '${_formatCurrency(campaign['currentAmount'])}원',
+                  '${FormatUtils.formatNumber(campaign['currentAmount'])}원',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
+import '../../../core/utils/format_utils.dart';
 import '../../../core/mock/mock_data.dart';
 import '../../auth/providers/auth_provider.dart';
 
@@ -69,7 +70,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                       ),
                       const SizedBox(width: 12),
                       Text(
-                        _formatCurrency(walletBalance),
+                        FormatUtils.formatNumber(walletBalance),
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 36,
@@ -152,12 +153,6 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
     );
   }
 
-  String _formatCurrency(int amount) {
-    return amount.toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]},',
-    );
-  }
 
   void _showChargeSheet(BuildContext context) {
     _selectedChargeAmount = null;
@@ -236,7 +231,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            '￦${_formatCurrency(amount)}',
+                            '￦${FormatUtils.formatNumber(amount)}',
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
@@ -262,7 +257,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                           Navigator.pop(context);
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text('￦${_formatCurrency(amount)} 충전 완료! (데모)'),
+                              content: Text('￦${FormatUtils.formatNumber(amount)} 충전 완료! (데모)'),
                               backgroundColor: AppColors.success,
                             ),
                           );
@@ -409,7 +404,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
             ),
           ),
           Text(
-            '${isPositive ? '+' : ''}￦${_formatCurrency(tx['amount'].abs())}',
+            '${isPositive ? '+' : ''}￦${FormatUtils.formatNumber(tx['amount'].abs())}',
             style: TextStyle(
               fontSize: 16,
               color: isPositive ? AppColors.success : AppColors.textPrimary,

@@ -4,17 +4,11 @@ import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
+import '../../../core/utils/format_utils.dart';
 import '../../auth/providers/auth_provider.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
-
-  String _formatCurrency(int amount) {
-    return amount.toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]},',
-    );
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -138,7 +132,7 @@ class ProfileScreen extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     _buildStatItem(
-                      _formatCurrency(user?.walletBalance ?? 0),
+                      FormatUtils.formatNumber(user?.walletBalance ?? 0),
                       '보유 코인',
                     ),
                     Container(
