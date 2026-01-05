@@ -2,7 +2,7 @@ name: idol_support
 description: Underground Idol & Maid Cafe Fan Support Platform
 
 publish_to: 'none'
-version: 1.0.0+1
+version: 1.0.0+10
 
 environment:
   sdk: '>=3.2.0 <4.0.0'
@@ -56,6 +56,11 @@ dependencies:
   image_picker: ^1.0.5
   permission_handler: ^12.0.1
 
+  # Firebase
+  firebase_core: ^3.10.0
+  firebase_messaging: ^15.2.0
+  flutter_local_notifications: ^18.0.1
+
   # Icons
   cupertino_icons: ^1.0.6
   flutter_vector_icons: ^2.0.0
@@ -70,6 +75,7 @@ dev_dependencies:
   retrofit_generator: ^10.2.0
   riverpod_generator: ^4.0.0+1
   mockito: ^5.4.3
+  flutter_launcher_icons: ^0.14.1
   integration_test:
     sdk: flutter
 
@@ -79,3 +85,11 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/app_icon.png"
+  adaptive_icon_background: "#FF7169"
+  adaptive_icon_foreground: "assets/images/app_icon_foreground.png"
+  remove_alpha_ios: true

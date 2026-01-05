@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
+import '../../../core/utils/format_utils.dart';
 import '../../../core/mock/mock_data.dart';
-import '../../../shared/widgets/custom_button.dart';
 import '../../auth/providers/auth_provider.dart';
 
 class WalletScreen extends ConsumerStatefulWidget {
@@ -23,31 +23,31 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
     final walletBalance = user?.walletBalance ?? 0;
 
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
         title: Text(
           '지갑',
-          style: TextStyle(fontSize: Responsive.sp(18)),
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+            color: AppColors.textPrimary,
+          ),
         ),
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(Responsive.wp(4)),
+        padding: EdgeInsets.all(Responsive.wp(6)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Balance Card
             Container(
               width: double.infinity,
-              padding: EdgeInsets.all(Responsive.wp(6)),
+              padding: const EdgeInsets.all(32),
               decoration: BoxDecoration(
-                gradient: AppColors.primaryGradient,
+                color: AppColors.primary,
                 borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.primary.withOpacity(0.3),
-                    blurRadius: 20,
-                    offset: const Offset(0, 10),
-                  ),
-                ],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -55,72 +55,77 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                   Text(
                     '보유 코인',
                     style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: Responsive.sp(14),
+                      color: Colors.white.withValues(alpha: 0.8),
+                      fontSize: 14,
                     ),
                   ),
-                  SizedBox(height: Responsive.hp(1)),
+                  const SizedBox(height: 12),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.monetization_on,
                         color: Colors.white,
-                        size: Responsive.sp(32),
+                        size: 32,
                       ),
-                      SizedBox(width: Responsive.wp(2)),
+                      const SizedBox(width: 12),
                       Text(
-                        _formatCurrency(walletBalance),
-                        style: TextStyle(
+                        FormatUtils.formatNumber(walletBalance),
+                        style: const TextStyle(
                           color: Colors.white,
-                          fontSize: Responsive.sp(32),
-                          fontWeight: FontWeight.bold,
+                          fontSize: 36,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
-                      SizedBox(width: Responsive.wp(1)),
+                      const SizedBox(width: 8),
                       Padding(
-                        padding: EdgeInsets.only(bottom: Responsive.hp(0.5)),
+                        padding: const EdgeInsets.only(bottom: 4),
                         child: Text(
                           'KRW',
                           style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: Responsive.sp(14),
+                            color: Colors.white.withValues(alpha: 0.8),
+                            fontSize: 16,
                           ),
                         ),
                       ),
                     ],
                   ),
-                  SizedBox(height: Responsive.hp(3)),
+                  const SizedBox(height: 24),
                   Row(
                     children: [
                       Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: () => _showChargeSheet(context),
-                          icon: Icon(Icons.add, size: Responsive.sp(20)),
-                          label: Text(
-                            '충전하기',
-                            style: TextStyle(fontSize: Responsive.sp(14)),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            foregroundColor: AppColors.primary,
-                            padding: EdgeInsets.symmetric(vertical: Responsive.hp(1.5)),
+                        child: SizedBox(
+                          height: 48,
+                          child: ElevatedButton.icon(
+                            onPressed: () => _showChargeSheet(context),
+                            icon: const Icon(Icons.add, size: 20),
+                            label: const Text('충전하기'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              foregroundColor: AppColors.primary,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 0,
+                            ),
                           ),
                         ),
                       ),
-                      SizedBox(width: Responsive.wp(3)),
+                      const SizedBox(width: 12),
                       Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: () => _showTransactionHistory(context),
-                          icon: Icon(Icons.receipt_long, size: Responsive.sp(20)),
-                          label: Text(
-                            '내역',
-                            style: TextStyle(fontSize: Responsive.sp(14)),
-                          ),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: Colors.white,
-                            side: const BorderSide(color: Colors.white),
-                            padding: EdgeInsets.symmetric(vertical: Responsive.hp(1.5)),
+                        child: SizedBox(
+                          height: 48,
+                          child: OutlinedButton.icon(
+                            onPressed: () => _showTransactionHistory(context),
+                            icon: const Icon(Icons.receipt_long, size: 20),
+                            label: const Text('내역'),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              side: const BorderSide(color: Colors.white),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -129,17 +134,18 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                 ],
               ),
             ),
-            SizedBox(height: Responsive.hp(4)),
+            const SizedBox(height: 32),
 
             // Recent Transactions
             Text(
               '최근 거래 내역',
               style: TextStyle(
-                fontSize: Responsive.sp(18),
-                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textPrimary,
               ),
             ),
-            SizedBox(height: Responsive.hp(2)),
+            const SizedBox(height: 16),
             ...MockData.transactions.map((tx) => _buildTransactionItem(context, tx)),
           ],
         ),
@@ -147,12 +153,6 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
     );
   }
 
-  String _formatCurrency(int amount) {
-    return amount.toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]},',
-    );
-  }
 
   void _showChargeSheet(BuildContext context) {
     _selectedChargeAmount = null;
@@ -160,13 +160,16 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (context) => StatefulBuilder(
         builder: (context, setModalState) => Container(
           padding: EdgeInsets.only(
-            left: Responsive.wp(4),
-            right: Responsive.wp(4),
-            top: Responsive.hp(3),
-            bottom: MediaQuery.of(context).viewInsets.bottom + Responsive.hp(3),
+            left: 24,
+            right: 24,
+            top: 24,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 24,
           ),
           decoration: const BoxDecoration(
             color: Colors.white,
@@ -178,7 +181,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
             children: [
               Center(
                 child: Container(
-                  width: Responsive.wp(10),
+                  width: 40,
                   height: 4,
                   decoration: BoxDecoration(
                     color: AppColors.border,
@@ -186,18 +189,19 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                   ),
                 ),
               ),
-              SizedBox(height: Responsive.hp(3)),
+              const SizedBox(height: 24),
               Text(
                 '코인 충전',
                 style: TextStyle(
-                  fontSize: Responsive.sp(22),
-                  fontWeight: FontWeight.bold,
+                  fontSize: 22,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
                 ),
               ),
-              SizedBox(height: Responsive.hp(3)),
+              const SizedBox(height: 24),
               Wrap(
-                spacing: Responsive.wp(3),
-                runSpacing: Responsive.hp(1.5),
+                spacing: 12,
+                runSpacing: 12,
                 children: [5000, 10000, 30000, 50000, 100000].map((amount) {
                   final isSelected = _selectedChargeAmount == amount;
                   return InkWell(
@@ -208,12 +212,13 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                     },
                     borderRadius: BorderRadius.circular(12),
                     child: Container(
-                      width: (Responsive.screenWidth - Responsive.wp(14)) / 3,
-                      padding: EdgeInsets.symmetric(vertical: Responsive.hp(2)),
+                      width: (MediaQuery.of(context).size.width - 72) / 3,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
                       decoration: BoxDecoration(
-                        color: isSelected ? AppColors.primary : null,
+                        color: isSelected ? AppColors.primary : Colors.white,
                         border: Border.all(
                           color: isSelected ? AppColors.primary : AppColors.border,
+                          width: isSelected ? 2 : 1,
                         ),
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -221,14 +226,14 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                         children: [
                           Icon(
                             Icons.monetization_on,
-                            color: isSelected ? Colors.white : AppColors.accent,
-                            size: Responsive.sp(28),
+                            color: isSelected ? Colors.white : AppColors.primary,
+                            size: 28,
                           ),
-                          SizedBox(height: Responsive.hp(1)),
+                          const SizedBox(height: 8),
                           Text(
-                            '￦${_formatCurrency(amount)}',
+                            '￦${FormatUtils.formatNumber(amount)}',
                             style: TextStyle(
-                              fontSize: Responsive.sp(14),
+                              fontSize: 14,
                               fontWeight: FontWeight.w600,
                               color: isSelected ? Colors.white : AppColors.textPrimary,
                             ),
@@ -239,28 +244,39 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                   );
                 }).toList(),
               ),
-              SizedBox(height: Responsive.hp(3)),
-              GradientButton(
-                onPressed: _selectedChargeAmount != null
-                    ? () {
-                        final amount = _selectedChargeAmount!;
-                        final currentBalance = ref.read(currentUserProvider)?.walletBalance ?? 0;
-                        ref.read(authStateProvider.notifier).updateWalletBalance(currentBalance + amount);
-                        Navigator.pop(context);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('￦${_formatCurrency(amount)} 충전 완료! (데모)'),
-                            backgroundColor: AppColors.success,
-                          ),
-                        );
-                      }
-                    : null,
-                child: Text(
-                  '충전하기',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                    fontSize: Responsive.sp(16),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: ElevatedButton(
+                  onPressed: _selectedChargeAmount != null
+                      ? () {
+                          final amount = _selectedChargeAmount!;
+                          final currentBalance = ref.read(currentUserProvider)?.walletBalance ?? 0;
+                          ref.read(authStateProvider.notifier).updateWalletBalance(currentBalance + amount);
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('￦${FormatUtils.formatNumber(amount)} 충전 완료! (데모)'),
+                              backgroundColor: AppColors.success,
+                            ),
+                          );
+                        }
+                      : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: const Text(
+                    '충전하기',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                    ),
                   ),
                 ),
               ),
@@ -276,8 +292,11 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (context) => Container(
-        height: Responsive.hp(70),
+        height: MediaQuery.of(context).size.height * 0.7,
         decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -285,23 +304,24 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
         child: Column(
           children: [
             Padding(
-              padding: EdgeInsets.all(Responsive.wp(4)),
+              padding: const EdgeInsets.all(24),
               child: Column(
                 children: [
                   Container(
-                    width: Responsive.wp(10),
+                    width: 40,
                     height: 4,
                     decoration: BoxDecoration(
                       color: AppColors.border,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
-                  SizedBox(height: Responsive.hp(2)),
+                  const SizedBox(height: 16),
                   Text(
                     '전체 거래 내역',
                     style: TextStyle(
-                      fontSize: Responsive.sp(18),
-                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary,
                     ),
                   ),
                 ],
@@ -309,7 +329,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
             ),
             Expanded(
               child: ListView.builder(
-                padding: EdgeInsets.symmetric(horizontal: Responsive.wp(4)),
+                padding: const EdgeInsets.symmetric(horizontal: 24),
                 itemCount: MockData.transactions.length,
                 itemBuilder: (context, index) =>
                     _buildTransactionItem(context, MockData.transactions[index]),
@@ -340,44 +360,58 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
     final color = typeColors[tx['type']] ?? AppColors.primary;
     final date = DateTime.parse(tx['createdAt']);
 
-    return Card(
-      margin: EdgeInsets.only(bottom: Responsive.hp(1)),
-      child: ListTile(
-        contentPadding: EdgeInsets.symmetric(
-          horizontal: Responsive.wp(4),
-          vertical: Responsive.hp(0.5),
-        ),
-        leading: Container(
-          width: Responsive.wp(11),
-          height: Responsive.wp(11),
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(12),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: color, size: 24),
           ),
-          child: Icon(icon, color: color, size: Responsive.sp(22)),
-        ),
-        title: Text(
-          tx['description'],
-          style: TextStyle(
-            fontSize: Responsive.sp(14),
-            fontWeight: FontWeight.w500,
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  tx['description'],
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 8.0),
+                Text(
+                  '${date.year}.${date.month.toString().padLeft(2, '0')}.${date.day.toString().padLeft(2, '0')}',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-        subtitle: Text(
-          '${date.year}.${date.month.toString().padLeft(2, '0')}.${date.day.toString().padLeft(2, '0')}',
-          style: TextStyle(
-            fontSize: Responsive.sp(12),
-            color: AppColors.textSecondary,
+          Text(
+            '${isPositive ? '+' : ''}￦${FormatUtils.formatNumber(tx['amount'].abs())}',
+            style: TextStyle(
+              fontSize: 16,
+              color: isPositive ? AppColors.success : AppColors.textPrimary,
+              fontWeight: FontWeight.w700,
+            ),
           ),
-        ),
-        trailing: Text(
-          '${isPositive ? '+' : ''}￦${_formatCurrency(tx['amount'].abs())}',
-          style: TextStyle(
-            fontSize: Responsive.sp(15),
-            color: isPositive ? AppColors.success : AppColors.textPrimary,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+        ],
       ),
     );
   }

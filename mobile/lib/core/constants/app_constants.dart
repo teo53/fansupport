@@ -6,6 +6,9 @@ class AppConstants {
   static const String baseUrl = 'https://api.idol-support.com';
   static const String devBaseUrl = 'http://localhost:3000';
 
+  // Use dev URL for development, production URL for release
+  static const String apiBaseUrl = devBaseUrl; // Change to baseUrl for production
+
   // Storage Keys
   static const String accessTokenKey = 'access_token';
   static const String refreshTokenKey = 'refresh_token';

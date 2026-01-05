@@ -4,6 +4,11 @@ import '../../shared/models/campaign_model.dart';
 import '../../shared/models/bubble_message_model.dart';
 import '../../shared/models/date_ticket_model.dart';
 import '../../shared/models/advertisement_model.dart';
+import '../../shared/models/event_model.dart';
+import '../../shared/models/activity_stats.dart';
+import '../../shared/models/supporter_model.dart';
+import '../../features/idol/widgets/pinned_announcement_section.dart';
+import '../../shared/models/activity_feed_model.dart';
 
 class MockData {
   // ============ 데모 유저 ============
@@ -11,7 +16,7 @@ class MockData {
     id: 'demo-user-001',
     email: 'demo@example.com',
     nickname: '별빛팬',
-    profileImage: 'https://i.pravatar.cc/150?img=1',
+    profileImage: 'https://ui-avatars.com/api/?name=Fan&background=FF4D8D&color=fff&size=150',
     role: 'FAN',
     isVerified: true,
     walletBalance: 500000, // 50만원
@@ -27,8 +32,8 @@ class MockData {
       agencyName: '스타라이트 엔터테인먼트',
       groupName: null,
       imageColor: '0xFFE91E63', // Pink
-      profileImage: 'https://i.pravatar.cc/300?img=5',
-      coverImage: 'https://picsum.photos/seed/cover1/800/400',
+      profileImage: 'https://ui-avatars.com/api/?name=하늘별&background=E91E63&color=fff&size=300',
+      coverImage: 'https://placehold.co/800x400/E91E63/ffffff?text=하늘별',
       bio: '데뷔 2년차 솔로 아이돌\n좋아하는 것: 노래, 춤, 팬분들\n꿈: 더 많은 분들께 행복을 전하기',
       description: '신나는 무대와 함께하는 지하돌 하늘별입니다! 항상 응원해주셔서 감사해요 💕',
       isVerified: true,
@@ -47,13 +52,31 @@ class MockData {
       ranking: 1,
       monthlyRanking: 1,
       rating: 4.9,
+      activityStats: ActivityStats.withCalculatedScore(
+        totalPosts: 156,
+        postsThisWeek: 8,
+        postsThisMonth: 32,
+        totalBubbleMessages: 423,
+        bubbleMessagesThisWeek: 15,
+        totalEvents: 12,
+        upcomingEvents: 2,
+        totalActiveDays: 245,
+        consecutiveActiveDays: 28,
+        lastActiveDate: DateTime.now(),
+        totalComments: 892,
+        commentsThisWeek: 34,
+        fanResponseRate: 0.92,
+        totalLiveHours: 48,
+        liveHoursThisWeek: 3,
+        badges: ['streak_7', 'streak_30', 'posts_100', 'fan_favorite'],
+      ),
       galleryImages: [
-        'https://picsum.photos/seed/sky1/400/400',
-        'https://picsum.photos/seed/sky2/400/400',
-        'https://picsum.photos/seed/sky3/400/400',
-        'https://picsum.photos/seed/sky4/400/400',
-        'https://picsum.photos/seed/sky5/400/400',
-        'https://picsum.photos/seed/sky6/400/400',
+        'https://placehold.co/400x400/E91E63/ffffff?text=Photo+1',
+        'https://placehold.co/400x400/E91E63/ffffff?text=Photo+2',
+        'https://placehold.co/400x400/E91E63/ffffff?text=Photo+3',
+        'https://placehold.co/400x400/E91E63/ffffff?text=Photo+4',
+        'https://placehold.co/400x400/E91E63/ffffff?text=Photo+5',
+        'https://placehold.co/400x400/E91E63/ffffff?text=Photo+6',
       ],
       offersMealDate: true,
       offersCafeDate: true,
@@ -95,8 +118,8 @@ class MockData {
       agencyName: 'StarLight Cafe',
       groupName: 'StarLight Cafe',
       imageColor: '0xFFFFD54F', // Yellow
-      profileImage: 'https://i.pravatar.cc/300?img=9',
-      coverImage: 'https://picsum.photos/seed/cover2/800/400',
+      profileImage: 'https://ui-avatars.com/api/?name=미유&background=FFD54F&color=333&size=300',
+      coverImage: 'https://placehold.co/800x400/FFD54F/333333?text=미유',
       bio: '메이드 카페 근무 3년차\n취미: 코스프레, 게임\n특기: 라떼아트, 오믈렛 라이스',
       description: '아키하바라 ☆StarLight Cafe☆ 소속 미유입니다! 오늘도 주인님을 기다리고 있어요~',
       isVerified: true,
@@ -113,11 +136,29 @@ class MockData {
       ranking: 2,
       monthlyRanking: 3,
       rating: 4.8,
+      activityStats: ActivityStats.withCalculatedScore(
+        totalPosts: 89,
+        postsThisWeek: 12,
+        postsThisMonth: 45,
+        totalBubbleMessages: 567,
+        bubbleMessagesThisWeek: 28,
+        totalEvents: 8,
+        upcomingEvents: 1,
+        totalActiveDays: 187,
+        consecutiveActiveDays: 15,
+        lastActiveDate: DateTime.now(),
+        totalComments: 1234,
+        commentsThisWeek: 56,
+        fanResponseRate: 0.95,
+        totalLiveHours: 32,
+        liveHoursThisWeek: 5,
+        badges: ['streak_7', 'posts_50', 'fan_favorite'],
+      ),
       galleryImages: [
-        'https://picsum.photos/seed/miyu1/400/400',
-        'https://picsum.photos/seed/miyu2/400/400',
-        'https://picsum.photos/seed/miyu3/400/400',
-        'https://picsum.photos/seed/miyu4/400/400',
+        'https://placehold.co/400x400/FFD54F/333333?text=Photo+1',
+        'https://placehold.co/400x400/FFD54F/333333?text=Photo+2',
+        'https://placehold.co/400x400/FFD54F/333333?text=Photo+3',
+        'https://placehold.co/400x400/FFD54F/333333?text=Photo+4',
       ],
       offersMealDate: false,
       offersCafeDate: true,
@@ -151,8 +192,8 @@ class MockData {
       agencyName: 'MoonLight Entertainment',
       groupName: 'MoonLight',
       imageColor: '0xFF5C6BC0', // Indigo
-      profileImage: 'https://i.pravatar.cc/300?img=10',
-      coverImage: 'https://picsum.photos/seed/cover3/800/400',
+      profileImage: 'https://ui-avatars.com/api/?name=루나&background=5C6BC0&color=fff&size=300',
+      coverImage: 'https://placehold.co/800x400/5C6BC0/ffffff?text=루나',
       bio: '그룹 MoonLight 멤버\n포지션: 메인보컬\n좋아하는 음식: 마카롱',
       description: '달빛처럼 빛나는 아이돌 루나예요 🌙 함께 꿈을 이뤄가요!',
       isVerified: true,
@@ -172,10 +213,28 @@ class MockData {
       ranking: 3,
       monthlyRanking: 2,
       rating: 4.9,
+      activityStats: ActivityStats.withCalculatedScore(
+        totalPosts: 134,
+        postsThisWeek: 6,
+        postsThisMonth: 28,
+        totalBubbleMessages: 312,
+        bubbleMessagesThisWeek: 18,
+        totalEvents: 6,
+        upcomingEvents: 2,
+        totalActiveDays: 156,
+        consecutiveActiveDays: 22,
+        lastActiveDate: DateTime.now(),
+        totalComments: 678,
+        commentsThisWeek: 29,
+        fanResponseRate: 0.88,
+        totalLiveHours: 28,
+        liveHoursThisWeek: 2,
+        badges: ['streak_7', 'posts_100'],
+      ),
       galleryImages: [
-        'https://picsum.photos/seed/luna1/400/400',
-        'https://picsum.photos/seed/luna2/400/400',
-        'https://picsum.photos/seed/luna3/400/400',
+        'https://placehold.co/400x400/5C6BC0/ffffff?text=Photo+1',
+        'https://placehold.co/400x400/5C6BC0/ffffff?text=Photo+2',
+        'https://placehold.co/400x400/5C6BC0/ffffff?text=Photo+3',
       ],
       offersMealDate: true,
       offersCafeDate: true,
@@ -209,8 +268,8 @@ class MockData {
       category: IdolCategory.cosplayer,
       groupName: null,
       imageColor: '0xFFF48FB1', // Sakura Pink
-      profileImage: 'https://i.pravatar.cc/300?img=20',
-      coverImage: 'https://picsum.photos/seed/cover4/800/400',
+      profileImage: 'https://ui-avatars.com/api/?name=사쿠라&background=F48FB1&color=fff&size=300',
+      coverImage: 'https://placehold.co/800x400/F48FB1/ffffff?text=사쿠라',
       bio: '코스프레 경력 5년\n최애 작품: 마법소녀\n다음 코스프레: 비밀!',
       description: '애니메이션 코스프레를 사랑하는 사쿠라입니다! 🌸',
       isVerified: true,
@@ -227,12 +286,30 @@ class MockData {
       ranking: 4,
       monthlyRanking: 5,
       rating: 4.7,
+      activityStats: ActivityStats.withCalculatedScore(
+        totalPosts: 198,
+        postsThisWeek: 15,
+        postsThisMonth: 62,
+        totalBubbleMessages: 145,
+        bubbleMessagesThisWeek: 8,
+        totalEvents: 15,
+        upcomingEvents: 3,
+        totalActiveDays: 312,
+        consecutiveActiveDays: 42,
+        lastActiveDate: DateTime.now(),
+        totalComments: 456,
+        commentsThisWeek: 18,
+        fanResponseRate: 0.85,
+        totalLiveHours: 12,
+        liveHoursThisWeek: 1,
+        badges: ['streak_7', 'streak_30', 'posts_100', 'event_10'],
+      ),
       galleryImages: [
-        'https://picsum.photos/seed/sakura1/400/400',
-        'https://picsum.photos/seed/sakura2/400/400',
-        'https://picsum.photos/seed/sakura3/400/400',
-        'https://picsum.photos/seed/sakura4/400/400',
-        'https://picsum.photos/seed/sakura5/400/400',
+        'https://placehold.co/400x400/F48FB1/ffffff?text=Photo+1',
+        'https://placehold.co/400x400/F48FB1/ffffff?text=Photo+2',
+        'https://placehold.co/400x400/F48FB1/ffffff?text=Photo+3',
+        'https://placehold.co/400x400/F48FB1/ffffff?text=Photo+4',
+        'https://placehold.co/400x400/F48FB1/ffffff?text=Photo+5',
       ],
       offersMealDate: false,
       offersCafeDate: true,
@@ -258,8 +335,8 @@ class MockData {
       category: IdolCategory.vtuber,
       groupName: 'VirtuaLive',
       imageColor: '0xFF00E5FF', // Cyan
-      profileImage: 'https://i.pravatar.cc/300?img=25',
-      coverImage: 'https://picsum.photos/seed/cover5/800/400',
+      profileImage: 'https://ui-avatars.com/api/?name=유키&background=00E5FF&color=333&size=300',
+      coverImage: 'https://placehold.co/800x400/00E5FF/333333?text=유키',
       bio: '데뷔 1년차 VTuber\n주 콘텐츠: 게임, 노래\n구독자 수: 50,000+',
       description: '버츄얼 유튜버 유키입니다! 게임 방송 많이 시청해주세요 🎮',
       isVerified: true,
@@ -276,10 +353,28 @@ class MockData {
       ranking: 5,
       monthlyRanking: 4,
       rating: 4.8,
+      activityStats: ActivityStats.withCalculatedScore(
+        totalPosts: 67,
+        postsThisWeek: 18,
+        postsThisMonth: 72,
+        totalBubbleMessages: 234,
+        bubbleMessagesThisWeek: 42,
+        totalEvents: 4,
+        upcomingEvents: 1,
+        totalActiveDays: 89,
+        consecutiveActiveDays: 35,
+        lastActiveDate: DateTime.now(),
+        totalComments: 345,
+        commentsThisWeek: 67,
+        fanResponseRate: 0.91,
+        totalLiveHours: 156,
+        liveHoursThisWeek: 18,
+        badges: ['streak_7', 'streak_30', 'posts_50'],
+      ),
       galleryImages: [
-        'https://picsum.photos/seed/yuki1/400/400',
-        'https://picsum.photos/seed/yuki2/400/400',
-        'https://picsum.photos/seed/yuki3/400/400',
+        'https://placehold.co/400x400/00E5FF/333333?text=Photo+1',
+        'https://placehold.co/400x400/00E5FF/333333?text=Photo+2',
+        'https://placehold.co/400x400/00E5FF/333333?text=Photo+3',
       ],
       offersMealDate: false,
       offersCafeDate: false,
@@ -304,7 +399,7 @@ class MockData {
       category: IdolCategory.undergroundIdol,
       groupName: 'NewStar',
       imageColor: '0xFF69F0AE', // Mint
-      profileImage: 'https://i.pravatar.cc/300?img=32',
+      profileImage: 'https://ui-avatars.com/api/?name=아리&background=69F0AE&color=333&size=300',
       bio: '데뷔 6개월차\n연습생 기간: 1년\n목표: 첫 단독 콘서트',
       description: '꿈을 향해 달려가는 신인 아이돌 아리예요! ⭐',
       isVerified: false,
@@ -321,9 +416,27 @@ class MockData {
       ranking: 12,
       monthlyRanking: 8,
       rating: 4.5,
+      activityStats: ActivityStats.withCalculatedScore(
+        totalPosts: 23,
+        postsThisWeek: 4,
+        postsThisMonth: 18,
+        totalBubbleMessages: 45,
+        bubbleMessagesThisWeek: 6,
+        totalEvents: 2,
+        upcomingEvents: 0,
+        totalActiveDays: 34,
+        consecutiveActiveDays: 7,
+        lastActiveDate: DateTime.now(),
+        totalComments: 156,
+        commentsThisWeek: 12,
+        fanResponseRate: 0.78,
+        totalLiveHours: 8,
+        liveHoursThisWeek: 1,
+        badges: ['streak_7', 'early_bird'],
+      ),
       galleryImages: [
-        'https://picsum.photos/seed/ari1/400/400',
-        'https://picsum.photos/seed/ari2/400/400',
+        'https://placehold.co/400x400/69F0AE/333333?text=Photo+1',
+        'https://placehold.co/400x400/69F0AE/333333?text=Photo+2',
       ],
       offersMealDate: false,
       offersCafeDate: true,
@@ -377,15 +490,15 @@ class MockData {
       ''',
       type: CampaignType.album,
       status: CampaignStatus.active,
-      coverImage: 'https://picsum.photos/seed/album1/800/400',
+      coverImage: 'https://placehold.co/800x400/E91E63/ffffff?text=Starlight+Album',
       images: [
-        'https://picsum.photos/seed/album1a/600/600',
-        'https://picsum.photos/seed/album1b/600/600',
-        'https://picsum.photos/seed/album1c/600/600',
+        'https://placehold.co/600x600/E91E63/ffffff?text=Album+Preview+1',
+        'https://placehold.co/600x600/E91E63/ffffff?text=Album+Preview+2',
+        'https://placehold.co/600x600/E91E63/ffffff?text=Album+Preview+3',
       ],
       creatorId: 'idol-001',
       creatorName: '하늘별',
-      creatorImage: 'https://i.pravatar.cc/100?img=5',
+      creatorImage: 'https://ui-avatars.com/api/?name=하늘별&background=E91E63&color=fff&size=100',
       isVerifiedCreator: true,
       goalAmount: 15000000,
       currentAmount: 11250000,
@@ -442,7 +555,7 @@ class MockData {
           id: 'update-2',
           title: '녹음 시작했어요!',
           content: '드디어 스튜디오에서 녹음을 시작했습니다. 최고의 퀄리티로 보답할게요!',
-          images: ['https://picsum.photos/seed/recording/600/400'],
+          images: ['https://placehold.co/600x400/E91E63/ffffff?text=Recording'],
           createdAt: DateTime(2024, 12, 25),
         ),
       ],
@@ -475,13 +588,13 @@ class MockData {
       ''',
       type: CampaignType.advertisement,
       status: CampaignStatus.active,
-      coverImage: 'https://picsum.photos/seed/birthday/800/400',
+      coverImage: 'https://placehold.co/800x400/5C6BC0/ffffff?text=Luna+Birthday+Ad',
       images: [
-        'https://picsum.photos/seed/billboard/600/400',
+        'https://placehold.co/600x400/5C6BC0/ffffff?text=Billboard+Design',
       ],
       creatorId: 'user-organizer-001',
       creatorName: '루나 팬클럽 대표',
-      creatorImage: 'https://i.pravatar.cc/100?img=15',
+      creatorImage: 'https://ui-avatars.com/api/?name=Fan+Club&background=5C6BC0&color=fff&size=100',
       isVerifiedCreator: false,
       goalAmount: 10000000,
       currentAmount: 7800000,
@@ -527,10 +640,10 @@ class MockData {
       description: '5년간의 베스트 코스프레를 담은 100페이지 풀컬러 화보집! 미공개 사진 다수 수록.',
       type: CampaignType.photobook,
       status: CampaignStatus.active,
-      coverImage: 'https://picsum.photos/seed/cosplay/800/400',
+      coverImage: 'https://placehold.co/800x400/F48FB1/ffffff?text=Sakura+Photobook',
       creatorId: 'idol-004',
       creatorName: '사쿠라',
-      creatorImage: 'https://i.pravatar.cc/100?img=20',
+      creatorImage: 'https://ui-avatars.com/api/?name=사쿠라&background=F48FB1&color=fff&size=100',
       isVerifiedCreator: true,
       goalAmount: 8000000,
       currentAmount: 3200000,
@@ -576,10 +689,10 @@ class MockData {
       description: '그룹 MoonLight의 첫 단독 콘서트를 함께 만들어주세요! 서울 홍대 라이브클럽에서 개최 예정.',
       type: CampaignType.concert,
       status: CampaignStatus.active,
-      coverImage: 'https://picsum.photos/seed/concert/800/400',
+      coverImage: 'https://placehold.co/800x400/5C6BC0/ffffff?text=Under+The+Moon+Concert',
       creatorId: 'idol-003',
       creatorName: '루나 (MoonLight)',
-      creatorImage: 'https://i.pravatar.cc/100?img=10',
+      creatorImage: 'https://ui-avatars.com/api/?name=루나&background=5C6BC0&color=fff&size=100',
       isVerifiedCreator: true,
       goalAmount: 20000000,
       currentAmount: 8500000,
@@ -641,7 +754,7 @@ class MockData {
       id: 'bubble-001',
       idolId: 'idol-001',
       idolName: '하늘별',
-      idolProfileImage: 'https://i.pravatar.cc/100?img=5',
+      idolProfileImage: 'https://ui-avatars.com/api/?name=하늘별&background=E91E63&color=fff&size=100',
       type: BubbleMessageType.text,
       content: '오늘 연습 끝났어요! 너무 힘들었지만 팬분들 생각하니까 힘이 나요 💕 다들 뭐해요?',
       isSubscriberOnly: false,
@@ -653,10 +766,10 @@ class MockData {
       id: 'bubble-002',
       idolId: 'idol-001',
       idolName: '하늘별',
-      idolProfileImage: 'https://i.pravatar.cc/100?img=5',
+      idolProfileImage: 'https://ui-avatars.com/api/?name=하늘별&background=E91E63&color=fff&size=100',
       type: BubbleMessageType.image,
       content: '오늘 먹은 거 자랑! 🍰 카페 다녀왔어요~',
-      mediaUrl: 'https://picsum.photos/seed/cafe123/400/400',
+      mediaUrl: 'https://placehold.co/400x400/E91E63/ffffff?text=Cafe+Photo',
       isSubscriberOnly: true,
       viewCount: 567,
       likeCount: 234,
@@ -666,7 +779,7 @@ class MockData {
       id: 'bubble-003',
       idolId: 'idol-001',
       idolName: '하늘별',
-      idolProfileImage: 'https://i.pravatar.cc/100?img=5',
+      idolProfileImage: 'https://ui-avatars.com/api/?name=하늘별&background=E91E63&color=fff&size=100',
       type: BubbleMessageType.voice,
       content: '잠들기 전 인사 드려요~ 오늘도 수고했어요 🌙',
       mediaUrl: 'https://example.com/voice/goodnight.mp3',
@@ -680,7 +793,7 @@ class MockData {
       id: 'bubble-004',
       idolId: 'idol-003',
       idolName: '루나',
-      idolProfileImage: 'https://i.pravatar.cc/100?img=10',
+      idolProfileImage: 'https://ui-avatars.com/api/?name=루나&background=5C6BC0&color=fff&size=100',
       type: BubbleMessageType.text,
       content: '생일 펀딩 70% 달성이래요!! 😭💕 정말 감사해요 여러분... 사랑해요!!',
       isSubscriberOnly: false,
@@ -692,10 +805,10 @@ class MockData {
       id: 'bubble-005',
       idolId: 'idol-002',
       idolName: '미유',
-      idolProfileImage: 'https://i.pravatar.cc/100?img=9',
+      idolProfileImage: 'https://ui-avatars.com/api/?name=미유&background=FFD54F&color=333&size=100',
       type: BubbleMessageType.image,
       content: '오늘 새 의상이에요! 주인님들 어떠세요? 🎀',
-      mediaUrl: 'https://picsum.photos/seed/maid456/400/500',
+      mediaUrl: 'https://placehold.co/400x500/FFD54F/333333?text=New+Outfit',
       isSubscriberOnly: false,
       viewCount: 1567,
       likeCount: 567,
@@ -709,7 +822,7 @@ class MockData {
       id: 'date-001',
       idolId: 'idol-001',
       idolName: '하늘별',
-      idolProfileImage: 'https://i.pravatar.cc/100?img=5',
+      idolProfileImage: 'https://ui-avatars.com/api/?name=하늘별&background=E91E63&color=fff&size=100',
       type: DateTicketType.meal,
       price: 1500000, // 150만원
       description: '하늘별과 함께하는 특별한 식사 시간! 고급 레스토랑에서 2시간 동안 대화를 나눠요.',
@@ -730,7 +843,7 @@ class MockData {
       id: 'date-002',
       idolId: 'idol-001',
       idolName: '하늘별',
-      idolProfileImage: 'https://i.pravatar.cc/100?img=5',
+      idolProfileImage: 'https://ui-avatars.com/api/?name=하늘별&background=E91E63&color=fff&size=100',
       type: DateTicketType.cafe,
       price: 1000000, // 100만원
       description: '하늘별과 카페에서 티타임! 음료와 디저트를 함께하며 이야기 나눠요.',
@@ -751,7 +864,7 @@ class MockData {
       id: 'date-003',
       idolId: 'idol-003',
       idolName: '루나',
-      idolProfileImage: 'https://i.pravatar.cc/100?img=10',
+      idolProfileImage: 'https://ui-avatars.com/api/?name=루나&background=5C6BC0&color=fff&size=100',
       type: DateTicketType.meal,
       price: 1500000,
       description: '루나와 함께하는 저녁 식사! 분위기 좋은 레스토랑에서 특별한 시간을 보내세요.',
@@ -772,7 +885,7 @@ class MockData {
       id: 'date-004',
       idolId: 'idol-002',
       idolName: '미유',
-      idolProfileImage: 'https://i.pravatar.cc/100?img=9',
+      idolProfileImage: 'https://ui-avatars.com/api/?name=미유&background=FFD54F&color=333&size=100',
       type: DateTicketType.cafe,
       price: 800000, // 메이드카페 스페셜
       description: '미유가 직접 서빙하는 특별 카페 타임! 라떼아트와 오믈렛 라이스를 만들어드려요.',
@@ -803,7 +916,7 @@ class MockData {
       location: '서울 강남역 10번 출구',
       sizeInfo: '가로 20m x 세로 8m',
       impressions: 3500000,
-      sampleImages: ['https://picsum.photos/seed/billboard1/600/300'],
+      sampleImages: ['https://placehold.co/600x300/FF4D8D/ffffff?text=Billboard+Sample'],
       requirements: ['1920x768 해상도', 'MP4 형식', '15초 이내'],
       isPopular: true,
       soldCount: 23,
@@ -879,7 +992,7 @@ class MockData {
       description: '루나의 생일을 강남역 대형 전광판으로 축하해요!',
       targetIdolId: 'idol-003',
       targetIdolName: '루나',
-      targetIdolImage: 'https://i.pravatar.cc/100?img=10',
+      targetIdolImage: 'https://ui-avatars.com/api/?name=루나&background=5C6BC0&color=fff&size=100',
       adType: AdProductType.billboardLarge,
       adLocation: '강남역 10번 출구',
       goalAmount: 10000000,
@@ -889,7 +1002,7 @@ class MockData {
       endDate: DateTime(2025, 1, 10),
       organizerId: 'user-001',
       organizerName: '루나 팬클럽',
-      adDesignImage: 'https://picsum.photos/seed/lunaad/600/300',
+      adDesignImage: 'https://placehold.co/600x300/5C6BC0/ffffff?text=Luna+Birthday+Ad',
       createdAt: DateTime(2024, 12, 15),
     ),
     AdFunding(
@@ -898,7 +1011,7 @@ class MockData {
       description: '하늘별 데뷔 2주년을 2호선 광고로 축하해주세요!',
       targetIdolId: 'idol-001',
       targetIdolName: '하늘별',
-      targetIdolImage: 'https://i.pravatar.cc/100?img=5',
+      targetIdolImage: 'https://ui-avatars.com/api/?name=하늘별&background=E91E63&color=fff&size=100',
       adType: AdProductType.subwayAd,
       adLocation: '2호선 10개역',
       goalAmount: 5000000,
@@ -977,13 +1090,13 @@ class MockData {
       'author': {
         'id': 'idol-001',
         'nickname': '하늘별',
-        'profileImage': 'https://i.pravatar.cc/100?img=5',
+        'profileImage': 'https://ui-avatars.com/api/?name=하늘별&background=E91E63&color=fff&size=100',
         'isVerified': true,
         'category': 'UNDERGROUND_IDOL',
       },
       'content':
           '오늘 연습 끝! 다음 주 공연 준비 열심히 하고 있어요 💪 팬분들 많이 와주실 거죠? 🥺\n\n#하늘별 #지하돌 #연습',
-      'images': ['https://picsum.photos/seed/practice/400/400'],
+      'images': ['https://placehold.co/400x400/E91E63/ffffff?text=Practice'],
       'likeCount': 234,
       'commentCount': 45,
       'createdAt': '2024-12-28T18:30:00Z',
@@ -995,13 +1108,13 @@ class MockData {
       'author': {
         'id': 'idol-002',
         'nickname': '미유',
-        'profileImage': 'https://i.pravatar.cc/100?img=9',
+        'profileImage': 'https://ui-avatars.com/api/?name=미유&background=FFD54F&color=333&size=100',
         'isVerified': true,
         'category': 'MAID_CAFE',
       },
       'content':
           '새로운 메이드 의상이 도착했어요! 🎀 어떤가요? 주인님들 의견 궁금해요~\n\n오늘 출근하니까 카페에서 만나요! 💕',
-      'images': ['https://picsum.photos/seed/maid/400/500'],
+      'images': ['https://placehold.co/400x500/FFD54F/333333?text=Maid+Outfit'],
       'likeCount': 189,
       'commentCount': 67,
       'createdAt': '2024-12-28T14:00:00Z',
@@ -1013,7 +1126,7 @@ class MockData {
       'author': {
         'id': 'idol-003',
         'nickname': '루나',
-        'profileImage': 'https://i.pravatar.cc/100?img=10',
+        'profileImage': 'https://ui-avatars.com/api/?name=루나&background=5C6BC0&color=fff&size=100',
         'isVerified': true,
         'category': 'UNDERGROUND_IDOL',
       },
@@ -1031,13 +1144,13 @@ class MockData {
       'author': {
         'id': 'idol-005',
         'nickname': '유키',
-        'profileImage': 'https://i.pravatar.cc/100?img=25',
+        'profileImage': 'https://ui-avatars.com/api/?name=유키&background=00E5FF&color=333&size=100',
         'isVerified': true,
         'category': 'VTUBER',
       },
       'content':
           '오늘 밤 10시 게임 방송 있어요! 🎮\n\n같이 게임하고 싶은 분 댓글로 신청해주세요~\n\n오늘은 발로란트 가요!',
-      'images': ['https://picsum.photos/seed/gaming/400/300'],
+      'images': ['https://placehold.co/400x300/00E5FF/333333?text=Gaming'],
       'likeCount': 156,
       'commentCount': 123,
       'createdAt': '2024-12-27T16:00:00Z',
@@ -1049,15 +1162,15 @@ class MockData {
       'author': {
         'id': 'idol-001',
         'nickname': '하늘별',
-        'profileImage': 'https://i.pravatar.cc/100?img=5',
+        'profileImage': 'https://ui-avatars.com/api/?name=하늘별&background=E91E63&color=fff&size=100',
         'isVerified': true,
         'category': 'UNDERGROUND_IDOL',
       },
       'content':
           '🎉 구독자 전용 비하인드! 🎉\n\n앨범 녹음 현장 사진이에요~ 프리미엄 구독자분들만 볼 수 있어요! 💕',
       'images': [
-        'https://picsum.photos/seed/behind1/400/400',
-        'https://picsum.photos/seed/behind2/400/400',
+        'https://placehold.co/400x400/E91E63/ffffff?text=Behind+1',
+        'https://placehold.co/400x400/E91E63/ffffff?text=Behind+2',
       ],
       'likeCount': 89,
       'commentCount': 23,
@@ -1073,7 +1186,7 @@ class MockData {
       'id': 'cafe-001',
       'name': 'StarLight Cafe',
       'address': '도쿄 아키하바라 1-2-3',
-      'image': 'https://picsum.photos/seed/cafe1/400/200',
+      'image': 'https://placehold.co/400x200/FFD54F/333333?text=Cafe',
       'rating': 4.8,
       'reviewCount': 256,
       'maids': ['idol-002'],
@@ -1083,7 +1196,7 @@ class MockData {
       'id': 'cafe-002',
       'name': 'Melty Kiss',
       'address': '도쿄 아키하바라 4-5-6',
-      'image': 'https://picsum.photos/seed/cafe2/400/200',
+      'image': 'https://placehold.co/400x200/FFD54F/333333?text=Melty+Kiss',
       'rating': 4.6,
       'reviewCount': 189,
       'maids': [],
@@ -1093,11 +1206,541 @@ class MockData {
       'id': 'cafe-003',
       'name': 'Dream Paradise',
       'address': '오사카 닛폰바시 7-8-9',
-      'image': 'https://picsum.photos/seed/cafe3/400/200',
+      'image': 'https://placehold.co/400x200/FFD54F/333333?text=Dream+Paradise',
       'rating': 4.7,
       'reviewCount': 134,
       'maids': [],
       'description': '꿈같은 메이드들이 기다리는 파라다이스',
     },
   ];
+
+  // ============ 이벤트/일정 데이터 ============
+  static final List<EventModel> events = [
+    // 지하돌 이벤트
+    EventModel(
+      id: 'event-001',
+      title: '하늘별 신곡 쇼케이스',
+      description: '신곡 Starlight 첫 공개! 소규모 팬미팅과 함께 진행됩니다.',
+      date: DateTime(2026, 1, 15, 19, 0),
+      type: EventType.performance,
+      idolId: 'idol-001',
+      category: IdolCategory.undergroundIdol,
+      location: '홍대 라이브홀',
+      price: 25000,
+      maxParticipants: 50,
+      currentParticipants: 32,
+      imageUrl: 'https://placehold.co/600x400/E91E63/ffffff?text=하늘별+쇼케이스',
+      isOnline: false,
+    ),
+    EventModel(
+      id: 'event-002',
+      title: '하늘별 생일 팬미팅',
+      description: '하늘별과 함께하는 특별한 생일 파티! 케이크 & 선물 증정',
+      date: DateTime(2026, 8, 12, 15, 0),
+      type: EventType.birthday,
+      idolId: 'idol-001',
+      category: IdolCategory.undergroundIdol,
+      location: '강남 팬미팅홀',
+      price: 35000,
+      maxParticipants: 80,
+      currentParticipants: 45,
+      imageUrl: 'https://placehold.co/600x400/E91E63/ffffff?text=생일+파티',
+      isOnline: false,
+    ),
+    EventModel(
+      id: 'event-003',
+      title: '루나 버스킹 공연',
+      description: '거리에서 만나는 루나! 자유롭게 참여 가능합니다.',
+      date: DateTime(2026, 1, 18, 14, 0),
+      type: EventType.performance,
+      idolId: 'idol-003',
+      category: IdolCategory.undergroundIdol,
+      location: '신촌 거리',
+      price: 0,
+      maxParticipants: null,
+      currentParticipants: 0,
+      imageUrl: 'https://placehold.co/600x400/9C27B0/ffffff?text=루나+버스킹',
+      isOnline: false,
+    ),
+    EventModel(
+      id: 'event-004',
+      title: '루나 포토카드 교환회',
+      description: '팬들과 함께하는 포토카드 교환 & 사인회',
+      date: DateTime(2026, 1, 25, 13, 0),
+      type: EventType.photocard,
+      idolId: 'idol-003',
+      category: IdolCategory.undergroundIdol,
+      location: '홍대 카페 루나',
+      price: 10000,
+      maxParticipants: 30,
+      currentParticipants: 18,
+      imageUrl: 'https://placehold.co/600x400/9C27B0/ffffff?text=포토카드+교환회',
+      isOnline: false,
+    ),
+    EventModel(
+      id: 'event-005',
+      title: '세라 아카펠라 라이브',
+      description: '세라의 청아한 목소리로 듣는 아카펠라 무대',
+      date: DateTime(2026, 2, 2, 19, 30),
+      type: EventType.performance,
+      idolId: 'idol-005',
+      category: IdolCategory.undergroundIdol,
+      location: '대학로 소극장',
+      price: 20000,
+      maxParticipants: 40,
+      currentParticipants: 28,
+      imageUrl: 'https://placehold.co/600x400/00BCD4/ffffff?text=세라+아카펠라',
+      isOnline: false,
+    ),
+
+    // 메이드카페 이벤트
+    EventModel(
+      id: 'event-006',
+      title: '미유 메이드 생일 카페 이벤트',
+      description: '미유의 생일을 축하하는 특별 메뉴 & 포토타임',
+      date: DateTime(2026, 4, 22, 14, 0),
+      endDate: DateTime(2026, 4, 22, 18, 0),
+      type: EventType.birthday,
+      idolId: 'idol-002',
+      category: IdolCategory.maidCafe,
+      location: 'StarLight Cafe 아키하바라',
+      price: 15000,
+      maxParticipants: 20,
+      currentParticipants: 15,
+      imageUrl: 'https://placehold.co/600x400/FFD54F/333333?text=미유+생일+이벤트',
+      isOnline: false,
+    ),
+    EventModel(
+      id: 'event-007',
+      title: '발렌타인 초콜릿 만들기 클래스',
+      description: '미유와 함께 초콜릿을 만들어요! (선착순)',
+      date: DateTime(2026, 2, 14, 11, 0),
+      endDate: DateTime(2026, 2, 14, 16, 0),
+      type: EventType.cafeEvent,
+      idolId: 'idol-002',
+      category: IdolCategory.maidCafe,
+      location: 'StarLight Cafe',
+      price: 30000,
+      maxParticipants: 10,
+      currentParticipants: 10,
+      imageUrl: 'https://placehold.co/600x400/FFD54F/333333?text=초콜릿+클래스',
+      isOnline: false,
+    ),
+
+    // 코스프레이어 이벤트
+    EventModel(
+      id: 'event-008',
+      title: '사쿠라 코믹마켓 부스',
+      description: '코믹마켓에서 만나는 사쿠라! 한정판 포토북 판매',
+      date: DateTime(2026, 1, 20, 10, 0),
+      endDate: DateTime(2026, 1, 20, 18, 0),
+      type: EventType.cosplayEvent,
+      idolId: 'idol-004',
+      category: IdolCategory.cosplayer,
+      location: '코엑스 전시장',
+      price: 0,
+      maxParticipants: null,
+      currentParticipants: 0,
+      imageUrl: 'https://placehold.co/600x400/FF5722/ffffff?text=코믹마켓',
+      isOnline: false,
+    ),
+    EventModel(
+      id: 'event-009',
+      title: '사쿠라 코스프레 촬영회',
+      description: '새 코스프레 의상 공개! 1:1 촬영 기회',
+      date: DateTime(2026, 1, 28, 13, 0),
+      type: EventType.fanmeeting,
+      idolId: 'idol-004',
+      category: IdolCategory.cosplayer,
+      location: '강남 스튜디오',
+      price: 50000,
+      maxParticipants: 15,
+      currentParticipants: 12,
+      imageUrl: 'https://placehold.co/600x400/FF5722/ffffff?text=촬영회',
+      isOnline: false,
+    ),
+    EventModel(
+      id: 'event-010',
+      title: '사쿠라 코스프레 워크샵',
+      description: '코스프레 제작 노하우를 배워보세요!',
+      date: DateTime(2026, 2, 10, 15, 0),
+      type: EventType.other,
+      idolId: 'idol-004',
+      category: IdolCategory.cosplayer,
+      location: '홍대 작업실',
+      price: 40000,
+      maxParticipants: 12,
+      currentParticipants: 7,
+      imageUrl: 'https://placehold.co/600x400/FF5722/ffffff?text=워크샵',
+      isOnline: false,
+    ),
+
+    // 온라인 이벤트
+    EventModel(
+      id: 'event-011',
+      title: '세라 온라인 팬미팅',
+      description: '언제 어디서나 세라와 함께! 온라인 영상통화 팬미팅',
+      date: DateTime(2026, 1, 22, 20, 0),
+      type: EventType.fanmeeting,
+      idolId: 'idol-005',
+      category: IdolCategory.undergroundIdol,
+      location: null,
+      price: 15000,
+      maxParticipants: 50,
+      currentParticipants: 35,
+      imageUrl: 'https://placehold.co/600x400/00BCD4/ffffff?text=온라인+팬미팅',
+      isOnline: true,
+      meetingLink: 'https://meet.pipo.com/sera-fanmeeting',
+    ),
+  ];
+
+  /// 특정 날짜의 이벤트 가져오기
+  static List<EventModel> getEventsForDate(DateTime date) {
+    return events.where((event) {
+      final eventDate = DateTime(event.date.year, event.date.month, event.date.day);
+      final targetDate = DateTime(date.year, date.month, date.day);
+
+      if (event.endDate != null) {
+        // 여러 날짜에 걸친 이벤트
+        final endDate = DateTime(event.endDate!.year, event.endDate!.month, event.endDate!.day);
+        return targetDate.isAtSameMomentAs(eventDate) ||
+               targetDate.isAtSameMomentAs(endDate) ||
+               (targetDate.isAfter(eventDate) && targetDate.isBefore(endDate));
+      } else {
+        return eventDate.isAtSameMomentAs(targetDate);
+      }
+    }).toList();
+  }
+
+  /// 특정 카테고리의 이벤트 가져오기
+  static List<EventModel> getEventsByCategory(Set<IdolCategory> categories) {
+    return events.where((event) => categories.contains(event.category)).toList();
+  }
+
+  /// 특정 날짜 & 카테고리의 이벤트 가져오기
+  static List<EventModel> getEventsForDateAndCategory(
+    DateTime date,
+    Set<IdolCategory> categories,
+  ) {
+    return getEventsForDate(date)
+        .where((event) => categories.contains(event.category))
+        .toList();
+  }
+
+  /// 이벤트가 있는 날짜 목록 가져오기 (특정 카테고리)
+  static List<DateTime> getEventDates(Set<IdolCategory> categories) {
+    final dates = <DateTime>{};
+
+    for (final event in events) {
+      if (categories.contains(event.category)) {
+        final eventDate = DateTime(event.date.year, event.date.month, event.date.day);
+        dates.add(eventDate);
+
+        if (event.endDate != null) {
+          var current = eventDate;
+          final end = DateTime(event.endDate!.year, event.endDate!.month, event.endDate!.day);
+          while (current.isBefore(end) || current.isAtSameMomentAs(end)) {
+            dates.add(current);
+            current = current.add(const Duration(days: 1));
+          }
+        }
+      }
+    }
+
+    return dates.toList()..sort();
+  }
+
+  // ============ 서포터 랭킹 데이터 ============
+
+  /// 하늘별 서포터 랭킹
+  static final List<SupporterModel> skystarSupporters = [
+    SupporterModel(
+      id: 'supporter-001',
+      userId: 'user-001',
+      nickname: 'Kpop으로영어공부하기',
+      profileImage: 'https://ui-avatars.com/api/?name=Kpop&background=4CAF50&color=fff&size=100',
+      isVerified: true,
+      totalSupport: 3500000, // 후원 350만원
+      totalFunding: 1500000, // 펀딩 150만원
+      totalAmount: 5000000, // 총 500만원
+      supportCount: 24,
+      fundingCount: 3,
+      firstSupportDate: DateTime(2023, 5, 1),
+      lastSupportDate: DateTime.now(),
+      isSubscriber: true,
+      subscriptionTier: 'VIP',
+      subscriptionStartDate: DateTime(2023, 5, 1),
+      badges: ['first_supporter', 'vip_supporter', 'loyal_supporter'],
+    ),
+    SupporterModel(
+      id: 'supporter-002',
+      userId: 'user-002',
+      nickname: '박철호',
+      profileImage: 'https://ui-avatars.com/api/?name=박철호&background=2196F3&color=fff&size=100',
+      isVerified: false,
+      totalSupport: 2000000,
+      totalFunding: 800000,
+      totalAmount: 2800000,
+      supportCount: 18,
+      fundingCount: 2,
+      firstSupportDate: DateTime(2023, 6, 15),
+      lastSupportDate: DateTime.now(),
+      isSubscriber: true,
+      subscriptionTier: '프리미엄',
+      subscriptionStartDate: DateTime(2023, 7, 1),
+      badges: ['subscriber_supporter'],
+    ),
+    SupporterModel(
+      id: 'supporter-003',
+      userId: 'user-003',
+      nickname: '광복간',
+      profileImage: 'https://ui-avatars.com/api/?name=광복간&background=FF9800&color=fff&size=100',
+      isVerified: false,
+      totalSupport: 1200000,
+      totalFunding: 500000,
+      totalAmount: 1700000,
+      supportCount: 12,
+      fundingCount: 1,
+      firstSupportDate: DateTime(2023, 8, 1),
+      lastSupportDate: DateTime.now(),
+      isSubscriber: true,
+      subscriptionTier: '프리미엄',
+      badges: [],
+    ),
+    SupporterModel(
+      id: 'supporter-004',
+      userId: 'user-004',
+      nickname: '느어버린전주역',
+      profileImage: null,
+      isVerified: false,
+      totalSupport: 800000,
+      totalFunding: 200000,
+      totalAmount: 1000000,
+      supportCount: 8,
+      fundingCount: 1,
+      firstSupportDate: DateTime(2024, 1, 1),
+      lastSupportDate: DateTime(2025, 12, 15),
+      isSubscriber: false,
+      badges: [],
+    ),
+    SupporterModel(
+      id: 'supporter-005',
+      userId: 'user-005',
+      nickname: 'lllSTONElll',
+      profileImage: null,
+      isVerified: false,
+      totalSupport: 650000,
+      totalFunding: 150000,
+      totalAmount: 800000,
+      supportCount: 6,
+      fundingCount: 1,
+      firstSupportDate: DateTime(2024, 3, 1),
+      lastSupportDate: DateTime(2025, 11, 20),
+      isSubscriber: true,
+      subscriptionTier: '라이트',
+      badges: [],
+    ),
+    SupporterModel(
+      id: 'supporter-006',
+      userId: 'user-006',
+      nickname: '유튜브식인한TV',
+      profileImage: null,
+      isVerified: false,
+      totalSupport: 450000,
+      totalFunding: 100000,
+      totalAmount: 550000,
+      supportCount: 5,
+      fundingCount: 1,
+      firstSupportDate: DateTime(2024, 4, 1),
+      lastSupportDate: DateTime(2025, 10, 10),
+      isSubscriber: false,
+      badges: [],
+    ),
+    SupporterModel(
+      id: 'supporter-007',
+      userId: 'user-007',
+      nickname: 'parkha',
+      profileImage: null,
+      isVerified: false,
+      totalSupport: 350000,
+      totalFunding: 50000,
+      totalAmount: 400000,
+      supportCount: 4,
+      fundingCount: 1,
+      firstSupportDate: DateTime(2024, 6, 1),
+      lastSupportDate: DateTime(2025, 9, 5),
+      isSubscriber: false,
+      badges: [],
+    ),
+    SupporterModel(
+      id: 'supporter-008',
+      userId: 'user-008',
+      nickname: '하나애',
+      profileImage: null,
+      isVerified: false,
+      totalSupport: 250000,
+      totalFunding: 0,
+      totalAmount: 250000,
+      supportCount: 3,
+      fundingCount: 0,
+      firstSupportDate: DateTime(2024, 7, 1),
+      lastSupportDate: DateTime(2025, 8, 15),
+      isSubscriber: true,
+      subscriptionTier: '라이트',
+      badges: [],
+    ),
+  ];
+
+  /// 아이돌별 서포터 랭킹 조회
+  static List<SupporterModel> getSupportersForIdol(String idolId) {
+    // 실제로는 idolId별로 다른 데이터를 반환해야 하지만
+    // 데모에서는 하늘별의 데이터를 반환
+    return skystarSupporters;
+  }
+
+  /// TOP 3 서포터 조회
+  static List<SupporterModel> getTop3Supporters(String idolId) {
+    final supporters = getSupportersForIdol(idolId);
+    supporters.sort((a, b) => b.totalAmount.compareTo(a.totalAmount));
+    return supporters.take(3).toList();
+  }
+
+  // ============ 고정 공지사항 ============
+  static final Map<String, PinnedAnnouncement> _pinnedAnnouncements = {
+    'idol-001': PinnedAnnouncement(
+      id: 'announcement-001',
+      title: '🎉 3월 단독 팬미팅 오픈 안내',
+      content: '안녕하세요 여러분! 드디어 3월에 단독 팬미팅을 개최하게 되었습니다. 여러분들의 많은 사랑과 응원 덕분에 이런 자리를 마련할 수 있게 되었어요. 자세한 일정과 티켓 오픈 시간은 곧 공지드릴게요!',
+      createdAt: DateTime.now().subtract(const Duration(hours: 2)),
+      isImportant: true,
+    ),
+    'idol-002': PinnedAnnouncement(
+      id: 'announcement-002',
+      title: '💝 2월 버블 메시지 이벤트',
+      content: '2월 한 달간 매일 아침 9시에 특별한 메시지를 보내드려요! 버블 구독자 여러분께 감사의 마음을 담아 준비했습니다.',
+      createdAt: DateTime.now().subtract(const Duration(days: 1)),
+      isImportant: false,
+    ),
+  };
+
+  static PinnedAnnouncement? getPinnedAnnouncementForIdol(String idolId) {
+    return _pinnedAnnouncements[idolId];
+  }
+
+  // ============ 활동 피드 ============
+  static final List<ActivityFeedItem> activityFeeds = [
+    // 하늘별 - 라이브 방송
+    ActivityFeedItem(
+      id: 'activity-001',
+      idolId: 'idol-001',
+      idolName: '하늘별',
+      idolProfileImage: idolModels[0].profileImage,
+      type: ActivityType.live,
+      title: '🔴 LIVE: 팬 여러분과 함께하는 저녁 수다',
+      content: '안녕하세요! 오늘 저녁 8시에 라이브 방송 시작해요. 함께 수다 떨어요~',
+      thumbnailUrl: idolModels[0].profileImage,
+      createdAt: DateTime.now().subtract(const Duration(minutes: 15)),
+      likeCount: 142,
+      commentCount: 38,
+      isLive: true,
+    ),
+
+    // 사쿠라미 - 사진 업로드
+    ActivityFeedItem(
+      id: 'activity-002',
+      idolId: 'idol-002',
+      idolName: '사쿠라미',
+      idolProfileImage: idolModels[1].profileImage,
+      type: ActivityType.photo,
+      title: '오늘 카페 촬영 비하인드💕',
+      content: '오늘 촬영 너무 재밌었어요! 다음 주에 영상 올릴게요 ㅎㅎ',
+      thumbnailUrl: idolModels[1].profileImage,
+      createdAt: DateTime.now().subtract(const Duration(hours: 1)),
+      likeCount: 256,
+      commentCount: 47,
+    ),
+
+    // 루나 - 이벤트 등록
+    ActivityFeedItem(
+      id: 'activity-003',
+      idolId: 'idol-003',
+      idolName: '루나',
+      idolProfileImage: idolModels[2].profileImage,
+      type: ActivityType.event,
+      title: '🎉 3월 팬미팅 티켓 오픈!',
+      content: '드디어 3월 팬미팅 티켓이 오픈됩니다! 많은 관심 부탁드려요~',
+      createdAt: DateTime.now().subtract(const Duration(hours: 2)),
+      likeCount: 389,
+      commentCount: 92,
+    ),
+
+    // 미야코 - 버블 메시지
+    ActivityFeedItem(
+      id: 'activity-004',
+      idolId: 'idol-004',
+      idolName: '미야코',
+      idolProfileImage: idolModels[3].profileImage,
+      type: ActivityType.bubble,
+      title: '💬 오늘의 버블 메시지',
+      content: '여러분 오늘 하루도 고생하셨어요! 힘내세요 💪',
+      createdAt: DateTime.now().subtract(const Duration(hours: 3)),
+      likeCount: 178,
+      commentCount: 24,
+    ),
+
+    // 아야카 - 영상 업로드
+    ActivityFeedItem(
+      id: 'activity-005',
+      idolId: 'idol-005',
+      idolName: '아야카',
+      idolProfileImage: idolModels[4].profileImage,
+      type: ActivityType.video,
+      title: '🎬 신곡 커버 영상 공개!',
+      content: '드디어 커버 영상 완성했어요! 많이 봐주세요 ㅠㅠ',
+      thumbnailUrl: idolModels[4].profileImage,
+      createdAt: DateTime.now().subtract(const Duration(hours: 5)),
+      likeCount: 512,
+      commentCount: 128,
+    ),
+
+    // 하늘별 - 공지사항
+    ActivityFeedItem(
+      id: 'activity-006',
+      idolId: 'idol-001',
+      idolName: '하늘별',
+      idolProfileImage: idolModels[0].profileImage,
+      type: ActivityType.announcement,
+      title: '📢 중요 공지: 스케줄 변경 안내',
+      content: '이번 주 금요일 일정이 변경되었습니다. 자세한 내용은 공지사항을 확인해주세요.',
+      createdAt: DateTime.now().subtract(const Duration(hours: 6)),
+      likeCount: 234,
+      commentCount: 56,
+    ),
+
+    // 사쿠라미 - 일반 게시글
+    ActivityFeedItem(
+      id: 'activity-007',
+      idolId: 'idol-002',
+      idolName: '사쿠라미',
+      idolProfileImage: idolModels[1].profileImage,
+      type: ActivityType.post,
+      title: '오늘 날씨가 너무 좋네요!',
+      content: '여러분 오늘 날씨 정말 좋죠? 산책하기 딱 좋은 날씨예요~ 다들 즐거운 하루 보내세요!',
+      createdAt: DateTime.now().subtract(const Duration(hours: 8)),
+      likeCount: 198,
+      commentCount: 42,
+    ),
+  ];
+
+  /// 최근 활동 피드 조회 (최신순, 제한된 개수)
+  static List<ActivityFeedItem> getRecentActivities({int limit = 5}) {
+    final sorted = List<ActivityFeedItem>.from(activityFeeds);
+    sorted.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return sorted.take(limit).toList();
+  }
+
+  /// 특정 아이돌의 활동 피드 조회
+  static List<ActivityFeedItem> getActivitiesForIdol(String idolId) {
+    return activityFeeds.where((activity) => activity.idolId == idolId).toList();
+  }
 }

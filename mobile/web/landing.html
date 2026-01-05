@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PIPO - 좋아하는 아이돌을 응원하세요</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #FF7169;
+            --primary-dark: #FF4500;
+            --primary-light: #FF8E87;
+            --primary-soft: #FFE5E3;
+            --text-primary: #1A1A1A;
+            --text-secondary: #666666;
+            --background: #FAFAFA;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #FF7169 0%, #FF8E87 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -10%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: float 8s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+
+        .hero-content {
+            text-align: center;
+            color: white;
+            z-index: 1;
+            padding: 40px 20px;
+            max-width: 800px;
+        }
+
+        .logo {
+            width: 120px;
+            height: 120px;
+            background: white;
+            border-radius: 32px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            margin-bottom: 32px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        h1 {
+            font-size: 56px;
+            font-weight: 900;
+            letter-spacing: -2px;
+            margin-bottom: 24px;
+            line-height: 1.1;
+        }
+
+        .tagline {
+            font-size: 24px;
+            font-weight: 500;
+            margin-bottom: 48px;
+            opacity: 0.95;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 18px 40px;
+            border-radius: 20px;
+            font-size: 18px;
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-primary {
+            background: white;
+            color: var(--primary);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-4px);
+        }
+
+        /* Features Section */
+        .features {
+            padding: 120px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 24px;
+            letter-spacing: -1px;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            font-size: 20px;
+            color: var(--text-secondary);
+            margin-bottom: 80px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 32px;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 40px rgba(255, 113, 105, 0.15);
+        }
+
+        .feature-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            margin-bottom: 24px;
+        }
+
+        .feature-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .feature-description {
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: linear-gradient(135deg, #FF9500 0%, #FFCC00 100%);
+            color: white;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 900;
+            letter-spacing: 0.5px;
+            margin-left: 8px;
+        }
+
+        /* Coming Soon Section */
+        .coming-soon {
+            background: var(--primary-soft);
+            padding: 80px 20px;
+            text-align: center;
+        }
+
+        .coming-soon-content {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .coming-soon h2 {
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+
+        .coming-soon p {
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+            font-size: 18px;
+        }
+
+        .notify-form {
+            display: flex;
+            gap: 12px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .notify-input {
+            flex: 1;
+            padding: 18px 24px;
+            border-radius: 16px;
+            border: 2px solid #E0E0E0;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .notify-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(255, 113, 105, 0.1);
+        }
+
+        /* Footer */
+        .footer {
+            background: #1A1A1A;
+            color: white;
+            padding: 60px 20px 40px;
+            text-align: center;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-logo {
+            font-size: 32px;
+            font-weight: 900;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 32px;
+            justify-content: center;
+            margin: 32px 0;
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        .copyright {
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 32px;
+            font-size: 14px;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 40px;
+            }
+
+            .tagline {
+                font-size: 18px;
+            }
+
+            .section-title {
+                font-size: 36px;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+            }
+
+            .notify-form {
+                flex-direction: column;
+            }
+
+            .footer-links {
+                flex-direction: column;
+                gap: 16px;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-in {
+            animation: fadeInUp 0.8s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content animate-in">
+            <div class="logo">❤️</div>
+            <h1>PIPO</h1>
+            <p class="tagline">좋아하는 아이돌을 응원하세요</p>
+            <div class="cta-buttons">
+                <a href="index.html" class="btn btn-primary">
+                    <span>앱 시작하기</span>
+                    <span>→</span>
+                </a>
+                <a href="#features" class="btn btn-secondary">
+                    <span>더 알아보기</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <h2 class="section-title">PIPO의 특별한 기능</h2>
+        <p class="section-subtitle">아이돌과 팬을 위한 모든 것</p>
+
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">💰</div>
+                <h3 class="feature-title">후원 & 펀딩</h3>
+                <p class="feature-description">
+                    좋아하는 아이돌을 직접 후원하고, 생일 광고나 앨범 제작 등 다양한 펀딩 프로젝트에 참여하세요.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">💬</div>
+                <h3 class="feature-title">Bubble 메시지</h3>
+                <p class="feature-description">
+                    아이돌과 1:1로 소통하는 특별한 메시지 서비스. 실시간 알림으로 아이돌의 일상을 가장 먼저 만나보세요.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">📺</div>
+                <h3 class="feature-title">
+                    라이브 스트리밍
+                    <span class="badge">SOON</span>
+                </h3>
+                <p class="feature-description">
+                    아이돌과 실시간으로 만나는 라이브 방송. 채팅과 선물 보내기로 더 가까이 소통하세요.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🎫</div>
+                <h3 class="feature-title">데이트 티켓</h3>
+                <p class="feature-description">
+                    아이돌과 함께하는 특별한 시간. 카페 데이트부터 식사까지, 잊지 못할 추억을 만드세요.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🏆</div>
+                <h3 class="feature-title">랭킹 & 이벤트</h3>
+                <p class="feature-description">
+                    실시간 인기 랭킹을 확인하고, 다양한 이벤트에 참여하세요. 내 아이돌을 1위로!
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">👥</div>
+                <h3 class="feature-title">커뮤니티</h3>
+                <p class="feature-description">
+                    같은 아이돌을 응원하는 팬들과 만나고, 정보를 공유하며 함께 성장하는 팬덤 커뮤니티.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Coming Soon Section -->
+    <section class="coming-soon">
+        <div class="coming-soon-content">
+            <h2>라이브 기능 출시 알림 받기</h2>
+            <p>아이돌과 실시간으로 소통하는 라이브 스트리밍 기능이 곧 출시됩니다!</p>
+            <form class="notify-form" onsubmit="handleNotify(event)">
+                <input
+                    type="email"
+                    class="notify-input"
+                    placeholder="이메일 주소를 입력하세요"
+                    required
+                />
+                <button type="submit" class="btn btn-primary">알림 받기</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-logo">PIPO</div>
+            <div class="footer-links">
+                <a href="#about">소개</a>
+                <a href="#features">기능</a>
+                <a href="#privacy">개인정보처리방침</a>
+                <a href="#terms">이용약관</a>
+                <a href="#contact">문의</a>
+            </div>
+            <p class="copyright">
+                © 2026 PIPO. All rights reserved.<br>
+                좋아하는 아이돌을 응원하는 가장 특별한 방법
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        function handleNotify(event) {
+            event.preventDefault();
+            const email = event.target.querySelector('input').value;
+            alert('🎉 알림 신청이 완료되었습니다!\n\n라이브 기능 출시 시 ' + email + '로 알려드리겠습니다.');
+            event.target.reset();
+        }
+
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Animate on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.feature-card').forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+            card.style.transition = `all 0.6s ease ${index * 0.1}s`;
+            observer.observe(card);
+        });
+    </script>
+</body>
+</html>

@@ -1,9 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/mock/mock_data.dart';
+import '../../../core/services/api_service.dart';
 import '../../../shared/models/user_model.dart';
-
-// Demo mode flag - set to true for demo without backend
-const bool isDemoMode = true;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthState {
   final User? user;
@@ -45,68 +43,115 @@ class AuthNotifier extends Notifier<AsyncValue<AuthState>> {
 
   Future<void> login(String email, String password) async {
     state = const AsyncValue.data(AuthState(isLoading: true));
-    await Future.delayed(const Duration(seconds: 1));
 
-    if (isDemoMode) {
-      state = AsyncValue.data(AuthState(user: MockData.demoUser));
-    } else {
-      state = AsyncValue.data(AuthState(error: '서버에 연결할 수 없습니다.'));
+    try {
+      final response = await ApiService.post('/auth/login', {
+        'email': email,
+        'password': password,
+      });
+
+      if (response['accessToken'] != null) {
+        // Save tokens
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('accessToken', response['accessToken']);
+        await prefs.setString('refreshToken', response['refreshToken']);
+
+        // Create user from response
+        final userData = response['user'];
+        final user = User(
+          id: userData['id'],
+          email: userData['email'],
+          nickname: userData['nickname'],
+          profileImage: userData['profileImage'],
+          role: userData['role'],
+          isVerified: userData['isVerified'] ?? false,
+          walletBalance: userData['walletBalance'] ?? 0,
+        );
+
+        state = AsyncValue.data(AuthState(user: user));
+      } else {
+        state = AsyncValue.data(AuthState(error: '로그인에 실패했습니다.'));
+      }
+    } catch (e) {
+      state = AsyncValue.data(AuthState(error: '서버 오류: ${e.toString()}'));
     }
   }
 
-  Future<void> register(String email, String password, String nickname) async {
+  Future<void> register(
+    String email,
+    String password,
+    String nickname,
+    String dateOfBirth,
+    bool termsConsent,
+    bool privacyConsent,
+    bool marketingConsent,
+  ) async {
     state = const AsyncValue.data(AuthState(isLoading: true));
-    await Future.delayed(const Duration(seconds: 1));
 
-    if (isDemoMode) {
-      final user = User(
-        id: 'new-user-${DateTime.now().millisecondsSinceEpoch}',
-        email: email,
-        nickname: nickname,
-        profileImage: 'https://i.pravatar.cc/150?img=3',
-        role: 'FAN',
-        isVerified: false,
-        walletBalance: 50000,
-      );
-      state = AsyncValue.data(AuthState(user: user));
-    } else {
-      state = AsyncValue.data(AuthState(error: '서버에 연결할 수 없습니다.'));
-    }
-  }
+    try {
+      final response = await ApiService.post('/auth/register', {
+        'email': email,
+        'password': password,
+        'nickname': nickname,
+        'dateOfBirth': dateOfBirth,
+        'termsConsent': termsConsent,
+        'privacyConsent': privacyConsent,
+        'marketingConsent': marketingConsent,
+      });
 
-  Future<void> loginAsDemo([String? role]) async {
-    state = const AsyncValue.data(AuthState(isLoading: true));
-    await Future.delayed(const Duration(milliseconds: 800));
+      if (response['accessToken'] != null) {
+        // Save tokens
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('accessToken', response['accessToken']);
+        await prefs.setString('refreshToken', response['refreshToken']);
 
-    if (role == 'IDOL') {
-      final idolUser = User(
-        id: 'idol_demo',
-        email: 'idol@demo.com',
-        nickname: '데모 아이돌',
-        profileImage: 'https://i.pravatar.cc/150?img=5',
-        role: 'IDOL',
-        isVerified: true,
-        walletBalance: 0,
-      );
-      state = AsyncValue.data(AuthState(user: idolUser));
-    } else if (role == 'AGENCY') {
-      final agencyUser = User(
-        id: 'agency_demo',
-        email: 'agency@demo.com',
-        nickname: '데모 소속사',
-        profileImage: null,
-        role: 'AGENCY',
-        isVerified: true,
-        walletBalance: 0,
-      );
-      state = AsyncValue.data(AuthState(user: agencyUser));
-    } else {
-      state = AsyncValue.data(AuthState(user: MockData.demoUser));
+        // Create user from response
+        final userData = response['user'];
+        final user = User(
+          id: userData['id'],
+          email: userData['email'],
+          nickname: userData['nickname'],
+          profileImage: userData['profileImage'],
+          role: userData['role'] ?? 'FAN',
+          isVerified: userData['isVerified'] ?? false,
+          walletBalance: userData['walletBalance'] ?? 0,
+        );
+
+        state = AsyncValue.data(AuthState(user: user));
+      } else {
+        state = AsyncValue.data(AuthState(error: '회원가입에 실패했습니다.'));
+      }
+    } catch (e) {
+      state = AsyncValue.data(AuthState(error: '서버 오류: ${e.toString()}'));
     }
   }
 
   Future<void> logout() async {
-    state = const AsyncValue.data(AuthState());
+    state = const AsyncValue.data(AuthState(isLoading: true));
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final refreshToken = prefs.getString('refreshToken');
+
+      // Call backend logout endpoint
+      if (refreshToken != null) {
+        await ApiService.post('/auth/logout', {
+          'refreshToken': refreshToken,
+        });
+      }
+
+      // Clear tokens
+      await prefs.remove('accessToken');
+      await prefs.remove('refreshToken');
+
+      state = const AsyncValue.data(AuthState());
+    } catch (e) {
+      // Even if logout fails on backend, clear local tokens
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('accessToken');
+      await prefs.remove('refreshToken');
+      state = const AsyncValue.data(AuthState());
+    }
   }
 
   Future<void> updateUser(User user) async {

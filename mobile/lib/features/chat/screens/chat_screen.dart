@@ -163,7 +163,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        backgroundColor: Colors.white.withOpacity(0.95),
+        backgroundColor: Colors.white.withValues(alpha: 0.95),
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
@@ -340,7 +340,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 6),
+              const SizedBox(height: 8.0),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
@@ -353,7 +353,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                           .copyWith(topLeft: Radius.zero),
                       boxShadow: [
                         BoxShadow(
-                            color: Colors.black.withOpacity(0.04),
+                            color: Colors.black.withValues(alpha: 0.04),
                             blurRadius: 4,
                             offset: Offset(0, 2))
                       ],
@@ -369,7 +369,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                         // Translation & Copy Icons (Mock)
                         const SizedBox(height: 8),
                         Divider(height: 1, color: Colors.grey[200]),
-                        const SizedBox(height: 6),
+                        const SizedBox(height: 8.0),
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -437,7 +437,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   BorderRadius.circular(18).copyWith(topRight: Radius.zero),
               boxShadow: [
                 BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
+                    color: Colors.black.withValues(alpha: 0.04),
                     blurRadius: 4,
                     offset: Offset(0, 2))
               ],

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../shared/models/idol_model.dart';
 import '../../core/utils/responsive.dart';
+import 'idol_avatar.dart';
 
 class StoryCircle extends StatelessWidget {
   final IdolModel idol;
@@ -48,7 +49,7 @@ class StoryCircle extends StatelessWidget {
                   boxShadow: isLive
                       ? [
                           BoxShadow(
-                            color: const Color(0xFFFF0055).withOpacity(0.4),
+                            color: const Color(0xFFFF0055).withValues(alpha: 0.4),
                             blurRadius: 10,
                             spreadRadius: 2,
                           )
@@ -61,9 +62,10 @@ class StoryCircle extends StatelessWidget {
                     color: Colors.white,
                     shape: BoxShape.circle,
                   ),
-                  child: CircleAvatar(
-                    radius: Responsive.wp(8).clamp(24.0, 36.0),
-                    backgroundImage: NetworkImage(idol.profileImage),
+                  child: IdolAvatar(
+                    imageUrl: idol.profileImage,
+                    category: idol.category,
+                    size: Responsive.wp(16).clamp(48.0, 72.0),
                   ),
                 ),
               ),
@@ -72,25 +74,38 @@ class StoryCircle extends StatelessWidget {
                   bottom: -2,
                   child: Container(
                     padding:
-                        const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFF0055),
-                      borderRadius: BorderRadius.circular(4),
+                      gradient: LinearGradient(
+                        colors: [
+                          const Color(0xFFFF9500), // Orange
+                          const Color(0xFFFFCC00), // Yellow-Orange
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(6),
                       border: Border.all(color: Colors.white, width: 1.5),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFFFF9500).withValues(alpha: 0.4),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
                     child: Text(
-                      'LIVE',
+                      'SOON',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 8,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 0.5,
                       ),
                     ),
                   ),
                 ),
             ],
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8.0),
           Text(
             idol.stageName,
             style: TextStyle(

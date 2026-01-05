@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'dart:math' as math;
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../shared/widgets/custom_button.dart';
 import '../../../shared/widgets/custom_text_field.dart';
 import '../providers/auth_provider.dart';
 
+/// 🎨 PIPO - Bubble Style Login Screen with Animations
+/// 로고 애니메이션 + 배경 그라데이션 애니메이션 + Coral Pink
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
@@ -22,27 +26,55 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
 
+  // Animations
   late AnimationController _fadeController;
   late AnimationController _slideController;
+  late AnimationController _logoController;
+  late AnimationController _backgroundController;
+
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
+  late Animation<double> _logoScaleAnimation;
+  late Animation<double> _logoFadeAnimation;
+  late Animation<double> _logoRotationAnimation;
+  late Animation<double> _logoPulseAnimation;
+  late Animation<double> _backgroundAnimation;
 
   @override
   void initState() {
     super.initState();
+
+    // Fade animation
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
+
+    // Slide animation
     _slideController = AnimationController(
       duration: const Duration(milliseconds: 600),
       vsync: this,
     );
 
+    // Logo animation
+    _logoController = AnimationController(
+      duration: const Duration(milliseconds: 1200),
+      vsync: this,
+    );
+
+    // Background animation (continuous)
+    _backgroundController = AnimationController(
+      duration: const Duration(seconds: 10),
+      vsync: this,
+    )..repeat();
+
+    // Fade
     _fadeAnimation = CurvedAnimation(
       parent: _fadeController,
       curve: Curves.easeOut,
     );
+
+    // Slide
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.3),
       end: Offset.zero,
@@ -51,9 +83,65 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       curve: Curves.easeOutCubic,
     ));
 
-    _fadeController.forward();
-    Future.delayed(const Duration(milliseconds: 200), () {
-      _slideController.forward();
+    // Logo Scale (bounce in)
+    _logoScaleAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _logoController,
+      curve: Curves.elasticOut,
+    ));
+
+    // Logo Fade
+    _logoFadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _logoController,
+      curve: const Interval(0.0, 0.6, curve: Curves.easeIn),
+    ));
+
+    // Logo Rotation (subtle)
+    _logoRotationAnimation = Tween<double>(
+      begin: -0.1,
+      end: 0.0,
+    ).animate(CurvedAnimation(
+      parent: _logoController,
+      curve: Curves.easeOutCubic,
+    ));
+
+    // Logo Pulse (continuous after initial)
+    _logoPulseAnimation = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 1.0, end: 1.05),
+        weight: 50,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 1.05, end: 1.0),
+        weight: 50,
+      ),
+    ]).animate(CurvedAnimation(
+      parent: _logoController,
+      curve: const Interval(0.6, 1.0, curve: Curves.easeInOut),
+    ));
+
+    // Background gradient animation
+    _backgroundAnimation = Tween<double>(
+      begin: 0.0,
+      end: 2 * math.pi,
+    ).animate(_backgroundController);
+
+    // Start animations with delays
+    _logoController.forward();
+    Future.delayed(const Duration(milliseconds: 400), () {
+      if (mounted) {
+        _fadeController.forward();
+      }
+    });
+    Future.delayed(const Duration(milliseconds: 600), () {
+      if (mounted) {
+        _slideController.forward();
+      }
     });
   }
 
@@ -63,6 +151,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     _passwordController.dispose();
     _fadeController.dispose();
     _slideController.dispose();
+    _logoController.dispose();
+    _backgroundController.dispose();
     super.dispose();
   }
 
@@ -78,41 +168,69 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
   Future<void> _handleDemoLogin() async {
     HapticFeedback.mediumImpact();
-    // Show Role Selection Modal
+    // Show Role Selection Modal (Bubble Style)
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
+      isScrollControlled: true,
       builder: (context) => Container(
-        padding: EdgeInsets.all(Responsive.wp(5)),
+        padding: EdgeInsets.all(Responsive.wp(6)),
         decoration: const BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(32)), // Bubble style
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Handle Bar
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 24),
+                decoration: BoxDecoration(
+                  color: AppColors.border,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+
+            // Title
             Text(
               '데모 로그인 계정 선택',
               style: TextStyle(
-                fontSize: Responsive.sp(20),
-                fontWeight: FontWeight.bold,
+                fontSize: 24, // Bubble style - larger
+                fontWeight: FontWeight.w800,
+                color: AppColors.textPrimary,
+                letterSpacing: -0.5,
               ),
             ),
-            SizedBox(height: Responsive.hp(2)),
+            const SizedBox(height: 8),
+            Text(
+              '아래 계정 중 하나를 선택하여 앱을 체험해보세요',
+              style: TextStyle(
+                fontSize: 14,
+                color: AppColors.textSecondary,
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Demo Role Options (Bubble Style)
             _buildDemoRoleOption(
-              icon: Icons.person,
-              title: '일반 팬 (Fan)',
+              icon: Icons.favorite_rounded,
+              title: '팬 (Fan)',
               subtitle: '아이돌을 후원하고 소통하는 사용자',
               color: AppColors.primary,
+              isFeatured: true,
               onTap: () {
                 Navigator.pop(context);
                 ref.read(authStateProvider.notifier).loginAsDemo('FAN');
               },
             ),
-            SizedBox(height: Responsive.hp(1.5)),
+            const SizedBox(height: 12),
             _buildDemoRoleOption(
-              icon: Icons.star,
+              icon: Icons.star_rounded,
               title: '아이돌 (Idol)',
               subtitle: '팬들과 소통하고 후원을 받는 아이돌',
               color: AppColors.secondary,
@@ -121,9 +239,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                 ref.read(authStateProvider.notifier).loginAsDemo('IDOL');
               },
             ),
-            SizedBox(height: Responsive.hp(1.5)),
+            const SizedBox(height: 12),
             _buildDemoRoleOption(
-              icon: Icons.business,
+              icon: Icons.business_rounded,
               title: '소속사 (Agency)',
               subtitle: '아이돌을 관리하고 통계를 확인하는 소속사',
               color: AppColors.textPrimary,
@@ -132,40 +250,58 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                 ref.read(authStateProvider.notifier).loginAsDemo('AGENCY');
               },
             ),
-            SizedBox(height: Responsive.hp(3)),
+            SizedBox(height: Responsive.hp(4)),
           ],
         ),
       ),
     );
   }
 
+  /// 🎨 Demo Role Option Card (Bubble Style)
   Widget _buildDemoRoleOption({
     required IconData icon,
     required String title,
     required String subtitle,
     required Color color,
     required VoidCallback onTap,
+    bool isFeatured = false,
   }) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: () {
+        HapticFeedback.lightImpact();
+        onTap();
+      },
       child: Container(
-        padding: EdgeInsets.all(Responsive.wp(4)),
+        padding: const EdgeInsets.all(20), // Bubble style - wider padding
         decoration: BoxDecoration(
-          color: color.withOpacity(0.05),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withOpacity(0.2)),
+          color: color.withValues(alpha: isFeatured ? 0.08 : 0.04),
+          borderRadius: BorderRadius.circular(20), // Bubble style
+          border: Border.all(
+            color: color.withValues(alpha: isFeatured ? 0.3 : 0.15),
+            width: isFeatured ? 2.0 : 1.0,
+          ),
+          boxShadow: isFeatured
+              ? [
+                  BoxShadow(
+                    color: color.withValues(alpha: 0.12),
+                    blurRadius: 16,
+                    offset: const Offset(0, 4),
+                  )
+                ]
+              : null,
         ),
         child: Row(
           children: [
             Container(
-              padding: EdgeInsets.all(Responsive.wp(2.5)),
+              width: 56,
+              height: 56,
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
-                shape: BoxShape.circle,
+                color: color.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(16), // Bubble style
               ),
-              child: Icon(icon, color: color, size: Responsive.sp(24)),
+              child: Icon(icon, color: color, size: 28),
             ),
-            SizedBox(width: Responsive.wp(4)),
+            const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -173,37 +309,31 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                   Text(
                     title,
                     style: TextStyle(
-                      fontSize: Responsive.sp(16),
-                      fontWeight: FontWeight.bold,
+                      fontSize: 17,
+                      fontWeight: FontWeight.w700,
                       color: AppColors.textPrimary,
+                      letterSpacing: -0.2,
                     ),
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 8.0),
                   Text(
                     subtitle,
                     style: TextStyle(
-                      fontSize: Responsive.sp(12),
+                      fontSize: 13,
                       color: AppColors.textSecondary,
+                      height: 1.4,
                     ),
                   ),
                 ],
               ),
             ),
-            Icon(Icons.chevron_right, color: AppColors.textSecondary),
+            Icon(
+              Icons.arrow_forward_ios_rounded,
+              color: color.withValues(alpha: 0.5),
+              size: 18,
+            ),
           ],
         ),
-      ),
-    );
-  }
-
-  Future<void> _handleSocialLogin(String provider) async {
-    HapticFeedback.lightImpact();
-    // TODO: Implement social login
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('$provider 로그인 준비 중입니다'),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
   }
@@ -218,185 +348,367 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     return Scaffold(
       body: Stack(
         children: [
-          // Background Decorations
-          _buildBackgroundDecorations(),
-
-          // Main Content
-          SafeArea(
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              padding: EdgeInsets.symmetric(horizontal: Responsive.wp(6)),
-              child: FadeTransition(
-                opacity: _fadeAnimation,
-                child: SlideTransition(
-                  position: _slideAnimation,
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        SizedBox(height: Responsive.hp(8)),
-
-                        // Logo & Title
-                        _buildHeader(),
-                        SizedBox(height: Responsive.hp(5)),
-
-                        // Error Message
-                        if (error != null) ...[
-                          _buildErrorMessage(error),
-                          SizedBox(height: Responsive.hp(2)),
-                        ],
-
-                        // Login Form Card
-                        _buildLoginForm(),
-                        SizedBox(height: Responsive.hp(2.5)),
-
-                        // Demo Button
-                        _buildDemoButton(isLoading),
-                        SizedBox(height: Responsive.hp(3)),
-
-                        // Divider
-                        _buildDivider(),
-                        SizedBox(height: Responsive.hp(3)),
-
-                        // Social Login Buttons
-                        _buildSocialButtons(),
-                        SizedBox(height: Responsive.hp(4)),
-
-                        // Register Link
-                        _buildRegisterLink(),
-                        SizedBox(height: Responsive.hp(4)),
+          // ============================================
+          // 🎨 Animated Background (Coral Pink Gradient)
+          // ============================================
+          Positioned.fill(
+            child: AnimatedBuilder(
+              animation: _backgroundAnimation,
+              builder: (context, child) {
+                return Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment(
+                        math.cos(_backgroundAnimation.value),
+                        math.sin(_backgroundAnimation.value),
+                      ),
+                      end: Alignment(
+                        -math.cos(_backgroundAnimation.value),
+                        -math.sin(_backgroundAnimation.value),
+                      ),
+                      colors: [
+                        AppColors.primary,
+                        AppColors.primaryLight,
+                        AppColors.primary,
                       ],
+                      stops: const [0.0, 0.5, 1.0],
                     ),
                   ),
-                ),
-              ),
+                );
+              },
             ),
           ),
-        ],
-      ),
-    );
-  }
 
-  Widget _buildBackgroundDecorations() {
-    return Container(
-      color: AppColors.background, // Clean white background
-    );
-  }
+          // ============================================
+          // ✨ Decorative Floating Bubbles
+          // ============================================
+          Positioned.fill(
+            child: AnimatedBuilder(
+              animation: _backgroundAnimation,
+              builder: (context, child) {
+                return Stack(
+                  children: [
+                    _buildFloatingBubble(
+                      top: 100 + math.sin(_backgroundAnimation.value) * 20,
+                      left: 50 + math.cos(_backgroundAnimation.value) * 15,
+                      size: 80,
+                      opacity: 0.1,
+                    ),
+                    _buildFloatingBubble(
+                      bottom: 150 + math.cos(_backgroundAnimation.value * 0.7) * 25,
+                      right: 30 + math.sin(_backgroundAnimation.value * 0.7) * 20,
+                      size: 120,
+                      opacity: 0.08,
+                    ),
+                    _buildFloatingBubble(
+                      top: 300 + math.sin(_backgroundAnimation.value * 1.3) * 30,
+                      right: 80 + math.cos(_backgroundAnimation.value * 1.3) * 25,
+                      size: 60,
+                      opacity: 0.12,
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
 
-  Widget _buildHeader() {
-    return Center(
-      child: Column(
-        children: [
-          // Animated Logo
-          TweenAnimationBuilder<double>(
-            tween: Tween(begin: 0.8, end: 1.0),
-            duration: const Duration(milliseconds: 600),
-            curve: Curves.elasticOut,
-            builder: (context, scale, child) {
-              return Transform.scale(scale: scale, child: child);
-            },
-            child: Container(
-              width: Responsive.wp(22),
-              height: Responsive.wp(22),
-              decoration: BoxDecoration(
-                gradient: AppColors.primaryGradient,
-                borderRadius: BorderRadius.circular(Responsive.wp(6)),
-                boxShadow: AppColors.glowShadow(AppColors.primary),
-              ),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  // Shimmer effect
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(Responsive.wp(6)),
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Colors.white.withValues(alpha: 0.2),
-                          Colors.transparent,
-                          Colors.white.withValues(alpha: 0.1),
+          // ============================================
+          // 📱 Main Content
+          // ============================================
+          SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                padding: EdgeInsets.symmetric(horizontal: Responsive.wp(6)),
+                child: FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: SlideTransition(
+                    position: _slideAnimation,
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          SizedBox(height: Responsive.hp(4)),
+
+                          // ============================================
+                          // 🎨 Animated Logo (White SVG with Animations)
+                          // ============================================
+                          Center(
+                            child: AnimatedBuilder(
+                              animation: Listenable.merge([
+                                _logoScaleAnimation,
+                                _logoFadeAnimation,
+                                _logoRotationAnimation,
+                                _logoPulseAnimation,
+                              ]),
+                              builder: (context, child) {
+                                return Opacity(
+                                  opacity: _logoFadeAnimation.value,
+                                  child: Transform.scale(
+                                    scale: _logoScaleAnimation.value *
+                                           _logoPulseAnimation.value,
+                                    child: Transform.rotate(
+                                      angle: _logoRotationAnimation.value,
+                                      child: Container(
+                                        width: 120,
+                                        height: 120,
+                                        decoration: BoxDecoration(
+                                          color: Colors.white.withValues(alpha: 0.15),
+                                          borderRadius: BorderRadius.circular(32),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.white.withValues(alpha: 0.3),
+                                              blurRadius: 30,
+                                              spreadRadius: 5,
+                                            ),
+                                          ],
+                                        ),
+                                        child: Center(
+                                          child: SvgPicture.asset(
+                                            'assets/images/logo_white.svg',
+                                            width: 70,
+                                            height: 70,
+                                            colorFilter: const ColorFilter.mode(
+                                              Colors.white,
+                                              BlendMode.srcIn,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                          SizedBox(height: Responsive.hp(3)),
+
+                          // ============================================
+                          // 📝 Title
+                          // ============================================
+                          Text(
+                            'PIPO',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 48, // Bubble style - larger
+                              fontWeight: FontWeight.w900,
+                              color: Colors.white,
+                              letterSpacing: -2.0,
+                              height: 1.1,
+                              shadows: [
+                                Shadow(
+                                  color: Colors.black.withValues(alpha: 0.1),
+                                  offset: const Offset(0, 4),
+                                  blurRadius: 10,
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            '좋아하는 아이돌을 응원하세요',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white.withValues(alpha: 0.95),
+                              letterSpacing: -0.2,
+                            ),
+                          ),
+                          SizedBox(height: Responsive.hp(5)),
+
+                          // ============================================
+                          // ⚠️ Error Message
+                          // ============================================
+                          if (error != null) ...[
+                            Container(
+                              padding: const EdgeInsets.all(18),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.error_outline_rounded,
+                                    color: AppColors.error,
+                                    size: 22,
+                                  ),
+                                  const SizedBox(width: 14),
+                                  Expanded(
+                                    child: Text(
+                                      error,
+                                      style: TextStyle(
+                                        color: AppColors.error,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(height: Responsive.hp(2)),
+                          ],
+
+                          // ============================================
+                          // ✏️ Email Field
+                          // ============================================
+                          CustomTextField(
+                            controller: _emailController,
+                            label: '이메일',
+                            hintText: 'example@email.com',
+                            keyboardType: TextInputType.emailAddress,
+                            prefixIcon: Icons.email_outlined,
+                            textInputAction: TextInputAction.next,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return '이메일을 입력해주세요';
+                              }
+                              if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                                  .hasMatch(value)) {
+                                return '올바른 이메일 형식이 아닙니다';
+                              }
+                              return null;
+                            },
+                          ),
+                          SizedBox(height: Responsive.hp(2)),
+
+                          // ============================================
+                          // 🔒 Password Field
+                          // ============================================
+                          CustomTextField(
+                            controller: _passwordController,
+                            label: '비밀번호',
+                            hintText: '비밀번호를 입력하세요',
+                            obscureText: _obscurePassword,
+                            prefixIcon: Icons.lock_outlined,
+                            textInputAction: TextInputAction.done,
+                            onFieldSubmitted: (_) => _handleLogin(),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _obscurePassword
+                                    ? Icons.visibility_outlined
+                                    : Icons.visibility_off_outlined,
+                                color: AppColors.textSecondary,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _obscurePassword = !_obscurePassword;
+                                });
+                              },
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return '비밀번호를 입력해주세요';
+                              }
+                              return null;
+                            },
+                          ),
+                          SizedBox(height: Responsive.hp(3)),
+
+                          // ============================================
+                          // 🔵 Login Button
+                          // ============================================
+                          GradientButton(
+                            onPressed: isLoading ? null : _handleLogin,
+                            text: '로그인',
+                            height: 60,
+                            gradient: const LinearGradient(
+                              colors: [Colors.white, Colors.white],
+                            ),
+                            foregroundColor: AppColors.primary,
+                            isLoading: isLoading,
+                            enableGlow: false,
+                          ),
+                          SizedBox(height: Responsive.hp(2)),
+
+                          // ============================================
+                          // 🎯 Demo Login Button
+                          // ============================================
+                          CustomButton(
+                            onPressed: isLoading ? null : _handleDemoLogin,
+                            text: '데모 계정으로 체험하기',
+                            height: 60,
+                            isOutlined: true,
+                            backgroundColor: Colors.white.withValues(alpha: 0.15),
+                            foregroundColor: Colors.white,
+                            prefixIcon: Icons.rocket_launch_rounded,
+                          ),
+                          SizedBox(height: Responsive.hp(3)),
+
+                          // ============================================
+                          // 📌 Divider
+                          // ============================================
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Divider(
+                                  color: Colors.white.withValues(alpha: 0.3),
+                                  thickness: 1,
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 16),
+                                child: Text(
+                                  '또는',
+                                  style: TextStyle(
+                                    color: Colors.white.withValues(alpha: 0.8),
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: Divider(
+                                  color: Colors.white.withValues(alpha: 0.3),
+                                  thickness: 1,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: Responsive.hp(3)),
+
+                          // ============================================
+                          // 🔗 Register Link
+                          // ============================================
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                '계정이 없으신가요?',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.white.withValues(alpha: 0.9),
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () => context.go('/register'),
+                                style: TextButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
+                                ),
+                                child: Text(
+                                  '회원가입',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: Responsive.hp(4)),
                         ],
                       ),
                     ),
                   ),
-                  Icon(
-                    Icons.favorite_rounded,
-                    color: Colors.white,
-                    size: Responsive.wp(11),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          SizedBox(height: Responsive.hp(3)),
-
-          // App Name with Gradient
-          ShaderMask(
-            shaderCallback: (bounds) =>
-                AppColors.primaryGradient.createShader(bounds),
-            child: Text(
-              '아이돌 서포트',
-              style: TextStyle(
-                fontSize: Responsive.sp(30),
-                fontWeight: FontWeight.w800,
-                color: Colors.white,
-                letterSpacing: -0.5,
-                fontFamily: 'Pretendard',
-              ),
-            ),
-          ),
-          SizedBox(height: Responsive.hp(1)),
-          Text(
-            '좋아하는 아이돌을 응원하세요',
-            style: TextStyle(
-              fontSize: Responsive.sp(15),
-              color: AppColors.textSecondary,
-              fontFamily: 'Pretendard',
-              letterSpacing: -0.2,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildErrorMessage(String error) {
-    return Container(
-      padding: EdgeInsets.all(Responsive.wp(4)),
-      decoration: BoxDecoration(
-        color: AppColors.error.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: AppColors.error.withValues(alpha: 0.3),
-          width: 1,
-        ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: AppColors.error.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(
-              Icons.error_outline_rounded,
-              color: AppColors.error,
-              size: Responsive.sp(20),
-            ),
-          ),
-          SizedBox(width: Responsive.wp(3)),
-          Expanded(
-            child: Text(
-              error,
-              style: TextStyle(
-                color: AppColors.error,
-                fontSize: Responsive.sp(13),
-                fontWeight: FontWeight.w500,
-                fontFamily: 'Pretendard',
+                ),
               ),
             ),
           ),
@@ -405,349 +717,31 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     );
   }
 
-  Widget _buildLoginForm() {
-    final authState = ref.watch(authStateProvider);
-    final isLoading = authState.value?.isLoading ?? false;
-
-    return Container(
-      padding: EdgeInsets.all(Responsive.wp(5)),
-      decoration: BoxDecoration(
-        color: AppColors.cardBackground,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: AppColors.border.withValues(alpha: 0.5),
-          width: 1,
-        ),
-        boxShadow: AppColors.softShadow(),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Email Field
-          _buildInputLabel('이메일'),
-          SizedBox(height: Responsive.hp(1)),
-          CustomTextField(
-            controller: _emailController,
-            hintText: 'example@email.com',
-            keyboardType: TextInputType.emailAddress,
-            prefixIcon: Icons.email_outlined,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return '이메일을 입력해주세요';
-              }
-              if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                  .hasMatch(value)) {
-                return '올바른 이메일 형식이 아닙니다';
-              }
-              return null;
-            },
-          ),
-          SizedBox(height: Responsive.hp(2)),
-
-          // Password Field
-          _buildInputLabel('비밀번호'),
-          SizedBox(height: Responsive.hp(1)),
-          CustomTextField(
-            controller: _passwordController,
-            hintText: '비밀번호를 입력하세요',
-            obscureText: _obscurePassword,
-            prefixIcon: Icons.lock_outlined,
-            suffixIcon: IconButton(
-              icon: Icon(
-                _obscurePassword
-                    ? Icons.visibility_outlined
-                    : Icons.visibility_off_outlined,
-                color: AppColors.textTertiary,
-              ),
-              onPressed: () {
-                HapticFeedback.selectionClick();
-                setState(() {
-                  _obscurePassword = !_obscurePassword;
-                });
-              },
-            ),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return '비밀번호를 입력해주세요';
-              }
-              return null;
-            },
-          ),
-          SizedBox(height: Responsive.hp(1.5)),
-
-          // Forgot Password
-          Align(
-            alignment: Alignment.centerRight,
-            child: GestureDetector(
-              onTap: () {
-                HapticFeedback.selectionClick();
-                // TODO: Navigate to forgot password
-              },
-              child: Text(
-                '비밀번호를 잊으셨나요?',
-                style: TextStyle(
-                  fontSize: Responsive.sp(13),
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.w600,
-                  fontFamily: 'Pretendard',
-                ),
-              ),
-            ),
-          ),
-          SizedBox(height: Responsive.hp(2.5)),
-
-          // Login Button
-          GradientButton(
-            onPressed: isLoading ? null : _handleLogin,
-            isLoading: isLoading,
-            height: 54,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  '로그인',
-                  style: TextStyle(fontSize: Responsive.sp(16)),
-                ),
-                if (!isLoading) ...[
-                  SizedBox(width: Responsive.wp(2)),
-                  Icon(
-                    Icons.arrow_forward_rounded,
-                    size: Responsive.sp(18),
-                    color: Colors.white,
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInputLabel(String label) {
-    return Text(
-      label,
-      style: TextStyle(
-        fontSize: Responsive.sp(14),
-        fontWeight: FontWeight.w600,
-        color: AppColors.textPrimary,
-        fontFamily: 'Pretendard',
-      ),
-    );
-  }
-
-  Widget _buildDemoButton(bool isLoading) {
-    return GestureDetector(
-      onTap: isLoading ? null : _handleDemoLogin,
-      child: Container(
-        height: 54,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-              color: AppColors.primary.withValues(alpha: 0.3), width: 1.5),
-          boxShadow: AppColors.softShadow(opacity: 0.05),
-        ),
-        child: Center(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.rocket_launch_rounded,
-                color: AppColors.primary,
-                size: Responsive.sp(20),
-              ),
-              SizedBox(width: Responsive.wp(2)),
-              Text(
-                '체험하기',
-                style: TextStyle(
-                  color: AppColors.primary,
-                  fontSize: Responsive.sp(16),
-                  fontWeight: FontWeight.w700,
-                  fontFamily: 'Pretendard',
-                  letterSpacing: -0.3,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDivider() {
-    return Row(
-      children: [
-        Expanded(
-          child: Container(
-            height: 1,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Colors.transparent,
-                  AppColors.border,
-                ],
-              ),
-            ),
-          ),
-        ),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: Responsive.wp(4)),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              color: AppColors.backgroundAlt,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppColors.border),
-            ),
-            child: Text(
-              '간편 로그인',
-              style: TextStyle(
-                color: AppColors.textSecondary,
-                fontSize: Responsive.sp(12),
-                fontWeight: FontWeight.w500,
-                fontFamily: 'Pretendard',
-              ),
-            ),
-          ),
-        ),
-        Expanded(
-          child: Container(
-            height: 1,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  AppColors.border,
-                  Colors.transparent,
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSocialButtons() {
-    return Column(
-      children: [
-        // Kakao
-        SocialButton.kakao(
-          onPressed: () => _handleSocialLogin('카카오'),
-        ),
-        SizedBox(height: Responsive.hp(1.5)),
-
-        // Row of Naver, Google, Apple
-        Row(
-          children: [
-            Expanded(
-              child: _buildCompactSocialButton(
-                icon: Text(
-                  'N',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w900,
-                    color: Colors.white,
-                  ),
-                ),
-                backgroundColor: AppColors.naver,
-                onTap: () => _handleSocialLogin('네이버'),
-              ),
-            ),
-            SizedBox(width: Responsive.wp(3)),
-            Expanded(
-              child: _buildCompactSocialButton(
-                icon: Text(
-                  'G',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.google,
-                  ),
-                ),
-                backgroundColor: Colors.white,
-                hasBorder: true,
-                onTap: () => _handleSocialLogin('Google'),
-              ),
-            ),
-            SizedBox(width: Responsive.wp(3)),
-            Expanded(
-              child: _buildCompactSocialButton(
-                icon: Icon(Icons.apple, color: Colors.white, size: 22),
-                backgroundColor: AppColors.apple,
-                onTap: () => _handleSocialLogin('Apple'),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildCompactSocialButton({
-    required Widget icon,
-    required Color backgroundColor,
-    required VoidCallback onTap,
-    bool hasBorder = false,
+  /// 🫧 Floating Bubble Widget
+  Widget _buildFloatingBubble({
+    double? top,
+    double? bottom,
+    double? left,
+    double? right,
+    required double size,
+    required double opacity,
   }) {
-    return GestureDetector(
-      onTap: onTap,
+    return Positioned(
+      top: top,
+      bottom: bottom,
+      left: left,
+      right: right,
       child: Container(
-        height: 52,
+        width: size,
+        height: size,
         decoration: BoxDecoration(
-          color: backgroundColor,
-          borderRadius: BorderRadius.circular(14),
-          border: hasBorder ? Border.all(color: AppColors.border) : null,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          shape: BoxShape.circle,
+          color: Colors.white.withValues(alpha: opacity),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: opacity * 0.5),
+            width: 1,
+          ),
         ),
-        child: Center(child: icon),
-      ),
-    );
-  }
-
-  Widget _buildRegisterLink() {
-    return Center(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            '계정이 없으신가요?',
-            style: TextStyle(
-              fontSize: Responsive.sp(14),
-              color: AppColors.textSecondary,
-              fontFamily: 'Pretendard',
-            ),
-          ),
-          SizedBox(width: Responsive.wp(1)),
-          GestureDetector(
-            onTap: () {
-              HapticFeedback.selectionClick();
-              context.go('/register');
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                gradient: AppColors.primaryGradient,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                '회원가입',
-                style: TextStyle(
-                  fontSize: Responsive.sp(14),
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
-                  fontFamily: 'Pretendard',
-                ),
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

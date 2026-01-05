@@ -13,17 +13,27 @@ import '../../features/idol/screens/idol_list_screen.dart';
 import '../../features/idol/screens/idol_detail_screen.dart';
 import '../../features/campaign/screens/campaign_list_screen.dart';
 import '../../features/campaign/screens/campaign_detail_screen.dart';
-import '../../features/booking/screens/booking_screen.dart';
+import '../../features/booking/screens/event_calendar_screen.dart';
 import '../../features/community/screens/community_feed_screen.dart';
 import '../../features/ranking/screens/ranking_screen.dart';
 import '../../features/bubble/screens/bubble_list_screen.dart';
+import '../../features/bubble/screens/bubble_chat_screen.dart';
 import '../../features/date_ticket/screens/date_ticket_screen.dart';
 import '../../features/advertisement/screens/ad_shop_screen.dart';
 import '../../features/crm/screens/idol_registration_screen.dart';
 import '../../features/agency/screens/agency_dashboard_screen.dart';
 import '../../features/idol/screens/idol_dashboard_screen.dart';
 import '../../features/message/screens/message_creation_screen.dart';
+import '../../features/community/screens/post_create_screen.dart';
+import '../../features/community/screens/post_detail_screen.dart';
+import '../../features/community/screens/unanswered_cheki_list_screen.dart';
+import '../../features/bubble/screens/bubble_compose_screen.dart';
+import '../../features/search/screens/unified_search_screen.dart';
+import '../../features/notification/screens/notification_center_screen.dart';
+import '../../features/payment/screens/subscription_payment_screen.dart';
 import '../../shared/models/idol_model.dart';
+import '../../shared/models/post_model.dart';
+import '../../shared/widgets/error_page.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authStateProvider);
@@ -87,7 +97,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: '/booking',
-            builder: (context, state) => const BookingScreen(),
+            builder: (context, state) => const EventCalendarScreen(),
           ),
           GoRoute(
             path: '/community',
@@ -110,6 +120,14 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/bubble',
             builder: (context, state) => const BubbleListScreen(),
+          ),
+          GoRoute(
+            path: '/bubble/:idolId/:idolName/:profileImage',
+            builder: (context, state) => BubbleChatScreen(
+              idolId: state.pathParameters['idolId']!,
+              idolName: Uri.decodeComponent(state.pathParameters['idolName']!),
+              idolProfileImage: Uri.decodeComponent(state.pathParameters['profileImage']!),
+            ),
           ),
           GoRoute(
             path: '/date-tickets',
@@ -137,13 +155,53 @@ final routerProvider = Provider<GoRouter>((ref) {
             builder: (context, state) =>
                 MessageCreationScreen(idol: state.extra as IdolModel),
           ),
+          // Community - Post Management
+          GoRoute(
+            path: '/community/post/create',
+            builder: (context, state) => const PostCreateScreen(),
+          ),
+          GoRoute(
+            path: '/community/post/:id',
+            builder: (context, state) => PostDetailScreen(
+              post: state.extra as Post,
+            ),
+          ),
+          GoRoute(
+            path: '/community/cheki/unanswered',
+            builder: (context, state) => const UnansweredChekiListScreen(),
+          ),
+          // Bubble - Message Compose
+          GoRoute(
+            path: '/bubble/compose',
+            builder: (context, state) => const BubbleComposeScreen(),
+          ),
+          // Search
+          GoRoute(
+            path: '/search',
+            builder: (context, state) => const UnifiedSearchScreen(),
+          ),
+          // Notifications
+          GoRoute(
+            path: '/notifications',
+            builder: (context, state) => const NotificationCenterScreen(),
+          ),
+          // Payment - Subscription
+          GoRoute(
+            path: '/subscription/payment/:idolId',
+            builder: (context, state) {
+              final extra = state.extra as Map<String, dynamic>?;
+              return SubscriptionPaymentScreen(
+                idolId: state.pathParameters['idolId']!,
+                idolName: extra?['idolName'] ?? '',
+                idolProfileImage: extra?['idolProfileImage'],
+              );
+            },
+          ),
         ],
       ),
     ],
-    errorBuilder: (context, state) => Scaffold(
-      body: Center(
-        child: Text('Page not found: ${state.error}'),
-      ),
+    errorBuilder: (context, state) => ErrorPage(
+      errorMessage: state.error?.toString(),
     ),
   );
 });

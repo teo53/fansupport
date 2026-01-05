@@ -118,7 +118,7 @@ class _LiveScreenState extends State<LiveScreen> with TickerProviderStateMixin {
             child: CachedNetworkImage(
               imageUrl: widget.idol.profileImage,
               fit: BoxFit.cover,
-              color: Colors.black.withOpacity(0.0), // No darken, clean look
+              color: Colors.black.withValues(alpha: 0.0), // No darken, clean look
               colorBlendMode: BlendMode.darken,
             ),
           ),
@@ -129,10 +129,10 @@ class _LiveScreenState extends State<LiveScreen> with TickerProviderStateMixin {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    Colors.black.withOpacity(0.6),
+                    Colors.black.withValues(alpha: 0.6),
                     Colors.transparent,
                     Colors.transparent,
-                    Colors.black.withOpacity(0.8),
+                    Colors.black.withValues(alpha: 0.8),
                   ],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
@@ -313,7 +313,7 @@ class _LiveScreenState extends State<LiveScreen> with TickerProviderStateMixin {
               padding: EdgeInsets.fromLTRB(
                   Responsive.wp(4), 10, Responsive.wp(4), Responsive.hp(4)),
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.3),
+                color: Colors.black.withValues(alpha: 0.3),
               ),
               child: Row(
                 children: [
@@ -322,7 +322,7 @@ class _LiveScreenState extends State<LiveScreen> with TickerProviderStateMixin {
                       height: 45,
                       padding: EdgeInsets.symmetric(horizontal: 16),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(22),
                       ),
                       child: TextField(
@@ -364,7 +364,7 @@ class _LiveScreenState extends State<LiveScreen> with TickerProviderStateMixin {
                     child: Container(
                       padding: EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: Colors.red.withOpacity(0.8),
+                        color: Colors.red.withValues(alpha: 0.8),
                         shape: BoxShape.circle,
                       ),
                       child:

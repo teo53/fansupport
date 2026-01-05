@@ -164,7 +164,7 @@ class _MainScreenState extends State<MainScreen> {
                       isSelected ? AppColors.primary : AppColors.textTertiary,
                 ),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 8.0),
               AnimatedDefaultTextStyle(
                 duration: const Duration(milliseconds: 200),
                 style: TextStyle(
@@ -245,7 +245,7 @@ class _MainScreenState extends State<MainScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 2),
+            const SizedBox(height: 8.0),
             Text(
               '펀딩',
               style: TextStyle(

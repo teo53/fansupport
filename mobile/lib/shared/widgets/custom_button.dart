@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../core/theme/app_colors.dart';
-import '../../core/utils/responsive.dart';
 
-/// 기본 커스텀 버튼
+/// 🎨 PIPO - Bubble Style Buttons
+/// Coral Pink 기반의 트렌디한 버튼 컴포넌트
+
+// ============================================
+// 🔘 CustomButton (Primary/Outlined)
+// ============================================
 class CustomButton extends StatefulWidget {
   final VoidCallback? onPressed;
-  final Widget child;
+  final Widget? child;
+  final String? text;
+  final IconData? prefixIcon;
+  final IconData? suffixIcon;
   final bool isLoading;
   final bool isOutlined;
   final double? width;
@@ -15,20 +22,25 @@ class CustomButton extends StatefulWidget {
   final Color? foregroundColor;
   final BorderRadius? borderRadius;
   final EdgeInsets? padding;
+  final bool enableGlow;
 
   const CustomButton({
     super.key,
     required this.onPressed,
-    required this.child,
+    this.child,
+    this.text,
+    this.prefixIcon,
+    this.suffixIcon,
     this.isLoading = false,
     this.isOutlined = false,
     this.width,
-    this.height = 56,
+    this.height = 60, // Bubble style - 56px → 60px
     this.backgroundColor,
     this.foregroundColor,
     this.borderRadius,
     this.padding,
-  });
+    this.enableGlow = true,
+  }) : assert(child != null || text != null, 'Either child or text must be provided');
 
   @override
   State<CustomButton> createState() => _CustomButtonState();
@@ -46,7 +58,7 @@ class _CustomButtonState extends State<CustomButton>
       duration: const Duration(milliseconds: 150),
       vsync: this,
     );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.96).animate(
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.97).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
   }
@@ -74,7 +86,8 @@ class _CustomButtonState extends State<CustomButton>
 
   @override
   Widget build(BuildContext context) {
-    final radius = widget.borderRadius ?? BorderRadius.circular(16);
+    final radius = widget.borderRadius ?? BorderRadius.circular(20); // Bubble style - 더 둥글게
+    final isEnabled = widget.onPressed != null && !widget.isLoading;
 
     return GestureDetector(
       onTapDown: _onTapDown,
@@ -85,79 +98,130 @@ class _CustomButtonState extends State<CustomButton>
         builder: (context, child) {
           return Transform.scale(
             scale: _scaleAnimation.value,
-            child: child,
-          );
-        },
-        child: Container(
-          width: widget.width ?? double.infinity,
-          height: widget.height,
-          decoration: BoxDecoration(
-            color: widget.isOutlined
-                ? Colors.transparent
-                : (widget.onPressed != null
-                    ? (widget.backgroundColor ?? AppColors.primary)
-                    : AppColors.border),
-            borderRadius: radius,
-            border: widget.isOutlined
-                ? Border.all(
-                    color: widget.onPressed != null
+            child: Container(
+              width: widget.width ?? double.infinity,
+              height: widget.height,
+              decoration: BoxDecoration(
+                color: widget.isOutlined
+                    ? Colors.transparent
+                    : (isEnabled
                         ? (widget.backgroundColor ?? AppColors.primary)
-                        : AppColors.border,
-                    width: 1.5,
-                  )
-                : null,
-          ),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: widget.isLoading ? null : widget.onPressed,
-              borderRadius: radius,
-              child: Padding(
-                padding: widget.padding ??
-                    const EdgeInsets.symmetric(horizontal: 24),
-                child: Center(
-                  child: widget.isLoading
-                      ? SizedBox(
-                          width: 22,
-                          height: 22,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2.5,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              widget.isOutlined
-                                  ? AppColors.primary
-                                  : Colors.white,
+                        : AppColors.disabled),
+                borderRadius: radius,
+                border: widget.isOutlined
+                    ? Border.all(
+                        color: isEnabled
+                            ? (widget.backgroundColor ?? AppColors.primary)
+                            : AppColors.disabled,
+                        width: 1.5,
+                      )
+                    : null,
+                boxShadow: !widget.isOutlined && isEnabled && widget.enableGlow
+                    ? AppColors.glowShadow(
+                        widget.backgroundColor ?? AppColors.primary,
+                        opacity: 0.20,
+                      )
+                    : null,
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: widget.isLoading ? null : widget.onPressed,
+                  borderRadius: radius,
+                  splashColor: widget.isOutlined
+                      ? AppColors.primary.withValues(alpha: 0.1)
+                      : Colors.white.withValues(alpha: 0.1),
+                  highlightColor: widget.isOutlined
+                      ? AppColors.primary.withValues(alpha: 0.05)
+                      : Colors.white.withValues(alpha: 0.05),
+                  child: Padding(
+                    padding: widget.padding ??
+                        const EdgeInsets.symmetric(horizontal: 28), // 더 넓게
+                    child: Center(
+                      child: widget.isLoading
+                          ? SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.5,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  widget.isOutlined
+                                      ? AppColors.primary
+                                      : Colors.white,
+                                ),
+                              ),
+                            )
+                          : DefaultTextStyle(
+                              style: TextStyle(
+                                color: widget.isOutlined
+                                    ? (widget.foregroundColor ?? AppColors.primary)
+                                    : (widget.foregroundColor ?? Colors.white),
+                                fontSize: 17, // Bubble style - 더 크게
+                                fontWeight: FontWeight.w700,
+                                fontFamily: 'Pretendard',
+                                letterSpacing: -0.2,
+                              ),
+                              child: widget.child ??
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      if (widget.prefixIcon != null) ...[
+                                        Icon(
+                                          widget.prefixIcon,
+                                          size: 20,
+                                          color: widget.isOutlined
+                                              ? (widget.foregroundColor ?? AppColors.primary)
+                                              : (widget.foregroundColor ?? Colors.white),
+                                        ),
+                                        const SizedBox(width: 8),
+                                      ],
+                                      Flexible(
+                                        child: Text(
+                                          widget.text!,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      if (widget.suffixIcon != null) ...[
+                                        const SizedBox(width: 8),
+                                        Icon(
+                                          widget.suffixIcon,
+                                          size: 20,
+                                          color: widget.isOutlined
+                                              ? (widget.foregroundColor ?? AppColors.primary)
+                                              : (widget.foregroundColor ?? Colors.white),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
                             ),
-                          ),
-                        )
-                      : DefaultTextStyle(
-                          style: TextStyle(
-                            color: widget.isOutlined
-                                ? (widget.foregroundColor ?? AppColors.primary)
-                                : (widget.foregroundColor ?? Colors.white),
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            fontFamily: 'Pretendard',
-                          ),
-                          child: widget.child,
-                        ),
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
 }
 
-/// 그라데이션 버튼 (프리미엄 느낌)
+// ============================================
+// 🌟 GradientButton (Premium CTA)
+// ============================================
 class GradientButton extends StatefulWidget {
   final VoidCallback? onPressed;
-  final Widget child;
+  final Widget? child;
+  final String? text;
+  final IconData? prefixIcon;
+  final IconData? suffixIcon;
   final bool isLoading;
   final double? width;
   final double height;
-  final Gradient gradient;
+  final Gradient? gradient;
+  final Color? foregroundColor;
   final BorderRadius? borderRadius;
   final bool enableGlow;
   final bool enableHaptic;
@@ -165,15 +229,19 @@ class GradientButton extends StatefulWidget {
   const GradientButton({
     super.key,
     required this.onPressed,
-    required this.child,
+    this.child,
+    this.text,
+    this.prefixIcon,
+    this.suffixIcon,
     this.isLoading = false,
     this.width,
-    this.height = 56,
-    this.gradient = AppColors.primaryGradient,
+    this.height = 60,
+    this.gradient, // CTA gradient 사용
+    this.foregroundColor,
     this.borderRadius,
     this.enableGlow = true,
     this.enableHaptic = true,
-  });
+  }) : assert(child != null || text != null, 'Either child or text must be provided');
 
   @override
   State<GradientButton> createState() => _GradientButtonState();
@@ -192,10 +260,10 @@ class _GradientButtonState extends State<GradientButton>
       duration: const Duration(milliseconds: 150),
       vsync: this,
     );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.96).animate(
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.97).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
-    _glowAnimation = Tween<double>(begin: 0.25, end: 0.5).animate(
+    _glowAnimation = Tween<double>(begin: 0.20, end: 0.35).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
   }
@@ -210,7 +278,7 @@ class _GradientButtonState extends State<GradientButton>
     if (widget.onPressed != null && !widget.isLoading) {
       _controller.forward();
       if (widget.enableHaptic) {
-        HapticFeedback.lightImpact();
+        HapticFeedback.mediumImpact();
       }
     }
   }
@@ -225,7 +293,7 @@ class _GradientButtonState extends State<GradientButton>
 
   @override
   Widget build(BuildContext context) {
-    final radius = widget.borderRadius ?? BorderRadius.circular(16);
+    final radius = widget.borderRadius ?? BorderRadius.circular(20);
     final isEnabled = widget.onPressed != null && !widget.isLoading;
 
     return GestureDetector(
@@ -241,16 +309,16 @@ class _GradientButtonState extends State<GradientButton>
               width: widget.width ?? double.infinity,
               height: widget.height,
               decoration: BoxDecoration(
-                gradient: isEnabled ? widget.gradient : null,
-                color: isEnabled ? null : AppColors.border,
+                gradient: isEnabled ? (widget.gradient ?? AppColors.ctaGradient) : null,
+                color: isEnabled ? null : AppColors.disabled,
                 borderRadius: radius,
                 boxShadow: isEnabled && widget.enableGlow
                     ? [
                         BoxShadow(
-                          color: AppColors.primary
+                          color: AppColors.primaryDark
                               .withValues(alpha: _glowAnimation.value),
-                          blurRadius: 20,
-                          offset: const Offset(0, 8),
+                          blurRadius: 28,
+                          offset: const Offset(0, 10),
                           spreadRadius: -4,
                         ),
                       ]
@@ -261,13 +329,13 @@ class _GradientButtonState extends State<GradientButton>
                 child: InkWell(
                   onTap: widget.isLoading ? null : widget.onPressed,
                   borderRadius: radius,
-                  splashColor: Colors.white24,
-                  highlightColor: Colors.white10,
+                  splashColor: Colors.white.withValues(alpha: 0.2),
+                  highlightColor: Colors.white.withValues(alpha: 0.1),
                   child: Center(
                     child: widget.isLoading
                         ? const SizedBox(
-                            width: 22,
-                            height: 22,
+                            width: 24,
+                            height: 24,
                             child: CircularProgressIndicator(
                               strokeWidth: 2.5,
                               valueColor:
@@ -275,14 +343,43 @@ class _GradientButtonState extends State<GradientButton>
                             ),
                           )
                         : DefaultTextStyle(
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
+                            style: TextStyle(
+                              color: widget.foregroundColor ?? Colors.white,
+                              fontSize: 17,
+                              fontWeight: FontWeight.w800,
                               fontFamily: 'Pretendard',
                               letterSpacing: -0.2,
                             ),
-                            child: widget.child,
+                            child: widget.child ??
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    if (widget.prefixIcon != null) ...[
+                                      Icon(
+                                        widget.prefixIcon,
+                                        size: 20,
+                                        color: widget.foregroundColor ?? Colors.white,
+                                      ),
+                                      const SizedBox(width: 8),
+                                    ],
+                                    Flexible(
+                                      child: Text(
+                                        widget.text!,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    if (widget.suffixIcon != null) ...[
+                                      const SizedBox(width: 8),
+                                      Icon(
+                                        widget.suffixIcon,
+                                        size: 20,
+                                        color: widget.foregroundColor ?? Colors.white,
+                                      ),
+                                    ],
+                                  ],
+                                ),
                           ),
                   ),
                 ),
@@ -295,7 +392,9 @@ class _GradientButtonState extends State<GradientButton>
   }
 }
 
-/// 아이콘 버튼 (원형)
+// ============================================
+// ⭕ CircleIconButton (아이콘 버튼)
+// ============================================
 class CircleIconButton extends StatefulWidget {
   final VoidCallback? onPressed;
   final IconData icon;
@@ -309,7 +408,7 @@ class CircleIconButton extends StatefulWidget {
     super.key,
     required this.onPressed,
     required this.icon,
-    this.size = 48,
+    this.size = 52, // Bubble style - 48px → 52px
     this.backgroundColor,
     this.iconColor,
     this.hasShadow = false,
@@ -332,7 +431,7 @@ class _CircleIconButtonState extends State<CircleIconButton>
       duration: const Duration(milliseconds: 100),
       vsync: this,
     );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.9).animate(
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.92).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
   }
@@ -371,7 +470,7 @@ class _CircleIconButtonState extends State<CircleIconButton>
             border: widget.hasBorder
                 ? Border.all(color: AppColors.border, width: 1)
                 : null,
-            boxShadow: widget.hasShadow ? AppColors.cardShadow() : null,
+            boxShadow: widget.hasShadow ? AppColors.softShadow() : null,
           ),
           child: Material(
             color: Colors.transparent,
@@ -380,7 +479,7 @@ class _CircleIconButtonState extends State<CircleIconButton>
               borderRadius: BorderRadius.circular(widget.size / 2),
               child: Icon(
                 widget.icon,
-                size: widget.size * 0.5,
+                size: widget.size * 0.45,
                 color: widget.iconColor ?? AppColors.textPrimary,
               ),
             ),
@@ -391,7 +490,9 @@ class _CircleIconButtonState extends State<CircleIconButton>
   }
 }
 
-/// 소셜 로그인 버튼
+// ============================================
+// 🔑 SocialButton (소셜 로그인)
+// ============================================
 class SocialButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final String label;
@@ -417,7 +518,7 @@ class SocialButton extends StatelessWidget {
     return SocialButton(
       onPressed: onPressed,
       label: '카카오로 계속하기',
-      icon: const Text('💬', style: TextStyle(fontSize: 20)),
+      icon: const Text('💬', style: TextStyle(fontSize: 22)),
       backgroundColor: AppColors.kakao,
       textColor: const Color(0xFF381E1F),
       isLoading: isLoading,
@@ -433,7 +534,7 @@ class SocialButton extends StatelessWidget {
       label: '네이버로 계속하기',
       icon: const Text('N',
           style: TextStyle(
-              fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
+              fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
       backgroundColor: AppColors.naver,
       textColor: Colors.white,
       isLoading: isLoading,
@@ -449,9 +550,9 @@ class SocialButton extends StatelessWidget {
       label: 'Google로 계속하기',
       icon: const Text('G',
           style: TextStyle(
-              fontSize: 20,
+              fontSize: 22,
               fontWeight: FontWeight.bold,
-              color: AppColors.google)),
+              color: AppColors.textPrimary)),
       backgroundColor: Colors.white,
       textColor: AppColors.textPrimary,
       isLoading: isLoading,
@@ -465,7 +566,7 @@ class SocialButton extends StatelessWidget {
     return SocialButton(
       onPressed: onPressed,
       label: 'Apple로 계속하기',
-      icon: const Icon(Icons.apple, size: 24, color: Colors.white),
+      icon: const Icon(Icons.apple, size: 26, color: Colors.white),
       backgroundColor: AppColors.apple,
       textColor: Colors.white,
       isLoading: isLoading,
@@ -476,31 +577,32 @@ class SocialButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: 56,
+      height: 60, // Bubble style
       decoration: BoxDecoration(
         color: backgroundColor,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20), // 더 둥글게
         border: backgroundColor == Colors.white
-            ? Border.all(color: AppColors.border)
+            ? Border.all(color: AppColors.border, width: 1.5)
             : null,
+        boxShadow: AppColors.softShadow(opacity: 0.03),
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: isLoading ? null : onPressed,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(20),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Row(
               children: [
                 SizedBox(width: 32, child: Center(child: icon)),
-                const SizedBox(width: 12),
+                const SizedBox(width: 16),
                 Expanded(
                   child: isLoading
                       ? Center(
                           child: SizedBox(
-                            width: 22,
-                            height: 22,
+                            width: 24,
+                            height: 24,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
                               valueColor:
@@ -513,13 +615,14 @@ class SocialButton extends StatelessWidget {
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: textColor,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
                             fontFamily: 'Pretendard',
+                            letterSpacing: -0.2,
                           ),
                         ),
                 ),
-                const SizedBox(width: 44),
+                const SizedBox(width: 48),
               ],
             ),
           ),
@@ -529,7 +632,9 @@ class SocialButton extends StatelessWidget {
   }
 }
 
-/// 칩 버튼 (태그, 필터용)
+// ============================================
+// 🏷️ ChipButton (필터/태그)
+// ============================================
 class ChipButton extends StatelessWidget {
   final String label;
   final bool isSelected;
@@ -558,15 +663,15 @@ class ChipButton extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: EdgeInsets.symmetric(
-          horizontal: icon != null ? 12 : 16,
-          vertical: 10,
+          horizontal: icon != null ? 14 : 18,
+          vertical: 12,
         ),
         decoration: BoxDecoration(
           color: isSelected ? color : AppColors.backgroundAlt,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16), // Bubble style
           border: Border.all(
             color: isSelected ? color : AppColors.border,
-            width: 1,
+            width: isSelected ? 1.5 : 1,
           ),
         ),
         child: Row(
@@ -584,9 +689,10 @@ class ChipButton extends StatelessWidget {
               label,
               style: TextStyle(
                 color: isSelected ? Colors.white : AppColors.textPrimary,
-                fontSize: 13,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                fontSize: 14,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
                 fontFamily: 'Pretendard',
+                letterSpacing: -0.1,
               ),
             ),
           ],

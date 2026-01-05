@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'activity_stats.dart';
 
 /// 아이돌 카테고리
 enum IdolCategory {
@@ -60,6 +61,9 @@ class IdolModel extends Equatable {
   final int monthlyRanking;
   final double rating;
 
+  // 활동 통계 (컨텐츠 생산 독려용)
+  final ActivityStats? activityStats;
+
   // 갤러리
   final List<String> galleryImages;
 
@@ -112,6 +116,7 @@ class IdolModel extends Equatable {
     this.ranking = 0,
     this.monthlyRanking = 0,
     this.rating = 0.0,
+    this.activityStats,
     this.galleryImages = const [],
     this.offersMealDate = false,
     this.offersCafeDate = false,

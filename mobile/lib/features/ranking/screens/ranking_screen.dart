@@ -12,9 +12,9 @@ class RankingScreen extends ConsumerWidget {
 
   String _formatNumber(int number) {
     return number.toString().replaceAllMapped(
-          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-          (Match m) => '${m[1]},',
-        );
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]},',
+    );
   }
 
   @override
@@ -26,39 +26,48 @@ class RankingScreen extends ConsumerWidget {
       ..sort((a, b) => b.totalSupport.compareTo(a.totalSupport));
 
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text('랭킹', style: TextStyle(fontSize: Responsive.sp(18))),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        title: Text(
+          '랭킹',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+            color: AppColors.textPrimary,
+          ),
+        ),
       ),
       body: CustomScrollView(
         slivers: [
           // Top 3 Section
           SliverToBoxAdapter(
             child: Container(
+              color: Colors.white,
               padding: EdgeInsets.all(Responsive.wp(6)),
-              decoration: const BoxDecoration(
-                gradient: AppColors.primaryGradient,
-              ),
+              margin: EdgeInsets.only(bottom: Responsive.wp(4)),
               child: Column(
                 children: [
                   Text(
                     '이번 달 TOP 3',
                     style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: Responsive.sp(20),
+                      fontWeight: FontWeight.w700,
+                      fontSize: 20,
+                      color: AppColors.textPrimary,
                     ),
                   ),
-                  SizedBox(height: Responsive.hp(3)),
+                  const SizedBox(height: 24),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       if (sortedIdols.length > 1)
-                        _buildTopRanker(context, 2, 'Silver', sortedIdols[1]),
+                        _buildTopRanker(context, 2, sortedIdols[1]),
                       if (sortedIdols.isNotEmpty)
-                        _buildTopRanker(context, 1, 'Gold', sortedIdols[0]),
+                        _buildTopRanker(context, 1, sortedIdols[0]),
                       if (sortedIdols.length > 2)
-                        _buildTopRanker(context, 3, 'Bronze', sortedIdols[2]),
+                        _buildTopRanker(context, 3, sortedIdols[2]),
                     ],
                   ),
                 ],
@@ -68,7 +77,7 @@ class RankingScreen extends ConsumerWidget {
 
           // Rest of Rankings
           SliverPadding(
-            padding: EdgeInsets.all(Responsive.wp(4)),
+            padding: EdgeInsets.symmetric(horizontal: Responsive.wp(6)),
             sliver: SliverList(
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
@@ -80,27 +89,22 @@ class RankingScreen extends ConsumerWidget {
               ),
             ),
           ),
+          const SliverToBoxAdapter(child: SizedBox(height: 24)),
         ],
       ),
     );
   }
 
-  Widget _buildTopRanker(
-      BuildContext context, int rank, String tier, IdolModel idol) {
+  Widget _buildTopRanker(BuildContext context, int rank, IdolModel idol) {
     final colors = {
-      'Gold': AppColors.gold,
-      'Silver': AppColors.silver,
-      'Bronze': AppColors.bronze,
+      1: AppColors.gold,
+      2: AppColors.silver,
+      3: AppColors.bronze,
     };
     final sizes = {
-      1: Responsive.wp(24),
-      2: Responsive.wp(20),
-      3: Responsive.wp(20)
-    };
-    final heights = {
-      1: Responsive.hp(14),
-      2: Responsive.hp(10),
-      3: Responsive.hp(10)
+      1: 90.0,
+      2: 70.0,
+      3: 70.0,
     };
 
     return GestureDetector(
@@ -108,73 +112,77 @@ class RankingScreen extends ConsumerWidget {
       child: Column(
         children: [
           Container(
+            width: sizes[rank],
+            height: sizes[rank],
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color: colors[tier]!,
+                color: colors[rank]!,
                 width: 3,
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: colors[tier]!.withValues(alpha: 0.3),
-                  blurRadius: 12,
-                  spreadRadius: 2,
-                ),
-              ],
             ),
-            child: CircleAvatar(
-              radius: (sizes[rank]! - 6) / 2,
-              backgroundColor: Colors.white,
-              backgroundImage: CachedNetworkImageProvider(idol.profileImage),
+            child: ClipOval(
+              child: CachedNetworkImage(
+                imageUrl: idol.profileImage,
+                fit: BoxFit.cover,
+                placeholder: (context, url) => Container(
+                  color: Color(int.parse(idol.imageColor ?? "0xFF000000")),
+                ),
+                errorWidget: (context, url, error) => Container(
+                  color: Color(int.parse(idol.imageColor ?? "0xFF000000")),
+                  child: const Icon(Icons.person, color: Colors.white),
+                ),
+              ),
             ),
           ),
-          SizedBox(height: Responsive.hp(1)),
+          const SizedBox(height: 8),
           Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: Responsive.wp(3),
-              vertical: Responsive.hp(0.5),
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             decoration: BoxDecoration(
-              color: colors[tier],
+              color: colors[rank],
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
               '#$rank',
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: Responsive.sp(12),
+                fontWeight: FontWeight.w700,
+                fontSize: 12,
               ),
             ),
           ),
-          SizedBox(height: Responsive.hp(1)),
+          const SizedBox(height: 8),
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
                 idol.stageName,
                 style: TextStyle(
-                  color: Colors.white,
                   fontWeight: FontWeight.w600,
-                  fontSize: Responsive.sp(14),
+                  fontSize: 15,
+                  color: AppColors.textPrimary,
                 ),
               ),
               if (idol.isVerified) ...[
-                SizedBox(width: Responsive.wp(1)),
-                Icon(Icons.verified,
-                    color: Colors.white, size: Responsive.sp(14)),
+                const SizedBox(width: 4),
+                Icon(
+                  Icons.verified,
+                  color: AppColors.primary,
+                  size: 16,
+                ),
               ],
             ],
           ),
-          SizedBox(height: Responsive.hp(0.5)),
+          const SizedBox(height: 8.0),
           Text(
             '${_formatNumber(idol.totalSupport)} P',
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.8),
-              fontSize: Responsive.sp(12),
+              fontSize: 13,
+              color: AppColors.textSecondary,
             ),
           ),
-          SizedBox(height: heights[rank]! - Responsive.hp(10)),
+          if (rank == 1) const SizedBox(height: 20),
+          if (rank != 1) const SizedBox(height: 12.0),
         ],
       ),
     );
@@ -182,62 +190,86 @@ class RankingScreen extends ConsumerWidget {
 
   Widget _buildRankingItem(BuildContext context, int rank, IdolModel idol) {
     return Container(
-      margin: EdgeInsets.only(bottom: Responsive.hp(1.5)),
-      padding: EdgeInsets.all(Responsive.wp(4)),
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: AppColors.cardShadow(opacity: 0.05),
+        border: Border.all(color: AppColors.border),
       ),
       child: InkWell(
         onTap: () => context.go('/idols/${idol.id}'),
         child: Row(
           children: [
             SizedBox(
-              width: Responsive.wp(10),
+              width: 40,
               child: Text(
                 '#$rank',
                 style: TextStyle(
-                  fontSize: Responsive.sp(18),
-                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
                   color: AppColors.textSecondary,
                 ),
                 textAlign: TextAlign.center,
               ),
             ),
-            SizedBox(width: Responsive.wp(3)),
-            CircleAvatar(
-              radius: Responsive.wp(6),
-              backgroundImage: CachedNetworkImageProvider(idol.profileImage),
+            const SizedBox(width: 12),
+            Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.border),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: CachedNetworkImage(
+                  imageUrl: idol.profileImage,
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) => Container(
+                    color: Color(int.parse(idol.imageColor ?? "0xFF000000")),
+                  ),
+                  errorWidget: (context, url, error) => Container(
+                    color: Color(int.parse(idol.imageColor ?? "0xFF000000")),
+                    child: const Icon(Icons.person, color: Colors.white),
+                  ),
+                ),
+              ),
             ),
-            SizedBox(width: Responsive.wp(4)),
+            const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
-                      Text(
-                        idol.stageName,
-                        style: TextStyle(
-                          fontSize: Responsive.sp(16),
-                          fontWeight: FontWeight.bold,
+                      Flexible(
+                        child: Text(
+                          idol.stageName,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.textPrimary,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       if (idol.isVerified) ...[
-                        SizedBox(width: Responsive.wp(1)),
+                        const SizedBox(width: 4),
                         Icon(
                           Icons.verified,
-                          size: Responsive.sp(16),
+                          size: 16,
                           color: AppColors.primary,
                         ),
                       ],
                     ],
                   ),
+                  const SizedBox(height: 8.0),
                   Text(
                     idol.agencyName ?? '개인',
                     style: TextStyle(
-                      fontSize: Responsive.sp(12),
+                      fontSize: 13,
                       color: AppColors.textSecondary,
                     ),
                   ),
@@ -250,16 +282,17 @@ class RankingScreen extends ConsumerWidget {
                 Text(
                   _formatNumber(idol.totalSupport),
                   style: TextStyle(
-                    fontSize: Responsive.sp(16),
-                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
                     color: AppColors.primary,
                   ),
                 ),
+                const SizedBox(height: 8.0),
                 Text(
                   'Point',
                   style: TextStyle(
-                    fontSize: Responsive.sp(10),
-                    color: AppColors.textHint,
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
                   ),
                 ),
               ],

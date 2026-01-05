@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
+import '../../../core/utils/format_utils.dart';
 import '../../../shared/widgets/custom_button.dart';
 
 class IdolRegistrationScreen extends ConsumerStatefulWidget {
@@ -160,7 +161,27 @@ class _IdolRegistrationScreenState extends ConsumerState<IdolRegistrationScreen>
       case 3:
         return _buildCompletionStep();
       default:
-        return const SizedBox();
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.error_outline,
+                size: 48,
+                color: AppColors.error,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                '잘못된 단계입니다',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+            ],
+          ),
+        );
     }
   }
 
@@ -541,11 +562,11 @@ class _IdolRegistrationScreenState extends ConsumerState<IdolRegistrationScreen>
               _buildSummaryRow('카테고리', _getCategoryName(_selectedCategory)),
               _buildSummaryRow('이메일', _emailController.text),
               if (_offersMealDate)
-                _buildSummaryRow('식사 데이트권', '${_formatCurrency(_mealDatePrice)}원'),
+                _buildSummaryRow('식사 데이트권', '${FormatUtils.formatNumber(_mealDatePrice)}원'),
               if (_offersCafeDate)
-                _buildSummaryRow('카페 데이트권', '${_formatCurrency(_cafeDatePrice)}원'),
+                _buildSummaryRow('카페 데이트권', '${FormatUtils.formatNumber(_cafeDatePrice)}원'),
               if (_hasBubble)
-                _buildSummaryRow('버블 구독', '월 ${_formatCurrency(_bubblePrice)}원'),
+                _buildSummaryRow('버블 구독', '월 ${FormatUtils.formatNumber(_bubblePrice)}원'),
             ],
           ),
         ),
@@ -843,7 +864,7 @@ class _IdolRegistrationScreenState extends ConsumerState<IdolRegistrationScreen>
               ),
             ),
             Text(
-              '${_formatCurrency(value)}원',
+              '${FormatUtils.formatNumber(value)}원',
               style: TextStyle(
                 fontSize: Responsive.sp(16),
                 fontWeight: FontWeight.w700,
@@ -999,10 +1020,4 @@ class _IdolRegistrationScreenState extends ConsumerState<IdolRegistrationScreen>
     return names[category] ?? '기타';
   }
 
-  String _formatCurrency(int amount) {
-    return amount.toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]},',
-    );
-  }
 }

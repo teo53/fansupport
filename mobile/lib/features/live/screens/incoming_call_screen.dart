@@ -31,7 +31,7 @@ class IncomingCallScreen extends StatelessWidget {
           CachedNetworkImage(
             imageUrl: idol.profileImage,
             fit: BoxFit.cover,
-            color: Colors.black.withOpacity(0.8),
+            color: Colors.black.withValues(alpha: 0.8),
             colorBlendMode: BlendMode.darken,
           ),
 
@@ -135,7 +135,7 @@ class IncomingCallScreen extends StatelessWidget {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                    color: color.withOpacity(0.4),
+                    color: color.withValues(alpha: 0.4),
                     blurRadius: 15,
                     spreadRadius: 2),
               ],

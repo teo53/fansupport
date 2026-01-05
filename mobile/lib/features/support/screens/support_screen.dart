@@ -39,9 +39,9 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
       borderRadius: BorderRadius.circular(12),
       child: Container(
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary.withOpacity(0.1) : Colors.white,
+          color: isSelected ? AppColors.primary.withValues(alpha: 0.1) : Colors.white,
           border: Border.all(
-            color: isSelected ? AppColors.primary : Colors.grey[300]!,
+            color: isSelected ? AppColors.primary : AppColors.border,
             width: isSelected ? 2 : 1,
           ),
           borderRadius: BorderRadius.circular(12),
@@ -54,7 +54,7 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
             Text(name,
                 style: TextStyle(
                     fontWeight: FontWeight.bold, fontSize: Responsive.sp(13))),
-            const SizedBox(height: 4),
+            const SizedBox(height: 8.0),
             Text('￦${_formatNumber(price)}',
                 style: TextStyle(
                     color: canAfford ? Colors.black54 : Colors.red,
@@ -120,7 +120,7 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
                       backgroundImage: idol != null
                           ? CachedNetworkImageProvider(idol['profileImage'])
                           : null,
-                      backgroundColor: AppColors.primary.withOpacity(0.1),
+                      backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                     ),
                     SizedBox(width: Responsive.wp(4)),
                     Expanded(
@@ -341,7 +341,7 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
               width: Responsive.wp(20),
               height: Responsive.wp(20),
               decoration: BoxDecoration(
-                color: AppColors.success.withOpacity(0.1),
+                color: AppColors.success.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(Icons.check_circle,

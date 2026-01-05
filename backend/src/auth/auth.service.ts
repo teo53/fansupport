@@ -27,7 +27,24 @@ export class AuthService {
       throw new ConflictException('Email already exists');
     }
 
-    const hashedPassword = await bcrypt.hash(registerDto.password, 10);
+    // Validate age (must be 14+ for Korean law compliance)
+    const birthDate = new Date(registerDto.dateOfBirth);
+    const today = new Date();
+    const age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    const actualAge = monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate()) ? age - 1 : age;
+
+    if (actualAge < 14) {
+      throw new ConflictException('만 14세 이상만 가입할 수 있습니다 (청소년보호법)');
+    }
+
+    // Validate required consents
+    if (!registerDto.termsConsent || !registerDto.privacyConsent) {
+      throw new ConflictException('이용약관 및 개인정보처리방침 동의는 필수입니다');
+    }
+
+    // Increase bcrypt rounds from 10 to 12 for better security
+    const hashedPassword = await bcrypt.hash(registerDto.password, 12);
 
     const user = await this.prisma.user.create({
       data: {
@@ -35,6 +52,11 @@ export class AuthService {
         password: hashedPassword,
         nickname: registerDto.nickname,
         provider: AuthProvider.LOCAL,
+        dateOfBirth: birthDate,
+        age: actualAge,
+        termsConsentAt: new Date(),
+        privacyConsentAt: new Date(),
+        marketingConsentAt: registerDto.marketingConsent ? new Date() : null,
       },
     });
 

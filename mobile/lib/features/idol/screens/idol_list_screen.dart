@@ -5,6 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../core/mock/mock_data.dart';
+import '../../../shared/models/idol_model.dart';
 
 class IdolListScreen extends ConsumerStatefulWidget {
   const IdolListScreen({super.key});
@@ -13,91 +14,78 @@ class IdolListScreen extends ConsumerStatefulWidget {
   ConsumerState<IdolListScreen> createState() => _IdolListScreenState();
 }
 
-class _IdolListScreenState extends ConsumerState<IdolListScreen>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+class _IdolListScreenState extends ConsumerState<IdolListScreen> {
   final _searchController = TextEditingController();
   String _searchQuery = '';
-
-  final categories = [
-    ('전체', null),
-    ('지하 아이돌', 'UNDERGROUND_IDOL'),
-    ('메이드카페', 'MAID_CAFE'),
-    ('코스플레이어', 'COSPLAYER'),
-    ('VTuber', 'VTuber'),
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: categories.length, vsync: this);
-  }
+  IdolCategory? _selectedCategory;
 
   @override
   void dispose() {
-    _tabController.dispose();
     _searchController.dispose();
     super.dispose();
   }
 
-  List<Map<String, dynamic>> _filterIdols(String? category) {
-    var filtered = MockData.idols.where((idol) {
-      final matchesCategory = category == null || idol['category'] == category;
+  List<IdolModel> _getFilteredIdols() {
+    return MockData.idolModels.where((idol) {
+      final matchesCategory = _selectedCategory == null || idol.category == _selectedCategory;
       final matchesSearch = _searchQuery.isEmpty ||
-          idol['stageName'].toString().toLowerCase().contains(_searchQuery.toLowerCase());
+          idol.stageName.toLowerCase().contains(_searchQuery.toLowerCase());
       return matchesCategory && matchesSearch;
     }).toList();
-    return filtered;
   }
 
   @override
   Widget build(BuildContext context) {
     Responsive.init(context);
+    final filteredIdols = _getFilteredIdols();
 
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
         title: Text(
           '아이돌',
-          style: TextStyle(fontSize: Responsive.sp(18)),
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+            color: AppColors.textPrimary,
+          ),
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.leaderboard_outlined, size: Responsive.sp(24)),
+            icon: Icon(Icons.leaderboard_outlined, color: AppColors.textPrimary),
             onPressed: () => context.go('/ranking'),
           ),
         ],
-        bottom: TabBar(
-          controller: _tabController,
-          isScrollable: true,
-          labelColor: AppColors.primary,
-          unselectedLabelColor: AppColors.textSecondary,
-          indicatorColor: AppColors.primary,
-          labelStyle: TextStyle(fontSize: Responsive.sp(13)),
-          tabs: categories.map((c) => Tab(text: c.$1)).toList(),
-        ),
       ),
       body: Column(
         children: [
-          Padding(
-            padding: EdgeInsets.all(Responsive.wp(4)),
+          // Search Bar
+          Container(
+            color: Colors.white,
+            padding: EdgeInsets.all(Responsive.wp(6)),
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
                 hintText: '아이돌 검색',
-                hintStyle: TextStyle(fontSize: Responsive.sp(14)),
-                prefixIcon: Icon(Icons.search, size: Responsive.sp(22)),
-                filled: true,
-                fillColor: AppColors.inputBackground,
+                prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
+                  borderSide: BorderSide(color: AppColors.border),
                 ),
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: Responsive.wp(4),
-                  vertical: Responsive.hp(1.5),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: AppColors.border),
                 ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: AppColors.primary, width: 2),
+                ),
+                filled: true,
+                fillColor: AppColors.backgroundAlt,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               ),
-              style: TextStyle(fontSize: Responsive.sp(14)),
               onChanged: (value) {
                 setState(() {
                   _searchQuery = value;
@@ -105,10 +93,91 @@ class _IdolListScreenState extends ConsumerState<IdolListScreen>
               },
             ),
           ),
+
+          // Category Filter
+          Container(
+            color: Colors.white,
+            padding: EdgeInsets.only(
+              left: Responsive.wp(6),
+              right: Responsive.wp(6),
+              bottom: Responsive.wp(4),
+            ),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  _buildCategoryChip('전체', null),
+                  const SizedBox(width: 8),
+                  _buildCategoryChip('지하돌', IdolCategory.undergroundIdol),
+                  const SizedBox(width: 8),
+                  _buildCategoryChip('메이드 카페', IdolCategory.maidCafe),
+                  const SizedBox(width: 8),
+                  _buildCategoryChip('코스프레이어', IdolCategory.cosplayer),
+                  const SizedBox(width: 8),
+                  _buildCategoryChip('VTuber', IdolCategory.vtuber),
+                ],
+              ),
+            ),
+          ),
+
+          // Idol List
           Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: categories.map((c) => _buildIdolGrid(c.$2)).toList(),
+            child: filteredIdols.isEmpty
+                ? _buildEmptyState()
+                : ListView.builder(
+                    padding: EdgeInsets.all(Responsive.wp(6)),
+                    itemCount: filteredIdols.length,
+                    itemBuilder: (context, index) => _buildIdolCard(filteredIdols[index]),
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCategoryChip(String label, IdolCategory? category) {
+    final isSelected = _selectedCategory == category;
+    return FilterChip(
+      label: Text(label),
+      selected: isSelected,
+      onSelected: (selected) {
+        setState(() {
+          _selectedCategory = selected ? category : null;
+        });
+      },
+      backgroundColor: AppColors.backgroundAlt,
+      selectedColor: AppColors.primary.withValues(alpha: 0.1),
+      labelStyle: TextStyle(
+        color: isSelected ? AppColors.primary : AppColors.textSecondary,
+        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+        fontSize: 14,
+      ),
+      side: BorderSide(
+        color: isSelected ? AppColors.primary : AppColors.border,
+        width: isSelected ? 1.5 : 1,
+      ),
+      showCheckmark: false,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.search_off,
+            size: 64,
+            color: AppColors.textSecondary.withValues(alpha: 0.5),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            '검색 결과가 없습니다',
+            style: TextStyle(
+              fontSize: 16,
+              color: AppColors.textSecondary,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],
@@ -116,204 +185,92 @@ class _IdolListScreenState extends ConsumerState<IdolListScreen>
     );
   }
 
-  Widget _buildIdolGrid(String? category) {
-    final idols = _filterIdols(category);
-
-    if (idols.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.search_off,
-              size: Responsive.sp(48),
-              color: AppColors.textSecondary,
-            ),
-            SizedBox(height: Responsive.hp(2)),
-            Text(
-              '검색 결과가 없습니다',
-              style: TextStyle(
-                fontSize: Responsive.sp(16),
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return GridView.builder(
-      padding: EdgeInsets.symmetric(horizontal: Responsive.wp(4)),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        childAspectRatio: 0.72,
-        crossAxisSpacing: Responsive.wp(3),
-        mainAxisSpacing: Responsive.wp(3),
-      ),
-      itemCount: idols.length,
-      itemBuilder: (context, index) => _buildIdolCard(idols[index]),
-    );
-  }
-
-  Widget _buildIdolCard(Map<String, dynamic> idol) {
-    final categoryColors = {
-      'UNDERGROUND_IDOL': AppColors.primary,
-      'MAID_CAFE': AppColors.maidCategory,
-      'COSPLAYER': AppColors.cosplayerCategory,
-      'VTuber': AppColors.vtuberCategory,
-    };
-
-    final categoryNames = {
-      'UNDERGROUND_IDOL': '지하 아이돌',
-      'MAID_CAFE': '메이드카페',
-      'COSPLAYER': '코스플레이어',
-      'VTuber': 'VTuber',
-    };
-
-    final color = categoryColors[idol['category']] ?? AppColors.primary;
-
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      elevation: 4,
-      shape: RoundedRectangleBorder(
+  Widget _buildIdolCard(IdolModel idol) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border, width: 1),
       ),
       child: InkWell(
-        onTap: () => context.go('/idols/${idol['id']}'),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
-              flex: 3,
-              child: Stack(
-                children: [
-                  CachedNetworkImage(
-                    imageUrl: idol['profileImage'],
-                    width: double.infinity,
-                    height: double.infinity,
+        onTap: () => context.go('/idols/${idol.id}'),
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              // Profile Image
+              Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  color: Color(int.parse(idol.imageColor ?? "0xFF000000")),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: CachedNetworkImage(
+                    imageUrl: idol.profileImage,
                     fit: BoxFit.cover,
                     placeholder: (context, url) => Container(
-                      color: color.withOpacity(0.2),
-                      child: Center(
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: color,
-                        ),
-                      ),
+                      color: Color(int.parse(idol.imageColor ?? "0xFF000000")),
                     ),
                     errorWidget: (context, url, error) => Container(
-                      color: color.withOpacity(0.2),
-                      child: Icon(Icons.person, size: 50, color: color),
+                      color: Color(int.parse(idol.imageColor ?? "0xFF000000")),
+                      child: const Icon(Icons.person, color: Colors.white, size: 40),
                     ),
                   ),
-                  Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.transparent,
-                          Colors.black.withOpacity(0.3),
-                        ],
-                      ),
-                    ),
-                  ),
-                  if (idol['ranking'] <= 3)
-                    Positioned(
-                      top: Responsive.wp(2),
-                      left: Responsive.wp(2),
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: Responsive.wp(2),
-                          vertical: Responsive.hp(0.5),
-                        ),
-                        decoration: BoxDecoration(
-                          color: [
-                            AppColors.gold,
-                            AppColors.silver,
-                            AppColors.bronze
-                          ][idol['ranking'] - 1],
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          '#${idol['ranking']}',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: Responsive.sp(11),
-                          ),
-                        ),
-                      ),
-                    ),
-                  Positioned(
-                    top: Responsive.wp(2),
-                    right: Responsive.wp(2),
-                    child: Container(
-                      padding: EdgeInsets.all(Responsive.wp(1.5)),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.9),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.favorite_border,
-                        size: Responsive.sp(18),
-                        color: AppColors.primary,
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
-            Expanded(
-              flex: 2,
-              child: Padding(
-                padding: EdgeInsets.all(Responsive.wp(3)),
+              const SizedBox(width: 16),
+
+              // Info
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
-                        Expanded(
+                        Flexible(
                           child: Text(
-                            idol['stageName'],
+                            idol.stageName,
                             style: TextStyle(
-                              fontSize: Responsive.sp(14),
-                              fontWeight: FontWeight.w600,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.textPrimary,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        if (idol['isVerified'])
+                        if (idol.isVerified) ...[
+                          const SizedBox(width: 4),
                           Icon(
                             Icons.verified,
-                            size: Responsive.sp(14),
+                            size: 18,
                             color: AppColors.primary,
                           ),
+                        ],
                       ],
                     ),
-                    SizedBox(height: Responsive.hp(0.5)),
+                    const SizedBox(height: 8.0),
                     Text(
-                      categoryNames[idol['category']] ?? '기타',
+                      _getCategoryText(idol.category),
                       style: TextStyle(
-                        fontSize: Responsive.sp(12),
-                        color: color,
-                        fontWeight: FontWeight.w500,
+                        fontSize: 14,
+                        color: AppColors.textSecondary,
                       ),
                     ),
-                    const Spacer(),
+                    const SizedBox(height: 8),
                     Row(
                       children: [
-                        Icon(
-                          Icons.people_outline,
-                          size: Responsive.sp(14),
-                          color: AppColors.textSecondary,
-                        ),
-                        SizedBox(width: Responsive.wp(1)),
+                        Icon(Icons.favorite, size: 14, color: AppColors.textSecondary),
+                        const SizedBox(width: 4),
                         Text(
-                          '${idol['supporterCount']}명',
+                          '${_formatNumber(idol.supporterCount)} 서포터',
                           style: TextStyle(
-                            fontSize: Responsive.sp(12),
+                            fontSize: 13,
                             color: AppColors.textSecondary,
                           ),
                         ),
@@ -322,10 +279,42 @@ class _IdolListScreenState extends ConsumerState<IdolListScreen>
                   ],
                 ),
               ),
-            ),
-          ],
+
+              // Arrow
+              Icon(
+                Icons.arrow_forward_ios,
+                size: 16,
+                color: AppColors.textSecondary,
+              ),
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  String _getCategoryText(IdolCategory category) {
+    switch (category) {
+      case IdolCategory.undergroundIdol:
+        return '지하돌';
+      case IdolCategory.maidCafe:
+        return '메이드 카페';
+      case IdolCategory.cosplayer:
+        return '코스프레이어';
+      case IdolCategory.vtuber:
+      case IdolCategory.streamer:
+        return '스트리머';
+        return 'VTuber';
+        return '기타';
+    }
+  }
+
+  String _formatNumber(int number) {
+    if (number >= 1000000) {
+      return '${(number / 1000000).toStringAsFixed(1)}M';
+    } else if (number >= 1000) {
+      return '${(number / 1000).toStringAsFixed(1)}K';
+    }
+    return number.toString();
   }
 }
