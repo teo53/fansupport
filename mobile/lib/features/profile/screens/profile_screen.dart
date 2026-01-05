@@ -217,6 +217,93 @@ class ProfileScreen extends ConsumerWidget {
             ),
             SizedBox(height: Responsive.wp(6)),
 
+            // Menu List - Creator/Agency Management
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: Responsive.wp(6)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        '크리에이터/소속사',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: AppColors.primarySoft,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          'PRO',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          AppColors.primary.withOpacity(0.1),
+                          AppColors.primaryLight.withOpacity(0.05),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppColors.primary.withOpacity(0.3), width: 2),
+                    ),
+                    child: Column(
+                      children: [
+                        _buildMenuItem(
+                          context,
+                          icon: Icons.dashboard_outlined,
+                          title: '소속사 대시보드',
+                          subtitle: '소속 크리에이터 관리',
+                          onTap: () => context.go('/agency'),
+                          iconColor: AppColors.primary,
+                        ),
+                        Divider(height: 1, color: AppColors.border),
+                        _buildMenuItem(
+                          context,
+                          icon: Icons.person_add_outlined,
+                          title: '크리에이터 등록',
+                          subtitle: '새로운 크리에이터 추가',
+                          onTap: () => context.go('/crm/register-idol'),
+                          iconColor: AppColors.primary,
+                        ),
+                        Divider(height: 1, color: AppColors.border),
+                        _buildMenuItem(
+                          context,
+                          icon: Icons.analytics_outlined,
+                          title: '내 크리에이터 페이지',
+                          subtitle: '활동 통계 및 관리',
+                          onTap: () {
+                            // TODO: Navigate to idol dashboard with current user's idol profile
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('크리에이터 프로필이 필요합니다')),
+                            );
+                          },
+                          iconColor: AppColors.primary,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: Responsive.wp(6)),
+
             // Menu List - Settings
             Padding(
               padding: EdgeInsets.symmetric(horizontal: Responsive.wp(6)),
@@ -341,8 +428,10 @@ class ProfileScreen extends ConsumerWidget {
     BuildContext context, {
     required IconData icon,
     required String title,
+    String? subtitle,
     Widget? trailing,
     Color? color,
+    Color? iconColor,
     required VoidCallback onTap,
   }) {
     return InkWell(
@@ -351,16 +440,31 @@ class ProfileScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            Icon(icon, color: color ?? AppColors.textPrimary, size: 24),
+            Icon(icon, color: iconColor ?? color ?? AppColors.textPrimary, size: 24),
             const SizedBox(width: 16),
             Expanded(
-              child: Text(
-                title,
-                style: TextStyle(
-                  color: color ?? AppColors.textPrimary,
-                  fontWeight: FontWeight.w500,
-                  fontSize: 15,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      color: color ?? AppColors.textPrimary,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 15,
+                    ),
+                  ),
+                  if (subtitle != null) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ),
             trailing ??
