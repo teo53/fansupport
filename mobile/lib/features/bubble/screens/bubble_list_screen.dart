@@ -337,16 +337,23 @@ class _BubbleListScreenState extends ConsumerState<BubbleListScreen>
   }
 
   Widget _buildMessageCard(BubbleMessageModel message) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: AppColors.softShadow(),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+    return GestureDetector(
+      onTap: () {
+        // 버블 채팅 화면으로 이동
+        final encodedName = Uri.encodeComponent(message.idolName);
+        final encodedImage = Uri.encodeComponent(message.idolProfileImage);
+        context.go('/bubble/${message.idolId}/$encodedName/$encodedImage');
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: AppColors.softShadow(),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
           // Header
           Padding(
             padding: const EdgeInsets.all(16),

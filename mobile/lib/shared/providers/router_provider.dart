@@ -17,6 +17,7 @@ import '../../features/booking/screens/event_calendar_screen.dart';
 import '../../features/community/screens/community_feed_screen.dart';
 import '../../features/ranking/screens/ranking_screen.dart';
 import '../../features/bubble/screens/bubble_list_screen.dart';
+import '../../features/bubble/screens/bubble_chat_screen.dart';
 import '../../features/date_ticket/screens/date_ticket_screen.dart';
 import '../../features/advertisement/screens/ad_shop_screen.dart';
 import '../../features/crm/screens/idol_registration_screen.dart';
@@ -111,6 +112,14 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/bubble',
             builder: (context, state) => const BubbleListScreen(),
+          ),
+          GoRoute(
+            path: '/bubble/:idolId/:idolName/:profileImage',
+            builder: (context, state) => BubbleChatScreen(
+              idolId: state.pathParameters['idolId']!,
+              idolName: Uri.decodeComponent(state.pathParameters['idolName']!),
+              idolProfileImage: Uri.decodeComponent(state.pathParameters['profileImage']!),
+            ),
           ),
           GoRoute(
             path: '/date-tickets',
