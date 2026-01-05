@@ -79,7 +79,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                 letterSpacing: -0.2,
                               ),
                             ),
-                            const SizedBox(height: 6),
+                            const SizedBox(height: 8.0),
                             Text(
                               user?.nickname ?? '게스트',
                               style: TextStyle(
@@ -454,7 +454,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               size: 26,
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12.0),
           Text(
             label,
             style: TextStyle(
@@ -655,7 +655,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 8.0),
                   Row(
                     children: [
                       Icon(Icons.favorite_rounded, color: AppColors.primary, size: 14),
@@ -901,7 +901,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     letterSpacing: -0.5,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 8.0),
                 Text(
                   subtitle,
                   style: TextStyle(
@@ -961,7 +961,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         child: Column(
           children: [
             Icon(icon, color: color, size: 22),
-            const SizedBox(height: 6),
+            const SizedBox(height: 8.0),
             Text(
               label,
               style: TextStyle(
@@ -1045,7 +1045,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       size: 24,
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 12.0),
                   Text(
                     cat['label'] as String,
                     style: TextStyle(
@@ -1161,7 +1161,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             ),
                         ],
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 8.0),
                       Text(
                         post['content'] ?? '',
                         style: TextStyle(

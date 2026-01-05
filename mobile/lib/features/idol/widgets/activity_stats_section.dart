@@ -57,7 +57,7 @@ class ActivityStatsSection extends StatelessWidget {
                 ),
             ],
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 8.0),
           Text(
             '이번 주 활동 기준',
             style: TextStyle(
@@ -100,14 +100,14 @@ class ActivityStatsSection extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            levelColor.withOpacity(0.1),
-            levelColor.withOpacity(0.05),
+            levelColor.withValues(alpha: 0.1),
+            levelColor.withValues(alpha: 0.05),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: levelColor.withOpacity(0.3), width: 2),
+        border: Border.all(color: levelColor.withValues(alpha: 0.3), width: 2),
       ),
       child: Row(
         children: [
@@ -116,14 +116,14 @@ class ActivityStatsSection extends StatelessWidget {
             height: 56,
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [levelColor, levelColor.withOpacity(0.7)],
+                colors: [levelColor, levelColor.withValues(alpha: 0.7)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: levelColor.withOpacity(0.4),
+                  color: levelColor.withValues(alpha: 0.4),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -149,7 +149,7 @@ class ActivityStatsSection extends StatelessWidget {
                     color: levelColor,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 8.0),
                 Text(
                   '활동 점수 ${stats.activityScore}점',
                   style: TextStyle(
@@ -232,9 +232,9 @@ class ActivityStatsSection extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
+        color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.2)),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
       ),
       child: Column(
         children: [
@@ -251,7 +251,7 @@ class ActivityStatsSection extends StatelessWidget {
               color: color,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 8.0),
           Text(
             label,
             style: TextStyle(
@@ -289,7 +289,7 @@ class ActivityStatsSection extends StatelessWidget {
         boxShadow: isActive
             ? [
                 BoxShadow(
-                  color: const Color(0xFFFF6B6B).withOpacity(0.3),
+                  color: const Color(0xFFFF6B6B).withValues(alpha: 0.3),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -325,7 +325,7 @@ class ActivityStatsSection extends StatelessWidget {
                     color: Colors.white,
                   ),
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 8.0),
                 Text(
                   isActive
                       ? '매일 활동하고 있어요 👏'

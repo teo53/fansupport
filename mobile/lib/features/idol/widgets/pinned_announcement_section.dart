@@ -65,7 +65,7 @@ class PinnedAnnouncementSection extends StatelessWidget {
                 color: (announcement.isImportant
                         ? const Color(0xFFFF6B6B)
                         : AppColors.primary)
-                    .withOpacity(0.15),
+                    .withValues(alpha: 0.15),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),

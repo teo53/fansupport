@@ -323,7 +323,7 @@ class _DateTicketScreenState extends ConsumerState<DateTicketScreen> {
                           Icon(Icons.verified, size: 18, color: AppColors.primary),
                         ],
                       ),
-                      const SizedBox(height: 2),
+                      const SizedBox(height: 8.0),
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 8,

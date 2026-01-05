@@ -315,7 +315,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                       letterSpacing: -0.2,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 8.0),
                   Text(
                     subtitle,
                     style: TextStyle(

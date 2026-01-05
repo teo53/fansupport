@@ -231,7 +231,7 @@ class _BubbleListScreenState extends ConsumerState<BubbleListScreen>
                   ),
               ],
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 8.0),
             Text(
               name.length > 4 ? '${name.substring(0, 4)}...' : name,
               style: TextStyle(
@@ -501,7 +501,7 @@ class _BubbleListScreenState extends ConsumerState<BubbleListScreen>
                               ),
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 8.0),
                           Text(
                             '0:00 / 0:${message.duration?.toString().padLeft(2, '0') ?? '00'}',
                             style: TextStyle(
@@ -668,7 +668,7 @@ class _BubbleListScreenState extends ConsumerState<BubbleListScreen>
                     ],
                   ],
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 8.0),
                 Text(
                   '월 ${_formatPrice(idol.bubblePrice ?? 0)}원',
                   style: TextStyle(

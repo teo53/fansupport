@@ -57,7 +57,7 @@ class CustomTextField extends StatelessWidget {
               letterSpacing: -0.1,
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12.0),
         ],
         TextFormField(
           controller: controller,
@@ -240,7 +240,7 @@ class MultilineTextField extends StatelessWidget {
               letterSpacing: -0.1,
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12.0),
         ],
         TextFormField(
           controller: controller,
@@ -326,7 +326,7 @@ class AmountTextField extends StatelessWidget {
               letterSpacing: -0.1,
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12.0),
         ],
         TextFormField(
           controller: controller,

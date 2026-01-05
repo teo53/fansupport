@@ -99,7 +99,7 @@ class ActivityFeedWidget extends StatelessWidget {
           boxShadow: activity.isLive
               ? [
                   BoxShadow(
-                    color: const Color(0xFFFF6B6B).withOpacity(0.2),
+                    color: const Color(0xFFFF6B6B).withValues(alpha: 0.2),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -161,7 +161,7 @@ class ActivityFeedWidget extends StatelessWidget {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 8.0),
                       Row(
                         children: [
                           Container(
@@ -171,7 +171,7 @@ class ActivityFeedWidget extends StatelessWidget {
                             ),
                             decoration: BoxDecoration(
                               color: _getActivityTypeColor(activity.type)
-                                  .withOpacity(0.15),
+                                  .withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Row(
@@ -346,7 +346,7 @@ class ActivityFeedWidget extends StatelessWidget {
   /// 기본 아바타
   Widget _buildDefaultAvatar(String name) {
     return Container(
-      color: AppColors.primary.withOpacity(0.1),
+      color: AppColors.primary.withValues(alpha: 0.1),
       child: Center(
         child: Text(
           name.isNotEmpty ? name[0].toUpperCase() : '?',

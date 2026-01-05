@@ -351,7 +351,7 @@ class _AdShopScreenState extends ConsumerState<AdShopScreen>
                     ),
                   ],
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 8.0),
                 Text(
                   product.description,
                   style: TextStyle(

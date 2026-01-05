@@ -54,7 +54,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                   Text(
                     '보유 코인',
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.8),
+                      color: Colors.white.withValues(alpha: 0.8),
                       fontSize: 14,
                     ),
                   ),
@@ -82,7 +82,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                         child: Text(
                           'KRW',
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.8),
+                            color: Colors.white.withValues(alpha: 0.8),
                             fontSize: 16,
                           ),
                         ),
@@ -379,7 +379,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, color: color, size: 24),
@@ -397,7 +397,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                     color: AppColors.textPrimary,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 8.0),
                 Text(
                   '${date.year}.${date.month.toString().padLeft(2, '0')}.${date.day.toString().padLeft(2, '0')}',
                   style: TextStyle(

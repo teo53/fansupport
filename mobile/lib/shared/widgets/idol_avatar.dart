@@ -38,7 +38,7 @@ class IdolAvatar extends StatelessWidget {
         boxShadow: showBorder
             ? [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withValues(alpha: 0.1),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -61,7 +61,7 @@ class IdolAvatar extends StatelessWidget {
   /// 로딩 중 플레이스홀더
   Widget _buildPlaceholder() {
     return Container(
-      color: _getCategoryColor().withOpacity(0.1),
+      color: _getCategoryColor().withValues(alpha: 0.1),
       child: Center(
         child: SizedBox(
           width: size * 0.3,
@@ -84,7 +84,7 @@ class IdolAvatar extends StatelessWidget {
           end: Alignment.bottomRight,
           colors: [
             _getCategoryColor(),
-            _getCategoryColor().withOpacity(0.7),
+            _getCategoryColor().withValues(alpha: 0.7),
           ],
         ),
       ),
@@ -176,7 +176,7 @@ class IdolImage extends StatelessWidget {
 
   Widget _buildPlaceholder() {
     return Container(
-      color: _getCategoryColor().withOpacity(0.1),
+      color: _getCategoryColor().withValues(alpha: 0.1),
       child: Center(
         child: SizedBox(
           width: width * 0.2,
@@ -198,7 +198,7 @@ class IdolImage extends StatelessWidget {
           end: Alignment.bottomRight,
           colors: [
             _getCategoryColor(),
-            _getCategoryColor().withOpacity(0.7),
+            _getCategoryColor().withValues(alpha: 0.7),
           ],
         ),
       ),
@@ -206,7 +206,7 @@ class IdolImage extends StatelessWidget {
         child: Icon(
           _getCategoryIconData(),
           size: width * 0.4,
-          color: Colors.white.withOpacity(0.9),
+          color: Colors.white.withValues(alpha: 0.9),
         ),
       ),
     );

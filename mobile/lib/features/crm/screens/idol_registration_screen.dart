@@ -160,7 +160,27 @@ class _IdolRegistrationScreenState extends ConsumerState<IdolRegistrationScreen>
       case 3:
         return _buildCompletionStep();
       default:
-        return const SizedBox();
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.error_outline,
+                size: 48,
+                color: AppColors.error,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                '잘못된 단계입니다',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+            ],
+          ),
+        );
     }
   }
 

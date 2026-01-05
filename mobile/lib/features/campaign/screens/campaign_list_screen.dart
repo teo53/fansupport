@@ -90,7 +90,7 @@ class _CampaignListScreenState extends ConsumerState<CampaignListScreen> {
           Icon(
             Icons.campaign_outlined,
             size: 64,
-            color: AppColors.textSecondary.withOpacity(0.5),
+            color: AppColors.textSecondary.withValues(alpha: 0.5),
           ),
           const SizedBox(height: 16),
           Text(
@@ -233,7 +233,7 @@ class _CampaignListScreenState extends ConsumerState<CampaignListScreen> {
                               child: Icon(
                                 Icons.campaign,
                                 size: 48,
-                                color: AppColors.textSecondary.withOpacity(0.3),
+                                color: AppColors.textSecondary.withValues(alpha: 0.3),
                               ),
                             ),
                           ),
@@ -243,7 +243,7 @@ class _CampaignListScreenState extends ConsumerState<CampaignListScreen> {
                               child: Icon(
                                 Icons.campaign,
                                 size: 48,
-                                color: AppColors.textSecondary.withOpacity(0.3),
+                                color: AppColors.textSecondary.withValues(alpha: 0.3),
                               ),
                             ),
                           ),
@@ -254,7 +254,7 @@ class _CampaignListScreenState extends ConsumerState<CampaignListScreen> {
                             child: Icon(
                               Icons.campaign,
                               size: 48,
-                              color: AppColors.textSecondary.withOpacity(0.3),
+                              color: AppColors.textSecondary.withValues(alpha: 0.3),
                             ),
                           ),
                         ),
@@ -403,7 +403,7 @@ class _CampaignListScreenState extends ConsumerState<CampaignListScreen> {
                               color: AppColors.primary,
                             ),
                           ),
-                          const SizedBox(height: 2),
+                          const SizedBox(height: 8.0),
                           Text(
                             '목표 ￦${_formatNumber(goalAmount)}',
                             style: TextStyle(

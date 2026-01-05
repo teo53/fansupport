@@ -49,7 +49,7 @@ class StoryCircle extends StatelessWidget {
                   boxShadow: isLive
                       ? [
                           BoxShadow(
-                            color: const Color(0xFFFF0055).withOpacity(0.4),
+                            color: const Color(0xFFFF0055).withValues(alpha: 0.4),
                             blurRadius: 10,
                             spreadRadius: 2,
                           )
@@ -86,7 +86,7 @@ class StoryCircle extends StatelessWidget {
                       border: Border.all(color: Colors.white, width: 1.5),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFFFF9500).withOpacity(0.4),
+                          color: const Color(0xFFFF9500).withValues(alpha: 0.4),
                           blurRadius: 6,
                           offset: const Offset(0, 2),
                         ),
@@ -105,7 +105,7 @@ class StoryCircle extends StatelessWidget {
                 ),
             ],
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8.0),
           Text(
             idol.stageName,
             style: TextStyle(

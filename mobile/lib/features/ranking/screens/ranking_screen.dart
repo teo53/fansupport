@@ -173,7 +173,7 @@ class RankingScreen extends ConsumerWidget {
               ],
             ],
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 8.0),
           Text(
             '${_formatNumber(idol.totalSupport)} P',
             style: TextStyle(
@@ -182,7 +182,7 @@ class RankingScreen extends ConsumerWidget {
             ),
           ),
           if (rank == 1) const SizedBox(height: 20),
-          if (rank != 1) const SizedBox(height: 10),
+          if (rank != 1) const SizedBox(height: 12.0),
         ],
       ),
     );
@@ -265,7 +265,7 @@ class RankingScreen extends ConsumerWidget {
                       ],
                     ],
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 8.0),
                   Text(
                     idol.agencyName ?? '개인',
                     style: TextStyle(
@@ -287,7 +287,7 @@ class RankingScreen extends ConsumerWidget {
                     color: AppColors.primary,
                   ),
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 8.0),
                 Text(
                   'Point',
                   style: TextStyle(

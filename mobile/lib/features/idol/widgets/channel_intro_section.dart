@@ -56,7 +56,7 @@ class _ChannelIntroSectionState extends State<ChannelIntroSection> {
             decoration: BoxDecoration(
               color: AppColors.primarySoft,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.primary.withOpacity(0.2)),
+              border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
             ),
             child: Row(
               children: [

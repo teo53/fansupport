@@ -180,7 +180,7 @@ class _EventCalendarScreenState extends ConsumerState<EventCalendarScreen> {
             boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color: color.withOpacity(0.3),
+                      color: color.withValues(alpha: 0.3),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -221,7 +221,7 @@ class _EventCalendarScreenState extends ConsumerState<EventCalendarScreen> {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -262,7 +262,7 @@ class _EventCalendarScreenState extends ConsumerState<EventCalendarScreen> {
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: AppColors.primary.withOpacity(0.4),
+                color: AppColors.primary.withValues(alpha: 0.4),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -276,7 +276,7 @@ class _EventCalendarScreenState extends ConsumerState<EventCalendarScreen> {
 
           // 오늘 날짜
           todayDecoration: BoxDecoration(
-            color: AppColors.primary.withOpacity(0.15),
+            color: AppColors.primary.withValues(alpha: 0.15),
             shape: BoxShape.circle,
           ),
           todayTextStyle: TextStyle(
@@ -428,7 +428,7 @@ class _EventCalendarScreenState extends ConsumerState<EventCalendarScreen> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -447,7 +447,7 @@ class _EventCalendarScreenState extends ConsumerState<EventCalendarScreen> {
                 width: 56,
                 height: 56,
                 decoration: BoxDecoration(
-                  color: _getCategoryColor(event.category).withOpacity(0.1),
+                  color: _getCategoryColor(event.category).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Center(
@@ -481,7 +481,7 @@ class _EventCalendarScreenState extends ConsumerState<EventCalendarScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 8.0),
 
                     // 제목
                     Text(
@@ -492,7 +492,7 @@ class _EventCalendarScreenState extends ConsumerState<EventCalendarScreen> {
                         letterSpacing: -0.3,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 8.0),
 
                     // 아이돌 이름
                     Row(
@@ -509,7 +509,7 @@ class _EventCalendarScreenState extends ConsumerState<EventCalendarScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 8.0),
 
                     // 시간 & 장소
                     Row(
@@ -617,7 +617,7 @@ class _EventCalendarScreenState extends ConsumerState<EventCalendarScreen> {
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: _getCategoryColor(event.category).withOpacity(0.1),
+                      color: _getCategoryColor(event.category).withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Center(

@@ -238,7 +238,7 @@ class _BubbleChatScreenState extends ConsumerState<BubbleChatScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 8.0),
 
                 // 시간 (오후 1:22 형식)
                 Padding(
@@ -271,7 +271,7 @@ class _BubbleChatScreenState extends ConsumerState<BubbleChatScreen> {
         color: Colors.grey[900],
         border: Border(
           top: BorderSide(
-            color: Colors.white.withOpacity(0.1),
+            color: Colors.white.withValues(alpha: 0.1),
             width: 1,
           ),
         ),

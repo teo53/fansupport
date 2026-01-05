@@ -96,7 +96,7 @@ class ProfileScreen extends ConsumerWidget {
                       ],
                     ],
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 8.0),
                   Text(
                     user?.email ?? 'email@example.com',
                     style: TextStyle(
@@ -256,12 +256,12 @@ class ProfileScreen extends ConsumerWidget {
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          AppColors.primary.withOpacity(0.1),
-                          AppColors.primaryLight.withOpacity(0.05),
+                          AppColors.primary.withValues(alpha: 0.1),
+                          AppColors.primaryLight.withValues(alpha: 0.05),
                         ],
                       ),
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.primary.withOpacity(0.3), width: 2),
+                      border: Border.all(color: AppColors.primary.withValues(alpha: 0.3), width: 2),
                     ),
                     child: Column(
                       children: [
@@ -412,7 +412,7 @@ class ProfileScreen extends ConsumerWidget {
             color: AppColors.textPrimary,
           ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 8.0),
         Text(
           label,
           style: TextStyle(
@@ -455,7 +455,7 @@ class ProfileScreen extends ConsumerWidget {
                     ),
                   ),
                   if (subtitle != null) ...[
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 8.0),
                     Text(
                       subtitle,
                       style: TextStyle(

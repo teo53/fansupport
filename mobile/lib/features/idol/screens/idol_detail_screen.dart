@@ -84,8 +84,8 @@ class IdolDetailScreen extends ConsumerWidget {
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          Colors.black.withOpacity(0.3),
-                          Colors.black.withOpacity(0.7),
+                          Colors.black.withValues(alpha: 0.3),
+                          Colors.black.withValues(alpha: 0.7),
                         ],
                       ),
                     ),
@@ -128,7 +128,7 @@ class IdolDetailScreen extends ConsumerWidget {
                         ],
                       ),
                       if (idol.groupName != null) ...[
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 8.0),
                         Text(
                           idol.groupName!,
                           style: TextStyle(
@@ -356,7 +356,7 @@ class IdolDetailScreen extends ConsumerWidget {
             color: AppColors.textPrimary,
           ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 8.0),
         Text(
           label,
           style: TextStyle(
@@ -388,7 +388,7 @@ class IdolDetailScreen extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: color.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(Icons.star, color: color, size: 20),
@@ -453,7 +453,7 @@ class IdolDetailScreen extends ConsumerWidget {
           width: 32,
           height: 32,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
           child: Center(
@@ -490,7 +490,7 @@ class IdolDetailScreen extends ConsumerWidget {
                   color: AppColors.textPrimary,
                 ),
               ),
-              const SizedBox(height: 2),
+              const SizedBox(height: 8.0),
               Text(
                 tier,
                 style: TextStyle(

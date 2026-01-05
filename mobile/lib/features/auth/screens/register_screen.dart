@@ -94,7 +94,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: AppColors.error.withOpacity(0.1),
+                      color: AppColors.error.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -398,7 +398,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 20),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary.withOpacity(0.1) : AppColors.backgroundAlt,
+          color: isSelected ? AppColors.primary.withValues(alpha: 0.1) : AppColors.backgroundAlt,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected ? AppColors.primary : AppColors.border,

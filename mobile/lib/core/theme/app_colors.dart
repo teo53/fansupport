@@ -82,6 +82,7 @@ class AppColors {
   // 🌈 Category Colors (아이돌 카테고리)
   // ============================================
   static const Color idolCategory = Color(0xFFFF7169); // Coral Pink
+  static const Color undergroundCategory = idolCategory; // Underground Idol (Alias)
   static const Color maidCategory = Color(0xFFFF8E87); // Pastel Pink
   static const Color cosplayCategory = Color(0xFFAB7EED); // Soft Purple
   static const Color vtuberCategory = Color(0xFF9ED9F6); // Light Blue

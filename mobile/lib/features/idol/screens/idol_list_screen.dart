@@ -146,7 +146,7 @@ class _IdolListScreenState extends ConsumerState<IdolListScreen> {
         });
       },
       backgroundColor: AppColors.backgroundAlt,
-      selectedColor: AppColors.primary.withOpacity(0.1),
+      selectedColor: AppColors.primary.withValues(alpha: 0.1),
       labelStyle: TextStyle(
         color: isSelected ? AppColors.primary : AppColors.textSecondary,
         fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
@@ -169,7 +169,7 @@ class _IdolListScreenState extends ConsumerState<IdolListScreen> {
           Icon(
             Icons.search_off,
             size: 64,
-            color: AppColors.textSecondary.withOpacity(0.5),
+            color: AppColors.textSecondary.withValues(alpha: 0.5),
           ),
           const SizedBox(height: 16),
           Text(
@@ -254,7 +254,7 @@ class _IdolListScreenState extends ConsumerState<IdolListScreen> {
                         ],
                       ],
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 8.0),
                     Text(
                       _getCategoryText(idol.category),
                       style: TextStyle(

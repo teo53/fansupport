@@ -94,7 +94,7 @@ class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen> {
           Icon(
             Icons.article_outlined,
             size: 64,
-            color: AppColors.textSecondary.withOpacity(0.5),
+            color: AppColors.textSecondary.withValues(alpha: 0.5),
           ),
           const SizedBox(height: 16),
           Text(
@@ -188,7 +188,7 @@ class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen> {
                           ],
                         ],
                       ),
-                      const SizedBox(height: 2),
+                      const SizedBox(height: 8.0),
                       Text(
                         _formatTimeAgo(post['createdAt']),
                         style: TextStyle(
@@ -206,7 +206,7 @@ class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen> {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.secondary.withOpacity(0.1),
+                      color: AppColors.secondary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
@@ -253,7 +253,7 @@ class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen> {
                     child: Icon(
                       Icons.image,
                       size: 40,
-                      color: AppColors.textSecondary.withOpacity(0.3),
+                      color: AppColors.textSecondary.withValues(alpha: 0.3),
                     ),
                   ),
                 ),

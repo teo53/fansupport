@@ -58,7 +58,7 @@ class SupporterRankingSection extends StatelessWidget {
                 ),
             ],
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 8.0),
           Text(
             '후원 + 펀딩 참여 금액 기준',
             style: TextStyle(
@@ -102,7 +102,7 @@ class SupporterRankingSection extends StatelessWidget {
         boxShadow: isTop3
             ? [
                 BoxShadow(
-                  color: _getTop3BorderColor(rank).withOpacity(0.2),
+                  color: _getTop3BorderColor(rank).withValues(alpha: 0.2),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -152,7 +152,7 @@ class SupporterRankingSection extends StatelessWidget {
                     ],
                   ],
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 8.0),
                 Row(
                   children: [
                     // 구독 중 뱃지
@@ -199,7 +199,7 @@ class SupporterRankingSection extends StatelessWidget {
                             int.parse(
                               supporter.tier.color.replaceFirst('#', '0xFF'),
                             ),
-                          ).withOpacity(0.15),
+                          ).withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
@@ -236,7 +236,7 @@ class SupporterRankingSection extends StatelessWidget {
                   color: isTop3 ? _getTop3BorderColor(rank) : AppColors.textPrimary,
                 ),
               ),
-              const SizedBox(height: 2),
+              const SizedBox(height: 8.0),
               Text(
                 '${supporter.supportCount + supporter.fundingCount}회',
                 style: TextStyle(
@@ -266,7 +266,7 @@ class SupporterRankingSection extends StatelessWidget {
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: _getTop3BorderColor(rank).withOpacity(0.4),
+              color: _getTop3BorderColor(rank).withValues(alpha: 0.4),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -326,7 +326,7 @@ class SupporterRankingSection extends StatelessWidget {
   /// 기본 아바타
   Widget _buildDefaultAvatar(String nickname) {
     return Container(
-      color: AppColors.primary.withOpacity(0.1),
+      color: AppColors.primary.withValues(alpha: 0.1),
       child: Center(
         child: Text(
           nickname.isNotEmpty ? nickname[0].toUpperCase() : '?',

@@ -123,7 +123,7 @@ class SocialLinksSection extends StatelessWidget {
         decoration: BoxDecoration(
           color: backgroundColor,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withOpacity(0.2)),
+          border: Border.all(color: color.withValues(alpha: 0.2)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -145,7 +145,7 @@ class SocialLinksSection extends StatelessWidget {
             Icon(
               Icons.open_in_new,
               size: 14,
-              color: color.withOpacity(0.7),
+              color: color.withValues(alpha: 0.7),
             ),
           ],
         ),
