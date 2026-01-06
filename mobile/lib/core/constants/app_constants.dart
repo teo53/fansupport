@@ -1,6 +1,8 @@
 class AppConstants {
-  static const String appName = '아이돌 서포트';
-  static const String appNameEn = 'Idol Support';
+  static const String appName = 'PIPO';
+  static const String appNameEn = 'PIPO';
+  static const String appTagline = '좋아하는 크리에이터를 응원하세요';
+  static const String appTaglineEn = 'Support Your Favorite Creators';
 
   // API
   static const String baseUrl = 'https://api.idol-support.com';

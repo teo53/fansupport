@@ -18,11 +18,10 @@ class _SplashScreenState extends State<SplashScreen>
   late AnimationController _pulseController;
   late AnimationController _particleController;
   late AnimationController _textController;
+  late AnimationController _shimmerController;
 
   late Animation<double> _logoScale;
-  late Animation<double> _logoRotation;
   late Animation<double> _logoOpacity;
-  late Animation<double> _pulseScale;
   late Animation<double> _textOpacity;
   late Animation<Offset> _textSlide;
 
@@ -31,71 +30,55 @@ class _SplashScreenState extends State<SplashScreen>
     super.initState();
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
 
-    // Logo animation controller
     _logoController = AnimationController(
-      duration: const Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 1200),
       vsync: this,
     );
 
-    // Pulse animation controller
     _pulseController = AnimationController(
       duration: const Duration(milliseconds: 2000),
       vsync: this,
     )..repeat();
 
-    // Particle animation controller
     _particleController = AnimationController(
-      duration: const Duration(milliseconds: 3000),
+      duration: const Duration(milliseconds: 4000),
       vsync: this,
     )..repeat();
 
-    // Text animation controller
     _textController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
 
-    // Logo animations
+    _shimmerController = AnimationController(
+      duration: const Duration(milliseconds: 2000),
+      vsync: this,
+    )..repeat();
+
     _logoScale = TweenSequence<double>([
       TweenSequenceItem(
-        tween: Tween(begin: 0.0, end: 1.2).chain(CurveTween(curve: Curves.easeOutBack)),
+        tween: Tween(begin: 0.0, end: 1.15).chain(CurveTween(curve: Curves.easeOutBack)),
         weight: 60,
       ),
       TweenSequenceItem(
-        tween: Tween(begin: 1.2, end: 1.0).chain(CurveTween(curve: Curves.easeInOut)),
+        tween: Tween(begin: 1.15, end: 1.0).chain(CurveTween(curve: Curves.easeInOut)),
         weight: 40,
-      ),
-    ]).animate(_logoController);
-
-    _logoRotation = TweenSequence<double>([
-      TweenSequenceItem(
-        tween: Tween(begin: -0.5, end: 0.1).chain(CurveTween(curve: Curves.easeOut)),
-        weight: 50,
-      ),
-      TweenSequenceItem(
-        tween: Tween(begin: 0.1, end: 0.0).chain(CurveTween(curve: Curves.elasticOut)),
-        weight: 50,
       ),
     ]).animate(_logoController);
 
     _logoOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _logoController,
-        curve: const Interval(0.0, 0.5, curve: Curves.easeOut),
+        curve: const Interval(0.0, 0.4, curve: Curves.easeOut),
       ),
     );
 
-    _pulseScale = Tween<double>(begin: 1.0, end: 1.5).animate(
-      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
-    );
-
-    // Text animations
     _textOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _textController, curve: Curves.easeOut),
     );
 
     _textSlide = Tween<Offset>(
-      begin: const Offset(0, 0.3),
+      begin: const Offset(0, 0.5),
       end: Offset.zero,
     ).animate(CurvedAnimation(parent: _textController, curve: Curves.easeOutCubic));
 
@@ -103,13 +86,13 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   void _startAnimationSequence() async {
-    await Future.delayed(const Duration(milliseconds: 300));
+    await Future.delayed(const Duration(milliseconds: 200));
     _logoController.forward();
 
-    await Future.delayed(const Duration(milliseconds: 800));
+    await Future.delayed(const Duration(milliseconds: 600));
     _textController.forward();
 
-    await Future.delayed(const Duration(milliseconds: 1500));
+    await Future.delayed(const Duration(milliseconds: 1800));
     widget.onComplete();
   }
 
@@ -119,70 +102,66 @@ class _SplashScreenState extends State<SplashScreen>
     _pulseController.dispose();
     _particleController.dispose();
     _textController.dispose();
+    _shimmerController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+
     return Scaffold(
       body: Container(
+        width: double.infinity,
+        height: double.infinity,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
             colors: [
-              Color(0xFF1a1a2e),
-              Color(0xFF16213e),
-              Color(0xFF0f0f23),
+              Color(0xFFFF5A5F),
+              Color(0xFFE84C51),
+              Color(0xFFD43F44),
             ],
           ),
         ),
         child: Stack(
           children: [
-            // Animated particles background
-            ...List.generate(20, (index) => _buildParticle(index)),
+            // Floating particles
+            ...List.generate(25, (index) => _buildFloatingParticle(index, size)),
 
-            // Gradient orbs
-            _buildGradientOrb(
-              top: -100,
-              left: -50,
-              color: AppColors.primary.withOpacity(0.3),
-              size: 300,
-            ),
-            _buildGradientOrb(
-              bottom: -150,
-              right: -100,
-              color: AppColors.primaryLight.withOpacity(0.2),
-              size: 400,
-            ),
+            // Decorative circles
+            _buildDecoCircle(top: -80, left: -80, size: 200, opacity: 0.1),
+            _buildDecoCircle(bottom: -120, right: -60, size: 280, opacity: 0.08),
+            _buildDecoCircle(top: size.height * 0.3, right: -100, size: 180, opacity: 0.06),
 
             // Main content
             Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Animated Logo
+                  // Logo with animations
                   AnimatedBuilder(
                     animation: Listenable.merge([_logoController, _pulseController]),
                     builder: (context, child) {
                       return Stack(
                         alignment: Alignment.center,
                         children: [
-                          // Pulse rings
+                          // Outer pulse rings
                           ...List.generate(3, (index) {
-                            final delay = index * 0.3;
+                            final delay = index * 0.33;
                             final pulseValue = (_pulseController.value + delay) % 1.0;
                             return Transform.scale(
-                              scale: 1 + (pulseValue * 0.8),
+                              scale: 1 + (pulseValue * 0.6),
                               child: Opacity(
-                                opacity: (1 - pulseValue) * 0.3,
+                                opacity: (1 - pulseValue) * 0.15 * _logoOpacity.value,
                                 child: Container(
-                                  width: 120,
-                                  height: 120,
+                                  width: 140,
+                                  height: 140,
                                   decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
+                                    borderRadius: BorderRadius.circular(32),
                                     border: Border.all(
-                                      color: AppColors.primary,
+                                      color: Colors.white,
                                       width: 2,
                                     ),
                                   ),
@@ -191,66 +170,72 @@ class _SplashScreenState extends State<SplashScreen>
                             );
                           }),
 
-                          // Logo container
+                          // Main logo container
                           Transform.scale(
                             scale: _logoScale.value,
-                            child: Transform.rotate(
-                              angle: _logoRotation.value,
-                              child: Opacity(
-                                opacity: _logoOpacity.value,
-                                child: Container(
-                                  width: 120,
-                                  height: 120,
-                                  decoration: BoxDecoration(
-                                    gradient: AppColors.premiumGradient,
-                                    borderRadius: BorderRadius.circular(32),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: AppColors.primary.withOpacity(0.5),
-                                        blurRadius: 40,
-                                        spreadRadius: 10,
-                                      ),
-                                    ],
-                                  ),
-                                  child: Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-                                      // Shimmer effect
-                                      ClipRRect(
-                                        borderRadius: BorderRadius.circular(32),
-                                        child: AnimatedBuilder(
-                                          animation: _particleController,
-                                          builder: (context, child) {
-                                            return Transform.translate(
-                                              offset: Offset(
-                                                -100 + (_particleController.value * 200),
-                                                -100 + (_particleController.value * 200),
-                                              ),
+                            child: Opacity(
+                              opacity: _logoOpacity.value,
+                              child: Container(
+                                width: 140,
+                                height: 140,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(36),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.2),
+                                      blurRadius: 30,
+                                      offset: const Offset(0, 15),
+                                      spreadRadius: 0,
+                                    ),
+                                  ],
+                                ),
+                                child: Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    // Shimmer effect
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(36),
+                                      child: AnimatedBuilder(
+                                        animation: _shimmerController,
+                                        builder: (context, child) {
+                                          return Transform.translate(
+                                            offset: Offset(
+                                              -200 + (_shimmerController.value * 400),
+                                              0,
+                                            ),
+                                            child: Transform.rotate(
+                                              angle: -0.5,
                                               child: Container(
-                                                width: 60,
+                                                width: 80,
                                                 height: 200,
                                                 decoration: BoxDecoration(
                                                   gradient: LinearGradient(
                                                     colors: [
                                                       Colors.white.withOpacity(0),
-                                                      Colors.white.withOpacity(0.3),
+                                                      Colors.white.withOpacity(0.4),
                                                       Colors.white.withOpacity(0),
                                                     ],
                                                   ),
                                                 ),
-                                                transform: Matrix4.rotationZ(0.5),
                                               ),
-                                            );
-                                          },
-                                        ),
+                                            ),
+                                          );
+                                        },
                                       ),
-                                      const Icon(
-                                        Icons.favorite_rounded,
-                                        color: Colors.white,
-                                        size: 56,
+                                    ),
+                                    // PIPO Logo Text
+                                    const Text(
+                                      'PIPO',
+                                      style: TextStyle(
+                                        fontSize: 42,
+                                        fontWeight: FontWeight.w900,
+                                        color: Color(0xFFFF5A5F),
+                                        fontStyle: FontStyle.italic,
+                                        letterSpacing: -1,
                                       ),
-                                    ],
-                                  ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
@@ -260,40 +245,32 @@ class _SplashScreenState extends State<SplashScreen>
                     },
                   ),
 
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 48),
 
-                  // App name with animation
+                  // Tagline
                   SlideTransition(
                     position: _textSlide,
                     child: FadeTransition(
                       opacity: _textOpacity,
                       child: Column(
                         children: [
-                          ShaderMask(
-                            shaderCallback: (bounds) => const LinearGradient(
-                              colors: [
-                                Colors.white,
-                                Color(0xFFFF8A8E),
-                              ],
-                            ).createShader(bounds),
-                            child: const Text(
-                              '아이돌 서포트',
-                              style: TextStyle(
-                                fontSize: 32,
-                                fontWeight: FontWeight.w800,
-                                color: Colors.white,
-                                letterSpacing: -0.5,
-                              ),
+                          Text(
+                            '좋아하는 크리에이터를',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white.withOpacity(0.95),
+                              letterSpacing: -0.3,
                             ),
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 4),
                           Text(
-                            'Support Your Star',
+                            '응원하세요',
                             style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.white.withOpacity(0.7),
-                              letterSpacing: 2,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                              letterSpacing: -0.3,
                             ),
                           ),
                         ],
@@ -304,22 +281,26 @@ class _SplashScreenState extends State<SplashScreen>
               ),
             ),
 
-            // Bottom branding
+            // Bottom indicator
             Positioned(
-              bottom: 60,
+              bottom: 80,
               left: 0,
               right: 0,
               child: FadeTransition(
                 opacity: _textOpacity,
-                child: Text(
-                  'IDOL SUPPORT',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white.withOpacity(0.3),
-                    letterSpacing: 4,
-                  ),
+                child: Column(
+                  children: [
+                    SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          Colors.white.withOpacity(0.6),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -329,35 +310,31 @@ class _SplashScreenState extends State<SplashScreen>
     );
   }
 
-  Widget _buildParticle(int index) {
+  Widget _buildFloatingParticle(int index, Size size) {
     final random = math.Random(index);
-    final size = 4.0 + random.nextDouble() * 6;
-    final initialX = random.nextDouble() * MediaQuery.of(context).size.width;
-    final initialY = random.nextDouble() * MediaQuery.of(context).size.height;
-    final duration = 2000 + random.nextInt(3000);
+    final particleSize = 4.0 + random.nextDouble() * 8;
+    final initialX = random.nextDouble() * size.width;
+    final initialY = random.nextDouble() * size.height;
 
     return AnimatedBuilder(
       animation: _particleController,
       builder: (context, child) {
-        final progress = (_particleController.value + (index * 0.05)) % 1.0;
-        final y = initialY - (progress * 200);
-        final opacity = (1 - progress) * 0.6;
+        final progress = (_particleController.value + (index * 0.04)) % 1.0;
+        final yOffset = math.sin(progress * math.pi * 2) * 30;
+        final xOffset = math.cos(progress * math.pi * 2 + index) * 20;
+        final opacity = 0.1 + (math.sin(progress * math.pi) * 0.2);
 
         return Positioned(
-          left: initialX + math.sin(progress * math.pi * 2) * 30,
-          top: y,
+          left: initialX + xOffset,
+          top: initialY + yOffset,
           child: Opacity(
-            opacity: opacity.clamp(0.0, 1.0),
+            opacity: opacity.clamp(0.0, 0.3),
             child: Container(
-              width: size,
-              height: size,
-              decoration: BoxDecoration(
+              width: particleSize,
+              height: particleSize,
+              decoration: const BoxDecoration(
                 shape: BoxShape.circle,
-                color: index % 3 == 0
-                    ? AppColors.primary
-                    : index % 3 == 1
-                        ? AppColors.primaryLight
-                        : Colors.white,
+                color: Colors.white,
               ),
             ),
           ),
@@ -366,13 +343,13 @@ class _SplashScreenState extends State<SplashScreen>
     );
   }
 
-  Widget _buildGradientOrb({
+  Widget _buildDecoCircle({
     double? top,
     double? bottom,
     double? left,
     double? right,
-    required Color color,
     required double size,
+    required double opacity,
   }) {
     return Positioned(
       top: top,
@@ -384,9 +361,7 @@ class _SplashScreenState extends State<SplashScreen>
         height: size,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          gradient: RadialGradient(
-            colors: [color, color.withOpacity(0)],
-          ),
+          color: Colors.white.withOpacity(opacity),
         ),
       ),
     );
