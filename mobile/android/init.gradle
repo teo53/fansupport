@@ -1,0 +1,19 @@
+allprojects {
+    buildscript {
+        repositories {
+            google()
+            maven { url 'https://maven.google.com' }
+            gradlePluginPortal()
+            mavenCentral()
+            maven { url 'https://jitpack.io' }
+        }
+    }
+
+    repositories {
+        google()
+        maven { url 'https://maven.google.com' }
+        gradlePluginPortal()
+        mavenCentral()
+        maven { url 'https://jitpack.io' }
+    }
+}
