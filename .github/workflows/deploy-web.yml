@@ -1,0 +1,63 @@
+name: Deploy Flutter Web
+
+on:
+  push:
+    branches:
+      - claude/extract-apk-file-CKnyw
+  workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: mobile
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    name: Build and Deploy Web
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'beta'
+          cache: false
+
+      - name: Enable web
+        run: flutter config --enable-web
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate code
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Build Web
+        run: flutter build web --release --base-href "/fansupport/"
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+        with:
+          enablement: true
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: mobile/build/web
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

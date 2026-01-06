@@ -4,12 +4,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'dart:ui';
+import 'dart:math' as math;
+import '../../../core/theme/design_system.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../core/mock/mock_data.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../../shared/models/idol_model.dart';
-import '../../../shared/widgets/story_circle.dart';
 import '../../live/screens/incoming_call_screen.dart';
 import '../../chat/screens/chat_screen.dart';
 
@@ -24,13 +25,24 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     with TickerProviderStateMixin {
   late ScrollController _scrollController;
   late AnimationController _fadeController;
+  late AnimationController _headerController;
+  double _scrollOffset = 0;
 
   @override
   void initState() {
     super.initState();
-    _scrollController = ScrollController();
+    _scrollController = ScrollController()
+      ..addListener(() {
+        setState(() {
+          _scrollOffset = _scrollController.offset;
+        });
+      });
     _fadeController = AnimationController(
-      duration: const Duration(milliseconds: 800),
+      duration: PipoAnimations.medium,
+      vsync: this,
+    )..forward();
+    _headerController = AnimationController(
+      duration: PipoAnimations.slow,
       vsync: this,
     )..forward();
   }
@@ -39,14 +51,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   void dispose() {
     _scrollController.dispose();
     _fadeController.dispose();
+    _headerController.dispose();
     super.dispose();
-  }
-
-  String _formatCurrency(int amount) {
-    return amount.toString().replaceAllMapped(
-          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-          (Match m) => '${m[1]},',
-        );
   }
 
   String _formatCompact(int amount) {
@@ -58,6 +64,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     return amount.toString();
   }
 
+  String _formatCurrency(int amount) {
+    return amount.toString().replaceAllMapped(
+          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+          (Match m) => '${m[1]},',
+        );
+  }
+
   @override
   Widget build(BuildContext context) {
     Responsive.init(context);
@@ -66,44 +79,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.dark,
       child: Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: PipoColors.background,
         body: Stack(
           children: [
-            // Background Gradient
-            Positioned(
-              top: -100,
-              left: -50,
-              child: Container(
-                width: 300,
-                height: 300,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      AppColors.primary.withValues(alpha: 0.15),
-                      AppColors.primary.withValues(alpha: 0),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            Positioned(
-              top: 200,
-              right: -100,
-              child: Container(
-                width: 250,
-                height: 250,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      AppColors.secondary.withValues(alpha: 0.1),
-                      AppColors.secondary.withValues(alpha: 0),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+            // Ambient background
+            _buildAmbientBackground(),
 
             // Main Content
             Center(
@@ -113,88 +93,72 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   controller: _scrollController,
                   physics: const BouncingScrollPhysics(),
                   slivers: [
-                    // Custom App Bar
+                    // Header
                     SliverToBoxAdapter(
                       child: _buildHeader(context, user),
                     ),
 
-                    // Hero Banner
+                    // Hero Card
                     SliverToBoxAdapter(
-                      child: _buildHeroBanner(context),
+                      child: _buildHeroCard(context),
                     ),
 
+                    // Live Stories
                     SliverToBoxAdapter(
-                      child: SizedBox(height: Responsive.hp(1.5)),
+                      child: _buildLiveStoriesSection(context),
                     ),
 
-                    // Story Section
+                    // Quick Actions Grid
                     SliverToBoxAdapter(
-                      child: _buildStorySection(context),
+                      child: _buildQuickActionsGrid(context),
                     ),
 
-                    // Quick Actions
+                    // Trending Creators
                     SliverToBoxAdapter(
-                      child: _buildQuickActions(context),
+                      child: _buildSectionTitle('인기 크리에이터', '전체보기',
+                        onTap: () => context.go('/ranking')),
+                    ),
+                    SliverToBoxAdapter(
+                      child: _buildCreatorCards(context),
                     ),
 
-                    // Hot Idols Section (Rising Star)
+                    // Active Funding
                     SliverToBoxAdapter(
-                      child: _buildSectionHeader(
-                        context,
-                        'Rising Star',
-                        '랭킹 보기',
-                        onTap: () => context.go('/ranking'),
-                      ),
+                      child: _buildSectionTitle('진행중인 펀딩', '전체보기',
+                        onTap: () => context.go('/campaigns')),
                     ),
                     SliverToBoxAdapter(
-                      child: _buildHotIdolsList(context),
+                      child: _buildFundingCards(context),
                     ),
 
-                    // Trending Campaigns
+                    // Premium Events
                     SliverToBoxAdapter(
-                      child: _buildSectionHeader(
-                        context,
-                        '인기 펀딩',
-                        '전체보기',
-                        onTap: () => context.go('/campaigns'),
-                      ),
+                      child: _buildSectionTitle('스페셜 이벤트', null),
                     ),
                     SliverToBoxAdapter(
-                      child: _buildCampaignsList(context),
-                    ),
-
-                    // Special Events
-                    SliverToBoxAdapter(
-                      child: _buildSectionHeader(context, '스페셜 이벤트', null),
-                    ),
-                    SliverToBoxAdapter(
-                      child: _buildPremiumServices(context),
+                      child: _buildPremiumEvents(context),
                     ),
 
                     // Categories
                     SliverToBoxAdapter(
-                      child: _buildSectionHeader(context, '카테고리', null),
+                      child: _buildSectionTitle('카테고리', null),
                     ),
                     SliverToBoxAdapter(
-                      child: _buildCategories(context),
-                    ),
-
-                    // Recent Posts
-                    SliverToBoxAdapter(
-                      child: _buildSectionHeader(
-                        context,
-                        '최근 소식',
-                        '더보기',
-                        onTap: () => context.go('/community'),
-                      ),
-                    ),
-                    SliverToBoxAdapter(
-                      child: _buildRecentPosts(context),
+                      child: _buildCategoryChips(context),
                     ),
 
-                    // Bottom Spacing
+                    // Recent Activity
                     SliverToBoxAdapter(
-                      child: SizedBox(height: Responsive.hp(12)),
+                      child: _buildSectionTitle('최근 소식', '더보기',
+                        onTap: () => context.go('/community')),
+                    ),
+                    SliverToBoxAdapter(
+                      child: _buildRecentActivity(context),
+                    ),
+
+                    // Bottom spacing
+                    SliverToBoxAdapter(
+                      child: SizedBox(height: PipoSpacing.screen + 40),
                     ),
                   ],
                 ),
@@ -206,84 +170,140 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     );
   }
 
-  Widget _buildHeader(BuildContext context, user) {
-    return FadeTransition(
-      opacity: _fadeController,
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(
-          Responsive.wp(5),
-          Responsive.hp(6),
-          Responsive.wp(5),
-          Responsive.hp(2),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  '안녕하세요,',
-                  style: TextStyle(
-                    fontSize: Responsive.sp(14),
-                    color: AppColors.textSecondary,
-                    fontWeight: FontWeight.w500,
-                  ),
+  Widget _buildAmbientBackground() {
+    return Positioned.fill(
+      child: Stack(
+        children: [
+          // Top gradient blob
+          Positioned(
+            top: -120,
+            left: -80,
+            child: Container(
+              width: 320,
+              height: 320,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    PipoColors.primary.withOpacity(0.12),
+                    PipoColors.primary.withOpacity(0),
+                  ],
                 ),
-                SizedBox(height: Responsive.hp(0.5)),
-                Row(
+              ),
+            ),
+          ),
+          // Right gradient blob
+          Positioned(
+            top: 280,
+            right: -100,
+            child: Container(
+              width: 260,
+              height: 260,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    PipoColors.purple.withOpacity(0.08),
+                    PipoColors.purple.withOpacity(0),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context, user) {
+    return SlideTransition(
+      position: Tween<Offset>(
+        begin: const Offset(0, -0.3),
+        end: Offset.zero,
+      ).animate(CurvedAnimation(
+        parent: _headerController,
+        curve: PipoAnimations.standard,
+      )),
+      child: FadeTransition(
+        opacity: _headerController,
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(
+            PipoSpacing.xl,
+            MediaQuery.of(context).padding.top + PipoSpacing.lg,
+            PipoSpacing.xl,
+            PipoSpacing.lg,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              // Left: Logo + Greeting
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      user?.nickname ?? '팬',
+                    // PIPO Logo
+                    const Text(
+                      'PIPO',
                       style: TextStyle(
-                        fontSize: Responsive.sp(24),
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.textPrimary,
-                        letterSpacing: -0.5,
+                        fontSize: 28,
+                        fontWeight: FontWeight.w900,
+                        color: PipoColors.primary,
+                        fontStyle: FontStyle.italic,
+                        letterSpacing: -1,
                       ),
                     ),
-                    Text(
-                      '님',
-                      style: TextStyle(
-                        fontSize: Responsive.sp(24),
-                        fontWeight: FontWeight.w400,
-                        color: AppColors.textPrimary,
+                    const SizedBox(height: PipoSpacing.xs),
+                    RichText(
+                      text: TextSpan(
+                        style: PipoTypography.bodyMedium.copyWith(
+                          color: PipoColors.textSecondary,
+                        ),
+                        children: [
+                          TextSpan(
+                            text: user?.nickname ?? '팬',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w700,
+                              color: PipoColors.textPrimary,
+                            ),
+                          ),
+                          const TextSpan(text: '님, 반가워요!'),
+                        ],
                       ),
                     ),
                   ],
                 ),
-              ],
-            ),
-            Row(
-              children: [
-                _buildHeaderButton(
-                  icon: Icons.notifications_none_rounded,
-                  badge: 3,
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('알림 센터는 준비 중입니다')),
-                    );
-                  },
-                ),
-                SizedBox(width: Responsive.wp(2)),
-                _buildHeaderButton(
-                  icon: Icons.search_rounded,
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('검색 기능은 준비 중입니다')),
-                    );
-                  },
-                ),
-              ],
-            ),
-          ],
+              ),
+              // Right: Action buttons
+              Row(
+                children: [
+                  _buildIconButton(
+                    icon: Icons.search_rounded,
+                    onTap: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('검색 기능 준비중')),
+                      );
+                    },
+                  ),
+                  const SizedBox(width: PipoSpacing.sm),
+                  _buildIconButton(
+                    icon: Icons.notifications_none_rounded,
+                    badge: 3,
+                    onTap: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('알림 센터 준비중')),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildHeaderButton({
+  Widget _buildIconButton({
     required IconData icon,
     int? badge,
     required VoidCallback onTap,
@@ -294,17 +314,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
         onTap();
       },
       child: Container(
-        width: Responsive.wp(11),
-        height: Responsive.wp(11),
+        width: 44,
+        height: 44,
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
-          boxShadow: AppColors.cardShadow(opacity: 0.06),
+          color: PipoColors.surface,
+          borderRadius: BorderRadius.circular(PipoRadius.md),
+          boxShadow: PipoShadows.sm,
         ),
         child: Stack(
           alignment: Alignment.center,
           children: [
-            Icon(icon, size: Responsive.sp(22), color: AppColors.textPrimary),
+            Icon(icon, size: 22, color: PipoColors.textPrimary),
             if (badge != null)
               Positioned(
                 top: 8,
@@ -313,15 +333,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   width: 16,
                   height: 16,
                   decoration: const BoxDecoration(
-                    color: AppColors.primary,
+                    color: PipoColors.primary,
                     shape: BoxShape.circle,
                   ),
                   child: Center(
                     child: Text(
                       '$badge',
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.white,
-                        fontSize: Responsive.sp(9),
+                        fontSize: 9,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -334,155 +354,227 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     );
   }
 
-  Widget _buildHeroBanner(BuildContext context) {
-    // Mock Banner Data
-    final banners = [
-      {
-        'title': 'Angel Number 999',
-        'subtitle': 'Live Concert Coming Soon',
-        'image':
-            'https://images.unsplash.com/photo-1493225255756-d9584f8606e9?q=80&w=2070&auto=format&fit=crop',
-        'color': const Color(0xFF6B4DFF),
-      },
-      {
-        'title': 'New Generation',
-        'subtitle': 'Find Your Favorite Idol',
-        'image':
-            'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=2070&auto=format&fit=crop',
-        'color': const Color(0xFFFF4D8D),
-      },
-    ];
-
-    return SizedBox(
-      height: Responsive.hp(22),
-      child: PageView.builder(
-        controller: PageController(viewportFraction: 0.92),
-        physics: const BouncingScrollPhysics(),
-        itemCount: banners.length,
-        itemBuilder: (context, index) {
-          final banner = banners[index];
-          return Container(
-            margin: EdgeInsets.symmetric(horizontal: Responsive.wp(1.5)),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(24),
-              image: DecorationImage(
-                image: NetworkImage(banner['image'] as String),
-                fit: BoxFit.cover,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: (banner['color'] as Color).withValues(alpha: 0.3),
-                  blurRadius: 16,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-            ),
-            child: Stack(
-              children: [
-                Container(
+  Widget _buildHeroCard(BuildContext context) {
+    return Padding(
+      padding: PipoSpacing.screenPadding,
+      child: GestureDetector(
+        onTap: () => context.go('/campaigns'),
+        child: Container(
+          height: 180,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(PipoRadius.xxl),
+            gradient: PipoColors.primaryGradient,
+            boxShadow: PipoShadows.primaryGlow,
+          ),
+          child: Stack(
+            children: [
+              // Decorative circles
+              Positioned(
+                right: -30,
+                top: -30,
+                child: Container(
+                  width: 140,
+                  height: 140,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(24),
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.transparent,
-                        Colors.black.withValues(alpha: 0.2),
-                        Colors.black.withValues(alpha: 0.8),
+                    shape: BoxShape.circle,
+                    color: Colors.white.withOpacity(0.1),
+                  ),
+                ),
+              ),
+              Positioned(
+                right: 20,
+                bottom: -50,
+                child: Container(
+                  width: 100,
+                  height: 100,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withOpacity(0.08),
+                  ),
+                ),
+              ),
+              // Content
+              Padding(
+                padding: const EdgeInsets.all(PipoSpacing.xxl),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(PipoRadius.sm),
+                      ),
+                      child: const Text(
+                        'NEW',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: PipoSpacing.md),
+                    Text(
+                      '좋아하는 크리에이터를\n응원해보세요',
+                      style: PipoTypography.headlineMedium.copyWith(
+                        color: Colors.white,
+                        height: 1.3,
+                      ),
+                    ),
+                    const SizedBox(height: PipoSpacing.sm),
+                    Row(
+                      children: [
+                        Text(
+                          '지금 참여하기',
+                          style: PipoTypography.labelMedium.copyWith(
+                            color: Colors.white.withOpacity(0.9),
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Icon(
+                          Icons.arrow_forward_rounded,
+                          color: Colors.white.withOpacity(0.9),
+                          size: 16,
+                        ),
                       ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLiveStoriesSection(BuildContext context) {
+    final idols = MockData.idolModels;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(
+            PipoSpacing.xl, PipoSpacing.xxl, PipoSpacing.xl, PipoSpacing.md,
+          ),
+          child: Text(
+            '스토리',
+            style: PipoTypography.titleMedium.copyWith(
+              color: PipoColors.textPrimary,
+            ),
+          ),
+        ),
+        SizedBox(
+          height: 100,
+          child: ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: PipoSpacing.xl),
+            scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
+            itemCount: idols.length,
+            itemBuilder: (context, index) {
+              final idol = idols[index];
+              final isLive = index == 0;
+              return _buildStoryItem(context, idol, isLive);
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStoryItem(BuildContext context, IdolModel idol, bool isLive) {
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        if (isLive) {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => IncomingCallScreen(idol: idol),
+              fullscreenDialog: true,
+            ),
+          );
+        } else {
+          _showStoryView(context, idol);
+        }
+      },
+      child: Container(
+        width: 72,
+        margin: const EdgeInsets.only(right: PipoSpacing.md),
+        child: Column(
+          children: [
+            Container(
+              width: 64,
+              height: 64,
+              padding: const EdgeInsets.all(2.5),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: isLive
+                    ? const LinearGradient(
+                        colors: [Color(0xFFFF5A5F), Color(0xFFFF8A8E)],
+                      )
+                    : LinearGradient(
+                        colors: [
+                          PipoColors.border,
+                          PipoColors.border.withOpacity(0.5),
+                        ],
+                      ),
+              ),
+              child: Container(
+                padding: const EdgeInsets.all(2),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                ),
+                child: ClipOval(
+                  child: CachedNetworkImage(
+                    imageUrl: idol.profileImage,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => Container(
+                      color: AppColors.fromHex(idol.imageColor),
+                    ),
+                    errorWidget: (context, url, error) => Container(
+                      color: AppColors.fromHex(idol.imageColor),
+                      child: const Icon(Icons.person, color: Colors.white54),
                     ),
                   ),
                 ),
-                Padding(
-                  padding: EdgeInsets.all(Responsive.wp(5)),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: (banner['color'] as Color),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          'Featured',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: Responsive.sp(10),
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: Responsive.hp(1)),
-                      Text(
-                        banner['title'] as String,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: Responsive.sp(22),
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: -0.5,
-                        ),
-                      ),
-                      Text(
-                        banner['subtitle'] as String,
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.9),
-                          fontSize: Responsive.sp(13),
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
+              ),
+            ),
+            const SizedBox(height: PipoSpacing.xs),
+            if (isLive)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: PipoColors.primary,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: const Text(
+                  'LIVE',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 9,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
-              ],
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildStorySection(BuildContext context) {
-    final idols = MockData.idolModels;
-
-    return SizedBox(
-      height: Responsive.hp(14),
-      child: ListView.separated(
-        padding: EdgeInsets.symmetric(horizontal: Responsive.wp(5)),
-        scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
-        itemCount: idols.length,
-        separatorBuilder: (context, index) => SizedBox(width: Responsive.wp(4)),
-        itemBuilder: (context, index) {
-          final idol = idols[index];
-          // Mocking the first idol as 'Live'
-          final isLive = index == 0;
-
-          return StoryCircle(
-            idol: idol,
-            isLive: isLive,
-            onTap: () {
-              if (isLive) {
-                _showLiveScreen(context, idol);
-              } else {
-                _showStoryView(context, idol);
-              }
-            },
-          );
-        },
-      ),
-    );
-  }
-
-  void _showLiveScreen(BuildContext context, IdolModel idol) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => IncomingCallScreen(idol: idol),
-        fullscreenDialog: true,
+              )
+            else
+              Text(
+                idol.stageName,
+                style: PipoTypography.caption.copyWith(
+                  color: PipoColors.textSecondary,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -499,7 +591,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
           body: Stack(
             fit: StackFit.expand,
             children: [
-              // Story Image
               Container(
                 color: Colors.black,
                 child: Center(
@@ -508,48 +599,29 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                     fit: BoxFit.cover,
                     height: double.infinity,
                     width: double.infinity,
-                    placeholder: (context, url) => Container(
-                      color: AppColors.fromHex(idol.imageColor),
-                      child: const Center(
-                        child: CircularProgressIndicator(color: Colors.white),
-                      ),
-                    ),
-                    errorWidget: (context, url, error) => Container(
-                      color: AppColors.fromHex(idol.imageColor),
-                      child: const Center(
-                        child:
-                            Icon(Icons.person, color: Colors.white54, size: 80),
-                      ),
-                    ),
                   ),
                 ),
               ),
-              // Gradient Overlay
-              Positioned.fill(
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        Colors.black.withValues(alpha: 0.6),
-                        Colors.transparent,
-                        Colors.black.withValues(alpha: 0.6),
-                      ],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      stops: const [0.0, 0.2, 0.8],
-                    ),
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.black.withOpacity(0.6),
+                      Colors.transparent,
+                      Colors.black.withOpacity(0.6),
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    stops: const [0.0, 0.3, 0.8],
                   ),
                 ),
               ),
-              // UI Layer
               SafeArea(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Header
                     Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 12),
+                      padding: const EdgeInsets.all(PipoSpacing.lg),
                       child: Row(
                         children: [
                           CircleAvatar(
@@ -566,14 +638,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          Text(
-                            '1시간 전',
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.6),
-                              fontSize: 13,
-                            ),
-                          ),
                           const Spacer(),
                           IconButton(
                             icon: const Icon(Icons.close,
@@ -583,9 +647,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                         ],
                       ),
                     ),
-                    // Footer
                     Padding(
-                      padding: const EdgeInsets.all(20.0),
+                      padding: const EdgeInsets.all(PipoSpacing.xl),
                       child: SizedBox(
                         width: double.infinity,
                         height: 52,
@@ -597,9 +660,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.white,
                             foregroundColor: Colors.black,
-                            elevation: 0,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(26),
+                              borderRadius: PipoRadius.button,
                             ),
                           ),
                           child: const Text(
@@ -625,20 +687,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     );
   }
 
-  Widget _buildQuickActions(BuildContext context) {
+  Widget _buildQuickActionsGrid(BuildContext context) {
     final actions = [
-      {
-        'icon': Icons.star_rounded,
-        'label': '멤버십',
-        'color': const Color(0xFF6B4DFF),
-        'onTap': () => context.go('/membership'),
-      },
-      {
-        'icon': Icons.chat_bubble_rounded, // Bubble Icon
-        'label': 'Bubble',
-        'color': const Color(0xFFFF4D8D), // Bubble Pink
-        'onTap': () {
-          // Mock navigation to first idol's chat
+      _QuickAction(
+        icon: Icons.star_rounded,
+        label: '멤버십',
+        color: PipoColors.purple,
+        onTap: () => context.go('/membership'),
+      ),
+      _QuickAction(
+        icon: Icons.chat_bubble_rounded,
+        label: 'Bubble',
+        color: PipoColors.primary,
+        onTap: () {
           final firstIdol = MockData.idolModels.first;
           Navigator.of(context).push(
             MaterialPageRoute(
@@ -646,57 +707,60 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
             ),
           );
         },
-      },
-      {
-        'icon': Icons.feed_rounded,
-        'label': '피드',
-        'color': AppColors.primary,
-        'onTap': () => context.go('/community'),
-      },
-      {
-        'icon': Icons.calendar_today_rounded,
-        'label': '스케줄',
-        'color': const Color(0xFF00C853),
-        'onTap': () => context.go('/schedule'),
-      },
+      ),
+      _QuickAction(
+        icon: Icons.feed_rounded,
+        label: '피드',
+        color: PipoColors.teal,
+        onTap: () => context.go('/community'),
+      ),
+      _QuickAction(
+        icon: Icons.calendar_today_rounded,
+        label: '스케줄',
+        color: PipoColors.orange,
+        onTap: () => context.go('/schedule'),
+      ),
     ];
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: Responsive.wp(5)),
+      padding: const EdgeInsets.fromLTRB(
+        PipoSpacing.xl, PipoSpacing.xxl, PipoSpacing.xl, 0,
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: actions.map((action) {
           return GestureDetector(
             onTap: () {
               HapticFeedback.lightImpact();
-              (action['onTap'] as VoidCallback)();
+              action.onTap();
             },
-            child: Column(
-              children: [
-                Container(
-                  width: Responsive.wp(16),
-                  height: Responsive.wp(16),
-                  decoration: BoxDecoration(
-                    color: (action['color'] as Color)
-                        .withAlpha(25), // 0.1 opacity approx
-                    borderRadius: BorderRadius.circular(20),
+            child: SizedBox(
+              width: 70,
+              child: Column(
+                children: [
+                  Container(
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: action.color.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(PipoRadius.lg),
+                    ),
+                    child: Icon(
+                      action.icon,
+                      color: action.color,
+                      size: 26,
+                    ),
                   ),
-                  child: Icon(
-                    action['icon'] as IconData,
-                    color: action['color'] as Color,
-                    size: Responsive.sp(26),
+                  const SizedBox(height: PipoSpacing.sm),
+                  Text(
+                    action.label,
+                    style: PipoTypography.labelSmall.copyWith(
+                      color: PipoColors.textPrimary,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
-                SizedBox(height: Responsive.hp(1)),
-                Text(
-                  action['label'] as String,
-                  style: TextStyle(
-                    fontSize: Responsive.sp(12),
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           );
         }).toList(),
@@ -704,29 +768,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     );
   }
 
-  Widget _buildSectionHeader(
-    BuildContext context,
-    String title,
-    String? actionText, {
-    VoidCallback? onTap,
-  }) {
+  Widget _buildSectionTitle(String title, String? actionText, {VoidCallback? onTap}) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(
-        Responsive.wp(5),
-        Responsive.hp(2),
-        Responsive.wp(5),
-        Responsive.hp(1.5),
+      padding: const EdgeInsets.fromLTRB(
+        PipoSpacing.xl, PipoSpacing.xxxl, PipoSpacing.xl, PipoSpacing.md,
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
             title,
-            style: TextStyle(
-              fontSize: Responsive.sp(20),
-              fontWeight: FontWeight.w800,
-              color: AppColors.textPrimary,
-              letterSpacing: -0.3,
+            style: PipoTypography.titleLarge.copyWith(
+              color: PipoColors.textPrimary,
             ),
           ),
           if (actionText != null)
@@ -736,16 +789,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                 children: [
                   Text(
                     actionText,
-                    style: TextStyle(
-                      fontSize: Responsive.sp(13),
+                    style: PipoTypography.labelSmall.copyWith(
+                      color: PipoColors.primary,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.primary,
                     ),
                   ),
-                  Icon(
+                  const SizedBox(width: 2),
+                  const Icon(
                     Icons.chevron_right_rounded,
-                    size: Responsive.sp(18),
-                    color: AppColors.primary,
+                    size: 18,
+                    color: PipoColors.primary,
                   ),
                 ],
               ),
@@ -755,184 +808,181 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     );
   }
 
-  Widget _buildHotIdolsList(BuildContext context) {
-    // Use idolModels instead of idols
+  Widget _buildCreatorCards(BuildContext context) {
     final idols = MockData.idolModels.take(5).toList();
 
     return SizedBox(
-      height: Responsive.hp(38), // Taller for Photocard style
+      height: 260,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
-        padding:
-            EdgeInsets.symmetric(horizontal: Responsive.wp(5), vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: PipoSpacing.xl),
         itemCount: idols.length,
         itemBuilder: (context, index) {
           final idol = idols[index];
-          return _buildIdolPhotocard(context, idol, index + 1);
+          return _buildCreatorCard(context, idol, index + 1);
         },
       ),
     );
   }
 
-  Widget _buildIdolPhotocard(BuildContext context, IdolModel idol, int rank) {
+  Widget _buildCreatorCard(BuildContext context, IdolModel idol, int rank) {
     final imageColor =
-        AppColors.fromHex(idol.imageColor, defaultColor: AppColors.primary);
+        AppColors.fromHex(idol.imageColor, defaultColor: PipoColors.primary);
 
     return GestureDetector(
       onTap: () => context.go('/idols/${idol.id}'),
       child: Container(
-        width: Responsive.wp(55), // Wider card
-        margin: EdgeInsets.only(right: Responsive.wp(4)),
+        width: 180,
+        margin: const EdgeInsets.only(right: PipoSpacing.md),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: AppColors.elevatedShadow(opacity: 0.15),
-          image: DecorationImage(
-            image: NetworkImage(idol.profileImage),
-            fit: BoxFit.cover,
-          ),
+          borderRadius: BorderRadius.circular(PipoRadius.xl),
+          boxShadow: PipoShadows.md,
         ),
-        child: Stack(
-          children: [
-            // Gradient Overlay
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(24),
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.black.withValues(alpha: 0.0),
-                    Colors.black.withValues(alpha: 0.6),
-                    Colors.black.withValues(alpha: 0.9),
-                  ],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  stops: const [0.5, 0.8, 1.0],
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(PipoRadius.xl),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              // Image
+              CachedNetworkImage(
+                imageUrl: idol.profileImage,
+                fit: BoxFit.cover,
+                placeholder: (context, url) => Container(color: imageColor),
+                errorWidget: (context, url, error) => Container(
+                  color: imageColor,
+                  child: const Icon(Icons.person, color: Colors.white54, size: 40),
                 ),
               ),
-            ),
-
-            // Rank Badge (Glassmorphism)
-            Positioned(
-              top: 12,
-              left: 12,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
-                      border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.3)),
-                      borderRadius: BorderRadius.circular(12),
+              // Gradient overlay
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.transparent,
+                      Colors.black.withOpacity(0.7),
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    stops: const [0.4, 1.0],
+                  ),
+                ),
+              ),
+              // Rank badge
+              Positioned(
+                top: PipoSpacing.md,
+                left: PipoSpacing.md,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(PipoRadius.sm),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(PipoRadius.sm),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.3),
+                        ),
+                      ),
+                      child: Text(
+                        '#$rank',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w800,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          '#$rank',
-                          style: TextStyle(
+                  ),
+                ),
+              ),
+              // Info
+              Positioned(
+                bottom: PipoSpacing.lg,
+                left: PipoSpacing.lg,
+                right: PipoSpacing.lg,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (idol.groupName != null)
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: imageColor.withOpacity(0.9),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          idol.groupName!,
+                          style: const TextStyle(
                             color: Colors.white,
-                            fontSize: Responsive.sp(14),
-                            fontWeight: FontWeight.w900,
-                            fontStyle: FontStyle.italic,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    Text(
+                      idol.stageName,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -0.3,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        const Icon(Icons.favorite,
+                            color: PipoColors.primary, size: 14),
+                        const SizedBox(width: 4),
+                        Text(
+                          _formatCompact(idol.totalSupport),
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.9),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ],
                     ),
-                  ),
+                  ],
                 ),
               ),
-            ),
-
-            // Idol Info
-            Positioned(
-              bottom: 16,
-              left: 16,
-              right: 16,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (idol.groupName != null)
-                    Container(
-                      margin: const EdgeInsets.only(bottom: 4),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: imageColor.withValues(alpha: 0.8),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        idol.groupName!,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: Responsive.sp(10),
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                  Text(
-                    idol.stageName,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: Responsive.sp(22),
-                      fontWeight: FontWeight.w800,
-                      shadows: [
-                        Shadow(
-                          color: Colors.black.withValues(alpha: 0.5),
-                          offset: const Offset(0, 2),
-                          blurRadius: 4,
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Icon(Icons.favorite, color: AppColors.error, size: 14),
-                      SizedBox(width: 4),
-                      Text(
-                        _formatCompact(idol.totalSupport),
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.9),
-                          fontSize: Responsive.sp(13),
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildCampaignsList(BuildContext context) {
+  Widget _buildFundingCards(BuildContext context) {
     final campaigns = MockData.campaigns.take(3).toList();
 
     return SizedBox(
-      height: Responsive.hp(28),
+      height: 180,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
-        padding:
-            EdgeInsets.symmetric(horizontal: Responsive.wp(5), vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: PipoSpacing.xl),
         itemCount: campaigns.length,
         itemBuilder: (context, index) {
           final campaign = campaigns[index];
-          return _buildCampaignCard(context, campaign);
+          return _buildFundingCard(context, campaign);
         },
       ),
     );
   }
 
-  Widget _buildCampaignCard(
-      BuildContext context, Map<String, dynamic> campaign) {
+  Widget _buildFundingCard(BuildContext context, Map<String, dynamic> campaign) {
     final progress =
         (campaign['currentAmount'] as int) / (campaign['goalAmount'] as int);
     final daysLeft =
@@ -941,91 +991,90 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     return GestureDetector(
       onTap: () => context.go('/campaigns/${campaign['id']}'),
       child: Container(
-        width: Responsive.wp(70),
-        margin: EdgeInsets.only(right: Responsive.wp(3)),
-        padding: EdgeInsets.all(Responsive.wp(4)),
+        width: 280,
+        margin: const EdgeInsets.only(right: PipoSpacing.md),
+        padding: const EdgeInsets.all(PipoSpacing.lg),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: AppColors.cardShadow(opacity: 0.08),
+          color: PipoColors.surface,
+          borderRadius: BorderRadius.circular(PipoRadius.xl),
+          boxShadow: PipoShadows.sm,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Header
             Row(
               children: [
                 Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: Responsive.wp(2.5),
-                    vertical: Responsive.hp(0.5),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
                   ),
                   decoration: BoxDecoration(
                     color: daysLeft <= 7
-                        ? AppColors.errorSoft
-                        : AppColors.primarySoft,
-                    borderRadius: BorderRadius.circular(8),
+                        ? PipoColors.errorLight
+                        : PipoColors.primarySoft,
+                    borderRadius: BorderRadius.circular(PipoRadius.xs),
                   ),
                   child: Text(
                     daysLeft > 0 ? 'D-$daysLeft' : '마감',
                     style: TextStyle(
-                      color:
-                          daysLeft <= 7 ? AppColors.error : AppColors.primary,
-                      fontSize: Responsive.sp(11),
+                      color: daysLeft <= 7
+                          ? PipoColors.error
+                          : PipoColors.primary,
+                      fontSize: 11,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),
-                SizedBox(width: Responsive.wp(2)),
-                Expanded(
-                  child: Text(
-                    '${(progress * 100).toInt()}% 달성',
-                    style: TextStyle(
-                      fontSize: Responsive.sp(11),
-                      color: AppColors.textSecondary,
-                      fontWeight: FontWeight.w500,
-                    ),
+                const Spacer(),
+                Text(
+                  '${(progress * 100).toInt()}%',
+                  style: PipoTypography.titleMedium.copyWith(
+                    color: PipoColors.primary,
                   ),
                 ),
               ],
             ),
-            SizedBox(height: Responsive.hp(1.5)),
+            const SizedBox(height: PipoSpacing.md),
+            // Title
             Text(
               campaign['title'] ?? '',
-              style: TextStyle(
-                fontSize: Responsive.sp(16),
-                fontWeight: FontWeight.w700,
+              style: PipoTypography.titleMedium.copyWith(
+                color: PipoColors.textPrimary,
                 height: 1.3,
               ),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
             const Spacer(),
+            // Progress bar
             ClipRRect(
               borderRadius: BorderRadius.circular(4),
               child: LinearProgressIndicator(
                 value: progress.clamp(0.0, 1.0),
-                backgroundColor: AppColors.border,
-                valueColor: const AlwaysStoppedAnimation(AppColors.primary),
+                backgroundColor: PipoColors.border,
+                valueColor:
+                    const AlwaysStoppedAnimation(PipoColors.primary),
                 minHeight: 6,
               ),
             ),
-            SizedBox(height: Responsive.hp(1)),
+            const SizedBox(height: PipoSpacing.sm),
+            // Footer
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   '${_formatCurrency(campaign['currentAmount'])}원',
-                  style: TextStyle(
-                    fontSize: Responsive.sp(14),
+                  style: PipoTypography.labelMedium.copyWith(
+                    color: PipoColors.primary,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.primary,
                   ),
                 ),
                 Text(
                   '${campaign['supporters']}명 참여',
-                  style: TextStyle(
-                    fontSize: Responsive.sp(12),
-                    color: AppColors.textSecondary,
+                  style: PipoTypography.caption.copyWith(
+                    color: PipoColors.textTertiary,
                   ),
                 ),
               ],
@@ -1036,164 +1085,44 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     );
   }
 
-  Widget _buildPremiumServices(BuildContext context) {
-    final services = [
-      {
-        'icon': Icons.airplane_ticket_rounded,
-        'title': 'VIP 팬미팅',
-        'subtitle': '소수 정예 오프라인 만남',
-        'price': '응모하기',
-        'route': '/date-tickets',
-        'gradient': AppColors.primaryGradient,
-      },
-      {
-        'icon': Icons.videocam_rounded,
-        'title': '1:1 영상통화',
-        'subtitle': '나만의 위한 응원 메시지',
-        'price': '응모하기',
-        'route': '/date-tickets',
-        'gradient': AppColors.premiumGradient,
-      },
-    ];
-
+  Widget _buildPremiumEvents(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: Responsive.wp(5)),
-      child: Column(
+      padding: const EdgeInsets.symmetric(horizontal: PipoSpacing.xl),
+      child: Row(
         children: [
-          Row(
-            children: services.map((service) {
-              return Expanded(
-                child: GestureDetector(
-                  onTap: () {
-                    HapticFeedback.lightImpact();
-                    context.go(service['route'] as String);
-                  },
-                  child: Container(
-                    height: Responsive.hp(21),
-                    margin: EdgeInsets.only(
-                      right: service == services.first ? Responsive.wp(3) : 0,
-                    ),
-                    padding: EdgeInsets.all(Responsive.wp(5)),
-                    decoration: BoxDecoration(
-                      gradient: service['gradient'] as LinearGradient,
-                      borderRadius: BorderRadius.circular(24),
-                      boxShadow: AppColors.glowShadow(AppColors.primary,
-                          opacity: 0.15),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.2),
-                                borderRadius: BorderRadius.circular(14),
-                              ),
-                              child: Icon(
-                                service['icon'] as IconData,
-                                color: Colors.white,
-                                size: Responsive.sp(20),
-                              ),
-                            ),
-                            SizedBox(height: Responsive.hp(2)),
-                            Text(
-                              service['title'] as String,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: Responsive.sp(16),
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: -0.5,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            SizedBox(height: Responsive.hp(0.8)),
-                            Text(
-                              service['subtitle'] as String,
-                              style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.9),
-                                fontSize: Responsive.sp(12),
-                                height: 1.3,
-                              ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Text(
-                              '진행중인 이벤트 보기',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: Responsive.sp(12),
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                            const SizedBox(width: 4),
-                            Icon(
-                              Icons.arrow_forward_rounded,
-                              color: Colors.white,
-                              size: Responsive.sp(12),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            }).toList(),
+          Expanded(
+            child: _buildPremiumCard(
+              context,
+              icon: Icons.videocam_rounded,
+              title: '1:1 영상통화',
+              subtitle: '특별한 만남',
+              gradient: PipoColors.primaryGradient,
+              route: '/date-tickets',
+            ),
           ),
-          SizedBox(height: Responsive.hp(3)),
-          Row(
-            children: [
-              Expanded(
-                child: _buildServiceQuickButton(
-                  context,
-                  icon: Icons.campaign,
-                  label: '팬 광고 펀딩',
-                  route: '/ad-shop',
-                  color: AppColors.gold,
-                ),
-              ),
-              SizedBox(width: Responsive.wp(3)),
-              Expanded(
-                child: _buildServiceQuickButton(
-                  context,
-                  icon: Icons.emoji_events,
-                  label: '랭킹',
-                  route: '/ranking',
-                  color: AppColors.secondary,
-                ),
-              ),
-              SizedBox(width: Responsive.wp(3)),
-              Expanded(
-                child: _buildServiceQuickButton(
-                  context,
-                  icon: Icons.add_circle,
-                  label: '아이돌 등록',
-                  route: '/crm/register-idol',
-                  color: AppColors.success,
-                ),
-              ),
-            ],
+          const SizedBox(width: PipoSpacing.md),
+          Expanded(
+            child: _buildPremiumCard(
+              context,
+              icon: Icons.airplane_ticket_rounded,
+              title: 'VIP 팬미팅',
+              subtitle: '프리미엄 경험',
+              gradient: PipoColors.premiumGradient,
+              route: '/date-tickets',
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildServiceQuickButton(
+  Widget _buildPremiumCard(
     BuildContext context, {
     required IconData icon,
-    required String label,
+    required String title,
+    required String subtitle,
+    required LinearGradient gradient,
     required String route,
-    required Color color,
   }) {
     return GestureDetector(
       onTap: () {
@@ -1201,29 +1130,38 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
         context.go(route);
       },
       child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: Responsive.wp(1.5),
-          vertical: Responsive.hp(1.5),
-        ),
+        height: 140,
+        padding: const EdgeInsets.all(PipoSpacing.lg),
         decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withValues(alpha: 0.3)),
+          gradient: gradient,
+          borderRadius: BorderRadius.circular(PipoRadius.xl),
+          boxShadow: PipoShadows.primaryGlow,
         ),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, color: color, size: Responsive.sp(22)),
-            SizedBox(height: Responsive.hp(0.5)),
-            Text(
-              label,
-              style: TextStyle(
-                color: color,
-                fontSize: Responsive.sp(10),
-                fontWeight: FontWeight.w600,
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(PipoRadius.md),
               ),
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+              child: Icon(icon, color: Colors.white, size: 22),
+            ),
+            const Spacer(),
+            Text(
+              title,
+              style: PipoTypography.titleMedium.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              subtitle,
+              style: PipoTypography.caption.copyWith(
+                color: Colors.white.withOpacity(0.8),
+              ),
             ),
           ],
         ),
@@ -1231,77 +1169,69 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     );
   }
 
-  Widget _buildCategories(BuildContext context) {
+  Widget _buildCategoryChips(BuildContext context) {
     final categories = [
-      {
-        'icon': Icons.mic,
-        'label': '지하 아이돌',
-        'color': AppColors.idolCategory,
-        'value': 'UNDERGROUND_IDOL'
-      },
-      {
-        'icon': Icons.emoji_people,
-        'label': '메이드카페',
-        'color': AppColors.maidCategory,
-        'value': 'MAID_CAFE'
-      },
-      {
-        'icon': Icons.camera_alt,
-        'label': '코스플레이어',
-        'color': AppColors.cosplayCategory,
-        'value': 'COSPLAYER'
-      },
-      {
-        'icon': Icons.smart_display,
-        'label': 'VTuber',
-        'color': AppColors.vtuberCategory,
-        'value': 'VTuber'
-      },
+      _Category(
+        icon: Icons.mic,
+        label: '아이돌',
+        color: const Color(0xFFFF6B9D),
+        value: 'UNDERGROUND_IDOL',
+      ),
+      _Category(
+        icon: Icons.emoji_people,
+        label: '메이드카페',
+        color: const Color(0xFFFF9F43),
+        value: 'MAID_CAFE',
+      ),
+      _Category(
+        icon: Icons.camera_alt,
+        label: '코스플레이어',
+        color: const Color(0xFF54A0FF),
+        value: 'COSPLAYER',
+      ),
+      _Category(
+        icon: Icons.smart_display,
+        label: 'VTuber',
+        color: const Color(0xFF5F27CD),
+        value: 'VTuber',
+      ),
     ];
 
     return SizedBox(
-      height: Responsive.hp(12),
+      height: 44,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
-        padding: EdgeInsets.symmetric(horizontal: Responsive.wp(5)),
+        padding: const EdgeInsets.symmetric(horizontal: PipoSpacing.xl),
         itemCount: categories.length,
         itemBuilder: (context, index) {
           final cat = categories[index];
           return GestureDetector(
-            onTap: () => context.go('/idols?category=${cat['value']}'),
+            onTap: () => context.go('/idols?category=${cat.value}'),
             child: Container(
-              width: Responsive.wp(20),
-              margin: EdgeInsets.only(
-                right: index != categories.length - 1 ? Responsive.wp(3) : 0,
+              margin: const EdgeInsets.only(right: PipoSpacing.sm),
+              padding: const EdgeInsets.symmetric(
+                horizontal: PipoSpacing.lg,
+                vertical: PipoSpacing.sm,
               ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+              decoration: BoxDecoration(
+                color: cat.color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(PipoRadius.full),
+                border: Border.all(
+                  color: cat.color.withOpacity(0.3),
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Container(
-                    padding: EdgeInsets.all(Responsive.wp(3)),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: AppColors.cardShadow(opacity: 0.05),
-                    ),
-                    child: Icon(
-                      cat['icon'] as IconData,
-                      color: cat['color'] as Color,
-                      size: Responsive.sp(20),
-                    ),
-                  ),
-                  SizedBox(height: Responsive.hp(1)),
+                  Icon(cat.icon, color: cat.color, size: 18),
+                  const SizedBox(width: 6),
                   Text(
-                    cat['label'] as String,
-                    style: TextStyle(
-                      fontSize: Responsive.sp(11),
+                    cat.label,
+                    style: PipoTypography.labelSmall.copyWith(
+                      color: cat.color,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
                     ),
-                    textAlign: TextAlign.center,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
@@ -1312,48 +1242,41 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     );
   }
 
-  Widget _buildRecentPosts(BuildContext context) {
+  Widget _buildRecentActivity(BuildContext context) {
     final posts = MockData.posts.take(3).toList();
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: Responsive.wp(5)),
+      padding: const EdgeInsets.symmetric(horizontal: PipoSpacing.xl),
       child: Column(
         children: posts.map((post) {
           IdolModel? author;
           try {
-            // Find author in idolModels using id
-            author =
-                MockData.idolModels.firstWhere((i) => i.id == post['authorId']);
+            author = MockData.idolModels
+                .firstWhere((i) => i.id == post['authorId']);
           } catch (_) {}
 
-          // Fallback to searching in generic idols map if not found (backward compatibility)
-          // Actually, let's just use idolModels. If not found, it's null.
-          final profileImage = author?.profileImage;
-          final stageName = author?.stageName ?? '익명';
-          final isVerified = author?.isVerified ?? false;
-
           return Container(
-            margin: EdgeInsets.only(bottom: Responsive.hp(1.5)),
-            padding: EdgeInsets.all(Responsive.wp(4)),
+            margin: const EdgeInsets.only(bottom: PipoSpacing.md),
+            padding: const EdgeInsets.all(PipoSpacing.lg),
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: AppColors.cardShadow(opacity: 0.05),
+              color: PipoColors.surface,
+              borderRadius: BorderRadius.circular(PipoRadius.lg),
+              boxShadow: PipoShadows.sm,
             ),
             child: Row(
               children: [
                 CircleAvatar(
-                  radius: Responsive.wp(6),
-                  backgroundColor: AppColors.primarySoft,
-                  backgroundImage: profileImage != null
-                      ? CachedNetworkImageProvider(profileImage)
+                  radius: 22,
+                  backgroundColor: PipoColors.primarySoft,
+                  backgroundImage: author?.profileImage != null
+                      ? CachedNetworkImageProvider(author!.profileImage)
                       : null,
-                  child: profileImage == null
-                      ? Icon(Icons.person,
-                          color: AppColors.primary, size: Responsive.sp(20))
+                  child: author?.profileImage == null
+                      ? const Icon(Icons.person,
+                          color: PipoColors.primary, size: 22)
                       : null,
                 ),
-                SizedBox(width: Responsive.wp(3)),
+                const SizedBox(width: PipoSpacing.md),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -1361,29 +1284,27 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                       Row(
                         children: [
                           Text(
-                            stageName,
-                            style: TextStyle(
-                              fontSize: Responsive.sp(14),
-                              fontWeight: FontWeight.w700,
+                            author?.stageName ?? '익명',
+                            style: PipoTypography.labelMedium.copyWith(
+                              color: PipoColors.textPrimary,
                             ),
                           ),
-                          if (isVerified)
-                            Padding(
-                              padding: const EdgeInsets.only(left: 4),
+                          if (author?.isVerified ?? false)
+                            const Padding(
+                              padding: EdgeInsets.only(left: 4),
                               child: Icon(
                                 Icons.verified,
-                                size: Responsive.sp(14),
-                                color: AppColors.primary,
+                                size: 14,
+                                color: PipoColors.primary,
                               ),
                             ),
                         ],
                       ),
-                      SizedBox(height: Responsive.hp(0.3)),
+                      const SizedBox(height: 2),
                       Text(
                         post['content'] ?? '',
-                        style: TextStyle(
-                          fontSize: Responsive.sp(12),
-                          color: AppColors.textSecondary,
+                        style: PipoTypography.bodySmall.copyWith(
+                          color: PipoColors.textTertiary,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -1391,10 +1312,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                     ],
                   ),
                 ),
-                Icon(
+                const Icon(
                   Icons.chevron_right_rounded,
-                  color: AppColors.textHint,
-                  size: Responsive.sp(20),
+                  color: PipoColors.textDisabled,
+                  size: 20,
                 ),
               ],
             ),
@@ -1403,4 +1324,32 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       ),
     );
   }
+}
+
+class _QuickAction {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+
+  _QuickAction({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
+}
+
+class _Category {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final String value;
+
+  _Category({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.value,
+  });
 }

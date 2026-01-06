@@ -300,57 +300,50 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
               width: Responsive.wp(22),
               height: Responsive.wp(22),
               decoration: BoxDecoration(
-                gradient: AppColors.primaryGradient,
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(Responsive.wp(6)),
-                boxShadow: AppColors.glowShadow(AppColors.primary),
-              ),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  // Shimmer effect
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(Responsive.wp(6)),
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Colors.white.withValues(alpha: 0.2),
-                          Colors.transparent,
-                          Colors.white.withValues(alpha: 0.1),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Icon(
-                    Icons.favorite_rounded,
-                    color: Colors.white,
-                    size: Responsive.wp(11),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primary.withOpacity(0.25),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
                   ),
                 ],
+                border: Border.all(
+                  color: AppColors.primary.withOpacity(0.1),
+                  width: 1,
+                ),
+              ),
+              child: Center(
+                child: Text(
+                  'PIPO',
+                  style: TextStyle(
+                    fontSize: Responsive.sp(28),
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.primary,
+                    fontStyle: FontStyle.italic,
+                    letterSpacing: -1,
+                  ),
+                ),
               ),
             ),
           ),
           SizedBox(height: Responsive.hp(3)),
 
-          // App Name with Gradient
-          ShaderMask(
-            shaderCallback: (bounds) =>
-                AppColors.primaryGradient.createShader(bounds),
-            child: Text(
-              '아이돌 서포트',
-              style: TextStyle(
-                fontSize: Responsive.sp(30),
-                fontWeight: FontWeight.w800,
-                color: Colors.white,
-                letterSpacing: -0.5,
-                fontFamily: 'Pretendard',
-              ),
+          // App Name
+          Text(
+            'PIPO',
+            style: TextStyle(
+              fontSize: Responsive.sp(36),
+              fontWeight: FontWeight.w900,
+              color: AppColors.primary,
+              fontStyle: FontStyle.italic,
+              letterSpacing: -1,
             ),
           ),
           SizedBox(height: Responsive.hp(1)),
           Text(
-            '좋아하는 아이돌을 응원하세요',
+            '좋아하는 크리에이터를 응원하세요',
             style: TextStyle(
               fontSize: Responsive.sp(15),
               color: AppColors.textSecondary,
