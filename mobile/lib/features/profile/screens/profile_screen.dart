@@ -30,7 +30,7 @@ class ProfileScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: Icon(Icons.settings_outlined, size: Responsive.sp(24)),
-            onPressed: () => _showSettingsSheet(context),
+            onPressed: () => context.go('/settings'),
           ),
         ],
       ),
