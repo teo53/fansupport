@@ -44,14 +44,17 @@ class CreatorCard extends StatelessWidget {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              // Image
-              CachedNetworkImage(
-                imageUrl: idol.profileImage,
-                fit: BoxFit.cover,
-                placeholder: (context, url) => Container(color: imageColor),
-                errorWidget: (context, url, error) => Container(
-                  color: imageColor,
-                  child: const Icon(Icons.person, color: Colors.white54, size: 40),
+              // Image with Hero animation
+              Hero(
+                tag: 'idol_profile_${idol.id}',
+                child: CachedNetworkImage(
+                  imageUrl: idol.profileImage,
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) => Container(color: imageColor),
+                  errorWidget: (context, url, error) => Container(
+                    color: imageColor,
+                    child: const Icon(Icons.person, color: Colors.white54, size: 40),
+                  ),
                 ),
               ),
               // Gradient overlay

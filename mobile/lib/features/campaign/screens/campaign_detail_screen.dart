@@ -91,30 +91,33 @@ class _CampaignDetailScreenState extends ConsumerState<CampaignDetailScreen> {
             pinned: true,
             flexibleSpace: FlexibleSpaceBar(
               background: campaign['coverImage'] != null
-                  ? CachedNetworkImage(
-                      imageUrl: campaign['coverImage'],
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => Container(
-                        decoration: const BoxDecoration(
-                          gradient: AppColors.primaryGradient,
-                        ),
-                        child: Center(
-                          child: Icon(
-                            Icons.campaign,
-                            size: Responsive.sp(60),
-                            color: Colors.white.withOpacity(0.5),
+                  ? Hero(
+                      tag: 'campaign_cover_${widget.campaignId}',
+                      child: CachedNetworkImage(
+                        imageUrl: campaign['coverImage'],
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => Container(
+                          decoration: const BoxDecoration(
+                            gradient: AppColors.primaryGradient,
+                          ),
+                          child: Center(
+                            child: Icon(
+                              Icons.campaign,
+                              size: Responsive.sp(60),
+                              color: Colors.white.withOpacity(0.5),
+                            ),
                           ),
                         ),
-                      ),
-                      errorWidget: (context, url, error) => Container(
-                        decoration: const BoxDecoration(
-                          gradient: AppColors.primaryGradient,
-                        ),
-                        child: Center(
-                          child: Icon(
-                            Icons.campaign,
-                            size: Responsive.sp(60),
-                            color: Colors.white.withOpacity(0.5),
+                        errorWidget: (context, url, error) => Container(
+                          decoration: const BoxDecoration(
+                            gradient: AppColors.primaryGradient,
+                          ),
+                          child: Center(
+                            child: Icon(
+                              Icons.campaign,
+                              size: Responsive.sp(60),
+                              color: Colors.white.withOpacity(0.5),
+                            ),
                           ),
                         ),
                       ),

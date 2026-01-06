@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/theme/design_system.dart';
 
 class FundingCard extends StatelessWidget {
@@ -29,7 +30,6 @@ class FundingCard extends StatelessWidget {
       child: Container(
         width: 280,
         margin: const EdgeInsets.only(right: PipoSpacing.md),
-        padding: const EdgeInsets.all(PipoSpacing.lg),
         decoration: BoxDecoration(
           color: PipoColors.surface,
           borderRadius: BorderRadius.circular(PipoRadius.xl),
@@ -38,8 +38,43 @@ class FundingCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header
-            Row(
+            // Cover Image with Hero animation
+            if (campaign['coverImage'] != null)
+              Hero(
+                tag: 'campaign_cover_${campaign['id']}',
+                child: ClipRRect(
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(PipoRadius.xl),
+                    topRight: Radius.circular(PipoRadius.xl),
+                  ),
+                  child: CachedNetworkImage(
+                    imageUrl: campaign['coverImage'],
+                    height: 120,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => Container(
+                      height: 120,
+                      color: PipoColors.primarySoft,
+                    ),
+                    errorWidget: (context, url, error) => Container(
+                      height: 120,
+                      color: PipoColors.primarySoft,
+                      child: const Icon(
+                        Icons.campaign,
+                        size: 40,
+                        color: PipoColors.primary,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            Padding(
+              padding: const EdgeInsets.all(PipoSpacing.lg),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Header
+                  Row(
               children: [
                 Container(
                   padding: const EdgeInsets.symmetric(
@@ -72,48 +107,51 @@ class FundingCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: PipoSpacing.md),
-            // Title
-            Text(
-              campaign['title'] ?? '',
-              style: PipoTypography.titleMedium.copyWith(
-                color: PipoColors.textPrimary,
-                height: 1.3,
-              ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const Spacer(),
-            // Progress bar
-            ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: LinearProgressIndicator(
-                value: progress.clamp(0.0, 1.0),
-                backgroundColor: PipoColors.border,
-                valueColor:
-                    const AlwaysStoppedAnimation(PipoColors.primary),
-                minHeight: 6,
-              ),
-            ),
-            const SizedBox(height: PipoSpacing.sm),
-            // Footer
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  '${_formatCurrency(campaign['currentAmount'])}원',
-                  style: PipoTypography.labelMedium.copyWith(
-                    color: PipoColors.primary,
-                    fontWeight: FontWeight.w700,
+                  const SizedBox(height: PipoSpacing.md),
+                  // Title
+                  Text(
+                    campaign['title'] ?? '',
+                    style: PipoTypography.titleMedium.copyWith(
+                      color: PipoColors.textPrimary,
+                      height: 1.3,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-                Text(
-                  '${campaign['supporters']}명 참여',
-                  style: PipoTypography.caption.copyWith(
-                    color: PipoColors.textTertiary,
+                  const SizedBox(height: PipoSpacing.md),
+                  // Progress bar
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: LinearProgressIndicator(
+                      value: progress.clamp(0.0, 1.0),
+                      backgroundColor: PipoColors.border,
+                      valueColor:
+                          const AlwaysStoppedAnimation(PipoColors.primary),
+                      minHeight: 6,
+                    ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: PipoSpacing.sm),
+                  // Footer
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '${_formatCurrency(campaign['currentAmount'])}원',
+                        style: PipoTypography.labelMedium.copyWith(
+                          color: PipoColors.primary,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      Text(
+                        '${campaign['supporters']}명 참여',
+                        style: PipoTypography.caption.copyWith(
+                          color: PipoColors.textTertiary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ],
         ),

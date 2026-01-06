@@ -52,16 +52,19 @@ class StoryItem extends StatelessWidget {
                   color: Colors.white,
                   shape: BoxShape.circle,
                 ),
-                child: ClipOval(
-                  child: CachedNetworkImage(
-                    imageUrl: idol.profileImage,
-                    fit: BoxFit.cover,
-                    placeholder: (context, url) => Container(
-                      color: AppColors.fromHex(idol.imageColor),
-                    ),
-                    errorWidget: (context, url, error) => Container(
-                      color: AppColors.fromHex(idol.imageColor),
-                      child: const Icon(Icons.person, color: Colors.white54),
+                child: Hero(
+                  tag: 'story_avatar_${idol.id}',
+                  child: ClipOval(
+                    child: CachedNetworkImage(
+                      imageUrl: idol.profileImage,
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => Container(
+                        color: AppColors.fromHex(idol.imageColor),
+                      ),
+                      errorWidget: (context, url, error) => Container(
+                        color: AppColors.fromHex(idol.imageColor),
+                        child: const Icon(Icons.person, color: Colors.white54),
+                      ),
                     ),
                   ),
                 ),
