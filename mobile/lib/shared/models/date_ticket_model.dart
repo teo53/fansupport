@@ -1,9 +1,9 @@
 import 'package:equatable/equatable.dart';
 
-/// 데이트권 타입
+/// 오프회 타입
 enum DateTicketType {
-  meal('식사 데이트', 'MEAL', 1500000), // 150만원
-  cafe('카페 데이트', 'CAFE', 1000000); // 100만원
+  meal('식사 오프회', 'MEAL', 1500000), // 150만원
+  cafe('카페 오프회', 'CAFE', 1000000); // 100만원
 
   final String displayName;
   final String code;
@@ -18,7 +18,7 @@ enum DateTicketType {
   }
 }
 
-/// 데이트권 상태
+/// 오프회 상태
 enum DateTicketStatus {
   available('구매가능', 'AVAILABLE'),
   pending('승인대기', 'PENDING'),
@@ -39,7 +39,7 @@ enum DateTicketStatus {
   }
 }
 
-/// 데이트권 상품 모델 (아이돌이 등록하는 상품)
+/// 특별 만남 상품 모델 (아이돌이 등록하는 상품)
 class DateTicketProduct extends Equatable {
   final String id;
   final String idolId;
@@ -138,7 +138,7 @@ class DateTicketProduct extends Equatable {
   List<Object?> get props => [id, idolId, type, price, isActive];
 }
 
-/// 데이트권 예약 모델 (팬이 구매한 데이트권)
+/// 특별 만남 예약 모델 (오타가 구매한 특별 만남)
 class DateTicketReservation extends Equatable {
   final String id;
   final String ticketProductId;

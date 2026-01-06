@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:fl_chart/fl_chart.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../core/mock/mock_data.dart';
@@ -297,6 +298,14 @@ class _CampaignDetailScreenState extends ConsumerState<CampaignDetailScreen> {
                       ],
                     ),
                   ),
+                  SizedBox(height: Responsive.hp(3)),
+
+                  // User's Contribution (if any)
+                  _buildUserContribution(context),
+
+                  // Contributors Pie Chart
+                  _buildContributorsPieChart(context),
+
                   SizedBox(height: Responsive.hp(3)),
 
                   // Description
@@ -821,6 +830,328 @@ class _CampaignDetailScreenState extends ConsumerState<CampaignDetailScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  // 사용자 기여 금액 표시
+  Widget _buildUserContribution(BuildContext context) {
+    final userContribution = MockData.userContributions[widget.campaignId] ?? 0;
+    if (userContribution == 0) return const SizedBox.shrink();
+
+    return Container(
+      margin: EdgeInsets.only(bottom: Responsive.hp(2)),
+      padding: EdgeInsets.all(Responsive.wp(4)),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppColors.primary.withOpacity(0.15),
+            AppColors.secondary.withOpacity(0.15),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: EdgeInsets.all(Responsive.wp(3)),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withOpacity(0.2),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.favorite, color: AppColors.primary, size: Responsive.sp(24)),
+          ),
+          SizedBox(width: Responsive.wp(4)),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '나의 펀딩 금액',
+                  style: TextStyle(
+                    fontSize: Responsive.sp(13),
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                SizedBox(height: Responsive.hp(0.5)),
+                Text(
+                  '￦${_formatNumber(userContribution)}',
+                  style: TextStyle(
+                    fontSize: Responsive.sp(20),
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            padding: EdgeInsets.symmetric(
+              horizontal: Responsive.wp(3),
+              vertical: Responsive.hp(0.8),
+            ),
+            decoration: BoxDecoration(
+              color: AppColors.success.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.check_circle, color: AppColors.success, size: Responsive.sp(16)),
+                SizedBox(width: Responsive.wp(1)),
+                Text(
+                  '참여 완료',
+                  style: TextStyle(
+                    color: AppColors.success,
+                    fontSize: Responsive.sp(12),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 오타별 기여 비율 원형 차트
+  Widget _buildContributorsPieChart(BuildContext context) {
+    final contributors = MockData.campaignContributors[widget.campaignId] ?? [];
+    if (contributors.isEmpty) return const SizedBox.shrink();
+
+    // 상위 5명 + 기타로 그룹화
+    final totalAmount = contributors.fold<int>(0, (sum, c) => sum + (c['amount'] as int));
+    final topContributors = contributors.take(5).toList();
+    final othersAmount = contributors.skip(5).fold<int>(0, (sum, c) => sum + (c['amount'] as int));
+
+    final chartColors = [
+      const Color(0xFFFF6B6B),
+      const Color(0xFF4ECDC4),
+      const Color(0xFFFFE66D),
+      const Color(0xFF95E1D3),
+      const Color(0xFFA29BFE),
+      const Color(0xFFDFE6E9),
+    ];
+
+    return Container(
+      padding: EdgeInsets.all(Responsive.wp(4)),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.pie_chart, color: AppColors.primary, size: Responsive.sp(20)),
+              SizedBox(width: Responsive.wp(2)),
+              Text(
+                '오타별 펀딩 비율',
+                style: TextStyle(
+                  fontSize: Responsive.sp(16),
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: Responsive.hp(2)),
+          Row(
+            children: [
+              // 파이 차트
+              SizedBox(
+                width: Responsive.wp(35),
+                height: Responsive.wp(35),
+                child: PieChart(
+                  PieChartData(
+                    sectionsSpace: 2,
+                    centerSpaceRadius: Responsive.wp(8),
+                    sections: [
+                      ...topContributors.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final contributor = entry.value;
+                        final amount = contributor['amount'] as int;
+                        final percentage = (amount / totalAmount * 100);
+                        return PieChartSectionData(
+                          color: chartColors[index],
+                          value: percentage,
+                          title: '${percentage.toStringAsFixed(1)}%',
+                          radius: Responsive.wp(12),
+                          titleStyle: TextStyle(
+                            fontSize: Responsive.sp(10),
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        );
+                      }),
+                      if (othersAmount > 0)
+                        PieChartSectionData(
+                          color: chartColors[5],
+                          value: (othersAmount / totalAmount * 100),
+                          title: '${(othersAmount / totalAmount * 100).toStringAsFixed(1)}%',
+                          radius: Responsive.wp(12),
+                          titleStyle: TextStyle(
+                            fontSize: Responsive.sp(10),
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(width: Responsive.wp(4)),
+              // 범례
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ...topContributors.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final contributor = entry.value;
+                      final isCurrentUser = contributor['userId'] == 'demo-user-001';
+                      return Padding(
+                        padding: EdgeInsets.only(bottom: Responsive.hp(0.8)),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 12,
+                              height: 12,
+                              decoration: BoxDecoration(
+                                color: chartColors[index],
+                                borderRadius: BorderRadius.circular(3),
+                              ),
+                            ),
+                            SizedBox(width: Responsive.wp(2)),
+                            Expanded(
+                              child: Text(
+                                contributor['nickname'] as String,
+                                style: TextStyle(
+                                  fontSize: Responsive.sp(12),
+                                  fontWeight: isCurrentUser ? FontWeight.bold : FontWeight.normal,
+                                  color: isCurrentUser ? AppColors.primary : AppColors.textPrimary,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            if (isCurrentUser)
+                              Container(
+                                padding: EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primary.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  'ME',
+                                  style: TextStyle(
+                                    fontSize: Responsive.sp(9),
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.primary,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      );
+                    }),
+                    if (othersAmount > 0)
+                      Padding(
+                        padding: EdgeInsets.only(bottom: Responsive.hp(0.8)),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 12,
+                              height: 12,
+                              decoration: BoxDecoration(
+                                color: chartColors[5],
+                                borderRadius: BorderRadius.circular(3),
+                              ),
+                            ),
+                            SizedBox(width: Responsive.wp(2)),
+                            Text(
+                              '기타 (${contributors.length - 5}명)',
+                              style: TextStyle(
+                                fontSize: Responsive.sp(12),
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: Responsive.hp(2)),
+          // 상위 기여자 목록
+          Container(
+            padding: EdgeInsets.all(Responsive.wp(3)),
+            decoration: BoxDecoration(
+              color: AppColors.backgroundAlt,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'TOP 3 오타',
+                  style: TextStyle(
+                    fontSize: Responsive.sp(12),
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                SizedBox(height: Responsive.hp(1)),
+                ...topContributors.take(3).asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final contributor = entry.value;
+                  final medals = ['🥇', '🥈', '🥉'];
+                  return Padding(
+                    padding: EdgeInsets.only(bottom: Responsive.hp(0.8)),
+                    child: Row(
+                      children: [
+                        Text(medals[index], style: TextStyle(fontSize: Responsive.sp(16))),
+                        SizedBox(width: Responsive.wp(2)),
+                        CircleAvatar(
+                          radius: Responsive.wp(3),
+                          backgroundImage: NetworkImage(contributor['profileImage'] as String),
+                        ),
+                        SizedBox(width: Responsive.wp(2)),
+                        Expanded(
+                          child: Text(
+                            contributor['nickname'] as String,
+                            style: TextStyle(
+                              fontSize: Responsive.sp(13),
+                              fontWeight: FontWeight.w500,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        Text(
+                          '￦${_formatNumber(contributor['amount'] as int)}',
+                          style: TextStyle(
+                            fontSize: Responsive.sp(12),
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -29,12 +29,12 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     OnboardingData(
       emoji: '💬',
       title: '특별한 소통을\n경험하세요',
-      subtitle: '프라이빗 메시지, 영상통화, 팬미팅까지\n특별한 경험이 기다려요',
+      subtitle: '버블 메시지, 오프회까지\n특별한 경험이 기다려요',
       accentColor: const Color(0xFF6366F1),
     ),
     OnboardingData(
       emoji: '🎯',
-      title: '팬들과 함께\n목표를 이루세요',
+      title: '오타들과 함께\n목표를 이루세요',
       subtitle: '생일 광고, 앨범 펀딩 등\n다양한 프로젝트를 함께 만들어요',
       accentColor: const Color(0xFF10B981),
     ),

@@ -332,7 +332,7 @@ class _IdolDashboardScreenState extends State<IdolDashboardScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '팬 성장 추이',
+              '오타 성장 추이',
               style: TextStyle(
                 fontSize: Responsive.sp(18),
                 fontWeight: FontWeight.w700,
@@ -472,7 +472,7 @@ class _IdolDashboardScreenState extends State<IdolDashboardScreen>
                 Expanded(
                   child: _buildInsightCard(
                     icon: Icons.loyalty_rounded,
-                    title: '팬 충성도',
+                    title: '오타 충성도',
                     value: '92.5%',
                     trend: '상위 5%',
                     color: AppColors.holoGold,
@@ -538,7 +538,7 @@ class _IdolDashboardScreenState extends State<IdolDashboardScreen>
 
   Widget _buildTopSupporters() {
     final supporters = [
-      {'name': '별빛팬', 'amount': '₩2,450,000', 'rank': 1},
+      {'name': '별빛오타', 'amount': '₩2,450,000', 'rank': 1},
       {'name': 'forever_fan', 'amount': '₩1,890,000', 'rank': 2},
       {'name': '응원단장', 'amount': '₩1,234,000', 'rank': 3},
     ];

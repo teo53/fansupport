@@ -260,7 +260,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                         ),
                         children: [
                           TextSpan(
-                            text: user?.nickname ?? '팬',
+                            text: user?.nickname ?? '오타',
                             style: const TextStyle(
                               fontWeight: FontWeight.w700,
                               color: PipoColors.textPrimary,
@@ -1143,9 +1143,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
           Expanded(
             child: _buildPremiumCard(
               context,
-              icon: Icons.videocam_rounded,
-              title: '1:1 영상통화',
-              subtitle: '특별한 만남',
+              icon: Icons.local_cafe_rounded,
+              title: '오프회',
+              subtitle: '프리미엄 경험',
               gradient: PipoColors.primaryGradient,
               route: '/date-tickets',
             ),
@@ -1155,7 +1155,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
             child: _buildPremiumCard(
               context,
               icon: Icons.airplane_ticket_rounded,
-              title: 'VIP 팬미팅',
+              title: 'VIP 오프회',
               subtitle: '프리미엄 경험',
               gradient: PipoColors.premiumGradient,
               route: '/date-tickets',

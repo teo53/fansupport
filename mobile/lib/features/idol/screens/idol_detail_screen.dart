@@ -273,28 +273,28 @@ class IdolDetailScreen extends ConsumerWidget {
                         SizedBox(height: Responsive.hp(2)),
                         _buildBenefitTier(
                           context,
-                          name: '브론즈 팬',
+                          name: '브론즈 오타',
                           benefits: ['독점 게시물 열람', '월간 인사 메시지'],
                           color: AppColors.bronze,
                         ),
                         SizedBox(height: Responsive.hp(1.5)),
                         _buildBenefitTier(
                           context,
-                          name: '실버 팬',
+                          name: '실버 오타',
                           benefits: [
                             '브론즈 혜택 전체',
                             '라이브 방송 참여',
-                            '팬미팅 우선권',
+                            '오프회 우선권',
                           ],
                           color: AppColors.silver,
                         ),
                         SizedBox(height: Responsive.hp(1.5)),
                         _buildBenefitTier(
                           context,
-                          name: '골드 팬',
+                          name: '골드 오타',
                           benefits: [
                             '실버 혜택 전체',
-                            '1:1 영상 메시지',
+                            '단독 인사 영상',
                             '사인 굿즈 증정',
                           ],
                           color: AppColors.gold,
@@ -482,7 +482,7 @@ class IdolDetailScreen extends ConsumerWidget {
       Icons.looks_3_rounded
     ];
     final colors = [AppColors.gold, AppColors.silver, AppColors.bronze];
-    final names = ['최고의팬', '열정서포터', '응원단장'];
+    final names = ['최고의오타', '열정서포터', '응원단장'];
 
     return Padding(
       padding: EdgeInsets.only(bottom: index == 2 ? 0 : Responsive.hp(1.5)),

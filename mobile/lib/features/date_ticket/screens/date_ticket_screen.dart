@@ -74,7 +74,7 @@ class _DateTicketScreenState extends ConsumerState<DateTicketScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '데이트권',
+                    '오프회',
                     style: TextStyle(
                       fontSize: Responsive.sp(22),
                       fontWeight: FontWeight.w800,
@@ -82,7 +82,7 @@ class _DateTicketScreenState extends ConsumerState<DateTicketScreen> {
                     ),
                   ),
                   Text(
-                    '좋아하는 아이돌과 특별한 시간을',
+                    '좋아하는 아이돌과 특별한 시간',
                     style: TextStyle(
                       fontSize: Responsive.sp(13),
                       color: AppColors.textSecondary,
@@ -141,7 +141,7 @@ class _DateTicketScreenState extends ConsumerState<DateTicketScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '프리미엄 데이트',
+                        '프리미엄 오프회',
                         style: TextStyle(
                           fontSize: Responsive.sp(18),
                           fontWeight: FontWeight.w800,
@@ -149,7 +149,7 @@ class _DateTicketScreenState extends ConsumerState<DateTicketScreen> {
                         ),
                       ),
                       Text(
-                        '아이돌과 1:1 특별한 만남',
+                        '아이돌과 1:1 특별한 시간',
                         style: TextStyle(
                           fontSize: Responsive.sp(13),
                           color: AppColors.textSecondary,
@@ -170,9 +170,9 @@ class _DateTicketScreenState extends ConsumerState<DateTicketScreen> {
               ),
               child: Column(
                 children: [
-                  _buildInfoRow(Icons.restaurant_rounded, '식사 데이트', '150만원~'),
+                  _buildInfoRow(Icons.restaurant_rounded, '식사 오프회', '150만원~'),
                   const SizedBox(height: 8),
-                  _buildInfoRow(Icons.local_cafe_rounded, '카페 데이트', '100만원~'),
+                  _buildInfoRow(Icons.local_cafe_rounded, '카페 오프회', '100만원~'),
                 ],
               ),
             ),
@@ -226,9 +226,9 @@ class _DateTicketScreenState extends ConsumerState<DateTicketScreen> {
           children: [
             _buildFilterChip(null, '전체'),
             const SizedBox(width: 8),
-            _buildFilterChip(DateTicketType.meal, '식사 데이트'),
+            _buildFilterChip(DateTicketType.meal, '식사 오프회'),
             const SizedBox(width: 8),
-            _buildFilterChip(DateTicketType.cafe, '카페 데이트'),
+            _buildFilterChip(DateTicketType.cafe, '카페 오프회'),
           ],
         ),
       ),

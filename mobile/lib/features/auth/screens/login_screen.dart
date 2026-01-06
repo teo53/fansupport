@@ -79,7 +79,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             const SizedBox(height: 16),
             _buildDemoOption(
               icon: Icons.person,
-              title: '일반 팬',
+              title: '일반 오타 (Ota)',
+              subtitle: '아이돌을 후원하고 소통하는 사용자',
               color: PipoColors.primary,
               onTap: () {
                 Navigator.pop(context);
@@ -89,7 +90,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             const SizedBox(height: 10),
             _buildDemoOption(
               icon: Icons.star,
-              title: '아이돌',
+              title: '아이돌 (Idol)',
+              subtitle: '오타들과 소통하고 후원을 받는 아이돌',
               color: PipoColors.purple,
               onTap: () {
                 Navigator.pop(context);

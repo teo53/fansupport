@@ -329,7 +329,7 @@ class _IdolRegistrationScreenState extends ConsumerState<IdolRegistrationScreen>
               SizedBox(width: Responsive.wp(3)),
               Expanded(
                 child: Text(
-                  'SNS 계정을 연결하면 팬들이 쉽게 팔로우할 수 있어요!',
+                  'SNS 계정을 연결하면 오타분들이 쉽게 팔로우할 수 있어요!',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: Responsive.sp(13),
@@ -387,11 +387,11 @@ class _IdolRegistrationScreenState extends ConsumerState<IdolRegistrationScreen>
       children: [
         // Date Ticket Settings
         _buildSectionCard(
-          '데이트권 설정',
+          '오프회 설정',
           [
             _buildServiceToggle(
-              '식사 데이트권',
-              '팬과 함께 식사하는 프리미엄 경험',
+              '식사 오프회',
+              '오타와 함께 식사하는 프리미엄 경험',
               Icons.restaurant,
               _offersMealDate,
               (value) => setState(() => _offersMealDate = value),
@@ -405,8 +405,8 @@ class _IdolRegistrationScreenState extends ConsumerState<IdolRegistrationScreen>
             ),
             SizedBox(height: Responsive.hp(2)),
             _buildServiceToggle(
-              '카페 데이트권',
-              '카페에서 팬과 티타임',
+              '카페 오프회',
+              '카페에서 오타와 티타임',
               Icons.local_cafe,
               _offersCafeDate,
               (value) => setState(() => _offersCafeDate = value),
@@ -428,7 +428,7 @@ class _IdolRegistrationScreenState extends ConsumerState<IdolRegistrationScreen>
           [
             _buildServiceToggle(
               '버블 서비스 활성화',
-              '팬들에게 특별한 메시지를 보내세요',
+              '오타분들에게 특별한 메시지를 보내세요',
               Icons.chat_bubble,
               _hasBubble,
               (value) => setState(() => _hasBubble = value),
@@ -471,7 +471,7 @@ class _IdolRegistrationScreenState extends ConsumerState<IdolRegistrationScreen>
               ),
               SizedBox(height: Responsive.hp(1.5)),
               _buildCommissionRow('후원금', '10%'),
-              _buildCommissionRow('데이트권', '15%'),
+              _buildCommissionRow('오프회', '15%'),
               _buildCommissionRow('버블 구독', '20%'),
               _buildCommissionRow('광고 펀딩', '5%'),
               SizedBox(height: Responsive.hp(1)),
@@ -541,9 +541,9 @@ class _IdolRegistrationScreenState extends ConsumerState<IdolRegistrationScreen>
               _buildSummaryRow('카테고리', _getCategoryName(_selectedCategory)),
               _buildSummaryRow('이메일', _emailController.text),
               if (_offersMealDate)
-                _buildSummaryRow('식사 데이트권', '${_formatCurrency(_mealDatePrice)}원'),
+                _buildSummaryRow('식사 오프회', '${_formatCurrency(_mealDatePrice)}원'),
               if (_offersCafeDate)
-                _buildSummaryRow('카페 데이트권', '${_formatCurrency(_cafeDatePrice)}원'),
+                _buildSummaryRow('카페 오프회', '${_formatCurrency(_cafeDatePrice)}원'),
               if (_hasBubble)
                 _buildSummaryRow('버블 구독', '월 ${_formatCurrency(_bubblePrice)}원'),
             ],

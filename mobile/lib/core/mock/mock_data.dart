@@ -10,7 +10,7 @@ class MockData {
   static final User demoUser = User(
     id: 'demo-user-001',
     email: 'demo@example.com',
-    nickname: '별빛팬',
+    nickname: '별빛오타',
     profileImage: 'https://i.pravatar.cc/150?img=1',
     role: 'FAN',
     isVerified: true,
@@ -29,7 +29,7 @@ class MockData {
       imageColor: '0xFFE91E63', // Pink
       profileImage: 'https://i.pravatar.cc/300?img=5',
       coverImage: 'https://picsum.photos/seed/cover1/800/400',
-      bio: '데뷔 2년차 솔로 아이돌\n좋아하는 것: 노래, 춤, 팬분들\n꿈: 더 많은 분들께 행복을 전하기',
+      bio: '데뷔 2년차 솔로 아이돌\n좋아하는 것: 노래, 춤, 오타분들\n꿈: 더 많은 분들께 행복을 전하기',
       description: '신나는 무대와 함께하는 지하돌 하늘별입니다! 항상 응원해주셔서 감사해요 💕',
       isVerified: true,
       debutDate: '2023-03-15',
@@ -83,7 +83,7 @@ class MockData {
           name: 'VIP',
           price: 50000,
           description: '최고 혜택',
-          benefits: ['모든 프리미엄 혜택', '월 1회 영상통화 5분', '연간 팬미팅 초대', '친필 편지'],
+          benefits: ['모든 프리미엄 혜택', '연간 오프회 초대', '친필 편지', '굿즈 우선 구매권'],
         ),
       ],
       createdAt: DateTime(2023, 3, 15),
@@ -197,7 +197,7 @@ class MockData {
           name: '풀문',
           price: 20000,
           description: 'VIP 혜택',
-          benefits: ['전용 피드', '비하인드', '미공개 음원', '팬미팅 우선예약'],
+          benefits: ['전용 피드', '비하인드', '미공개 음원', '오프회 우선예약'],
           isPopular: true,
         ),
       ],
@@ -243,7 +243,7 @@ class MockData {
       subscriptionTiers: [
         const SubscriptionTier(
           id: 'tier-1',
-          name: '팬',
+          name: '오타',
           price: 5000,
           description: '기본 구독',
           benefits: ['고화질 코스프레 사진', '제작 비하인드'],
@@ -352,7 +352,7 @@ class MockData {
     CampaignModel(
       id: 'campaign-001',
       title: '하늘별 첫 번째 미니앨범 [Starlight] 발매',
-      description: '팬 여러분과 함께 만들어가는 첫 미니앨범! 2년간의 지하돌 활동을 담은 5곡 수록 예정.',
+      description: '오타 여러분과 함께 만들어가는 첫 미니앨범! 2년간의 지하돌 활동을 담은 5곡 수록 예정.',
       detailContent: '''
 ## 프로젝트 소개
 
@@ -363,7 +363,7 @@ class MockData {
 ### 수록곡 (예정)
 1. **Starlight** - 타이틀곡
 2. **첫 만남** - 데뷔 때의 설렘을 담은 곡
-3. **약속** - 팬분들께 드리는 약속
+3. **약속** - 오타분들께 드리는 약속
 4. **새벽** - 밤새 연습하던 날들
 5. **함께** - 응원해주신 분들께
 
@@ -421,13 +421,13 @@ class MockData {
         ),
         const CampaignReward(
           id: 'reward-4',
-          title: '팬미팅 초대권',
-          description: '발매 기념 팬미팅 초대 + 사인 앨범 + 단체 사진 촬영',
+          title: '오프회 초대권',
+          description: '발매 기념 오프회 초대 + 사인 앨범 + 단체 사진 촬영',
           amount: 150000,
           supporterCount: 41,
           limit: 50,
-          items: ['팬미팅 초대권', '사인 앨범', '단체 사진', '디지털 앨범'],
-          deliveryInfo: '팬미팅: 2025년 3월 서울 예정',
+          items: ['오프회 초대권', '사인 앨범', '단체 사진', '디지털 앨범'],
+          deliveryInfo: '오프회: 2025년 3월 서울 예정',
         ),
       ],
       updates: [
@@ -454,7 +454,7 @@ class MockData {
     CampaignModel(
       id: 'campaign-002',
       title: '루나 생일 서포트 - 강남역 전광판 광고',
-      description: '루나의 생일을 강남역 전광판에서 축하해주세요! 팬들이 모아 만드는 특별한 생일 선물.',
+      description: '루나의 생일을 강남역 전광판에서 축하해주세요! 오타들이 모아 만드는 특별한 생일 선물.',
       detailContent: '''
 ## 루나 생일 광고 프로젝트 🎂
 
@@ -465,7 +465,7 @@ class MockData {
 - **노출**: 1시간당 약 12회 (1회 15초)
 
 ### 광고 시안
-루나의 베스트 사진과 함께 "Happy Birthday Luna 🌙 팬들이 전하는 사랑" 메시지 예정
+루나의 베스트 사진과 함께 "Happy Birthday Luna 🌙 오타들이 전하는 사랑" 메시지 예정
 
 ### 달성 시 추가 혜택
 - 150% 달성: 신논현역 추가 게재
@@ -480,7 +480,7 @@ class MockData {
         'https://picsum.photos/seed/billboard/600/400',
       ],
       creatorId: 'user-organizer-001',
-      creatorName: '루나 팬클럽 대표',
+      creatorName: '루나 오타클럽 대표',
       creatorImage: 'https://i.pravatar.cc/100?img=15',
       isVerifiedCreator: false,
       goalAmount: 10000000,
@@ -509,7 +509,7 @@ class MockData {
         const CampaignReward(
           id: 'reward-3',
           title: '굿즈 세트',
-          description: '이름 게재 + 루나 생일 기념 팬메이드 굿즈',
+          description: '이름 게재 + 루나 생일 기념 오타메이드 굿즈',
           amount: 80000,
           supporterCount: 66,
           items: ['이름 게재', '아크릴 스탠드', '포토카드 세트', '슬로건'],
@@ -643,7 +643,7 @@ class MockData {
       idolName: '하늘별',
       idolProfileImage: 'https://i.pravatar.cc/100?img=5',
       type: BubbleMessageType.text,
-      content: '오늘 연습 끝났어요! 너무 힘들었지만 팬분들 생각하니까 힘이 나요 💕 다들 뭐해요?',
+      content: '오늘 연습 끝났어요! 너무 힘들었지만 오타분들 생각하니까 힘이 나요 💕 다들 뭐해요?',
       isSubscriberOnly: false,
       viewCount: 1234,
       likeCount: 456,
@@ -888,7 +888,7 @@ class MockData {
       startDate: DateTime(2024, 12, 15),
       endDate: DateTime(2025, 1, 10),
       organizerId: 'user-001',
-      organizerName: '루나 팬클럽',
+      organizerName: '루나 오타클럽',
       adDesignImage: 'https://picsum.photos/seed/lunaad/600/300',
       createdAt: DateTime(2024, 12, 15),
     ),
@@ -911,6 +911,44 @@ class MockData {
       createdAt: DateTime(2025, 1, 1),
     ),
   ];
+
+  // ============ 펀딩 기여자 상세 데이터 (오타별 비율 표시용) ============
+  static final Map<String, List<Map<String, dynamic>>> campaignContributors = {
+    'campaign-001': [
+      {'userId': 'user-top-1', 'nickname': '별빛오타', 'amount': 1500000, 'profileImage': 'https://i.pravatar.cc/100?img=11'},
+      {'userId': 'user-top-2', 'nickname': '하늘사랑', 'amount': 1200000, 'profileImage': 'https://i.pravatar.cc/100?img=12'},
+      {'userId': 'user-top-3', 'nickname': 'forever_star', 'amount': 890000, 'profileImage': 'https://i.pravatar.cc/100?img=13'},
+      {'userId': 'user-top-4', 'nickname': '응원단장', 'amount': 650000, 'profileImage': 'https://i.pravatar.cc/100?img=14'},
+      {'userId': 'user-top-5', 'nickname': '별의수호자', 'amount': 500000, 'profileImage': 'https://i.pravatar.cc/100?img=15'},
+      {'userId': 'demo-user-001', 'nickname': '별빛오타', 'amount': 55000, 'profileImage': 'https://i.pravatar.cc/150?img=1'},
+    ],
+    'campaign-002': [
+      {'userId': 'user-luna-1', 'nickname': '달빛수호자', 'amount': 800000, 'profileImage': 'https://i.pravatar.cc/100?img=21'},
+      {'userId': 'user-luna-2', 'nickname': '문라이트', 'amount': 650000, 'profileImage': 'https://i.pravatar.cc/100?img=22'},
+      {'userId': 'user-luna-3', 'nickname': '루나사랑해', 'amount': 500000, 'profileImage': 'https://i.pravatar.cc/100?img=23'},
+      {'userId': 'user-luna-4', 'nickname': '달빛오타', 'amount': 380000, 'profileImage': 'https://i.pravatar.cc/100?img=24'},
+      {'userId': 'demo-user-001', 'nickname': '별빛오타', 'amount': 30000, 'profileImage': 'https://i.pravatar.cc/150?img=1'},
+    ],
+    'campaign-003': [
+      {'userId': 'user-sakura-1', 'nickname': '벚꽃오타', 'amount': 350000, 'profileImage': 'https://i.pravatar.cc/100?img=31'},
+      {'userId': 'user-sakura-2', 'nickname': '코스프레팬', 'amount': 280000, 'profileImage': 'https://i.pravatar.cc/100?img=32'},
+      {'userId': 'user-sakura-3', 'nickname': '사쿠라최고', 'amount': 200000, 'profileImage': 'https://i.pravatar.cc/100?img=33'},
+    ],
+    'campaign-004': [
+      {'userId': 'user-concert-1', 'nickname': '콘서트왕', 'amount': 900000, 'profileImage': 'https://i.pravatar.cc/100?img=41'},
+      {'userId': 'user-concert-2', 'nickname': '공연사랑', 'amount': 600000, 'profileImage': 'https://i.pravatar.cc/100?img=42'},
+      {'userId': 'user-concert-3', 'nickname': 'MoonLight오타', 'amount': 450000, 'profileImage': 'https://i.pravatar.cc/100?img=43'},
+      {'userId': 'user-concert-4', 'nickname': '라이브마니아', 'amount': 300000, 'profileImage': 'https://i.pravatar.cc/100?img=44'},
+    ],
+  };
+
+  // 현재 사용자의 각 아이돌/캠페인별 지출 내역
+  static final Map<String, int> userContributions = {
+    'campaign-001': 55000, // 하늘별 미니앨범
+    'campaign-002': 30000, // 루나 생일 광고
+    'idol-001': 125000, // 하늘별 총 후원
+    'idol-003': 45000, // 루나 총 후원
+  };
 
   // ============ 거래 내역 데이터 ============
   static final List<Map<String, dynamic>> transactions = [
@@ -982,7 +1020,7 @@ class MockData {
         'category': 'UNDERGROUND_IDOL',
       },
       'content':
-          '오늘 연습 끝! 다음 주 공연 준비 열심히 하고 있어요 💪 팬분들 많이 와주실 거죠? 🥺\n\n#하늘별 #지하돌 #연습',
+          '오늘 연습 끝! 다음 주 공연 준비 열심히 하고 있어요 💪 오타분들 많이 와주실 거죠? 🥺\n\n#하늘별 #지하돌 #연습',
       'images': ['https://picsum.photos/seed/practice/400/400'],
       'likeCount': 234,
       'commentCount': 45,
@@ -1066,6 +1104,181 @@ class MockData {
       'isSubscriberOnly': true,
     },
   ];
+
+  // ============ 오타 뱃지 데이터 ============
+  static final List<Map<String, dynamic>> userBadges = [
+    {
+      'id': 'badge-event-bronze',
+      'name': '첫 공연 참석',
+      'description': '오프라인 공연에 처음 참석했어요!',
+      'icon': '🎤',
+      'category': 'event',
+      'tier': 'bronze',
+      'requirement': '공연 1회 참석',
+      'isUnlocked': true,
+      'unlockedAt': '2024-10-15',
+    },
+    {
+      'id': 'badge-event-silver',
+      'name': '열정 오타',
+      'description': '오프라인 공연에 5회 이상 참석했어요!',
+      'icon': '🎪',
+      'category': 'event',
+      'tier': 'silver',
+      'requirement': '공연 5회 참석',
+      'isUnlocked': true,
+      'unlockedAt': '2024-12-01',
+    },
+    {
+      'id': 'badge-event-gold',
+      'name': '전국투어 마스터',
+      'description': '원정 공연을 포함해 10회 이상 참석!',
+      'icon': '🏆',
+      'category': 'event',
+      'tier': 'gold',
+      'requirement': '공연 10회 참석',
+      'isUnlocked': false,
+      'progress': 7,
+      'total': 10,
+    },
+    {
+      'id': 'badge-subscribe-bronze',
+      'name': '첫 구독',
+      'description': '처음으로 아이돌을 구독했어요!',
+      'icon': '💝',
+      'category': 'subscribe',
+      'tier': 'bronze',
+      'requirement': '첫 구독',
+      'isUnlocked': true,
+      'unlockedAt': '2024-08-01',
+    },
+    {
+      'id': 'badge-subscribe-silver',
+      'name': '3개월 연속 구독',
+      'description': '3개월 연속으로 구독을 유지했어요!',
+      'icon': '🌟',
+      'category': 'subscribe',
+      'tier': 'silver',
+      'requirement': '3개월 연속 구독',
+      'isUnlocked': true,
+      'unlockedAt': '2024-11-01',
+    },
+    {
+      'id': 'badge-subscribe-gold',
+      'name': '1년 동행',
+      'description': '1년간 구독을 유지한 진정한 오타!',
+      'icon': '💎',
+      'category': 'subscribe',
+      'tier': 'gold',
+      'requirement': '12개월 연속 구독',
+      'isUnlocked': false,
+      'progress': 5,
+      'total': 12,
+    },
+    {
+      'id': 'badge-funding-bronze',
+      'name': '첫 펀딩 참여',
+      'description': '처음으로 펀딩에 참여했어요!',
+      'icon': '🚀',
+      'category': 'funding',
+      'tier': 'bronze',
+      'requirement': '펀딩 1회 참여',
+      'isUnlocked': true,
+      'unlockedAt': '2024-09-20',
+    },
+    {
+      'id': 'badge-funding-silver',
+      'name': '적극 서포터',
+      'description': '5개 이상의 펀딩에 참여했어요!',
+      'icon': '🎯',
+      'category': 'funding',
+      'tier': 'silver',
+      'requirement': '펀딩 5회 참여',
+      'isUnlocked': true,
+      'unlockedAt': '2024-12-10',
+    },
+    {
+      'id': 'badge-funding-gold',
+      'name': '펀딩 마스터',
+      'description': '10개 이상의 펀딩에 참여한 핵심 서포터!',
+      'icon': '👑',
+      'category': 'funding',
+      'tier': 'gold',
+      'requirement': '펀딩 10회 참여',
+      'isUnlocked': false,
+      'progress': 6,
+      'total': 10,
+    },
+    {
+      'id': 'badge-support-bronze',
+      'name': '첫 후원',
+      'description': '처음으로 후원을 보냈어요!',
+      'icon': '❤️',
+      'category': 'support',
+      'tier': 'bronze',
+      'requirement': '후원 1회',
+      'isUnlocked': true,
+      'unlockedAt': '2024-08-15',
+    },
+    {
+      'id': 'badge-support-silver',
+      'name': '따뜻한 마음',
+      'description': '10만원 이상 후원했어요!',
+      'icon': '🔥',
+      'category': 'support',
+      'tier': 'silver',
+      'requirement': '총 후원 10만원',
+      'isUnlocked': true,
+      'unlockedAt': '2024-10-01',
+    },
+    {
+      'id': 'badge-support-gold',
+      'name': '레전드 서포터',
+      'description': '100만원 이상 후원한 전설적인 오타!',
+      'icon': '🌈',
+      'category': 'support',
+      'tier': 'gold',
+      'requirement': '총 후원 100만원',
+      'isUnlocked': false,
+      'progress': 170000,
+      'total': 1000000,
+    },
+    {
+      'id': 'badge-special-birthday',
+      'name': '생일 축하',
+      'description': '아이돌 생일에 후원했어요!',
+      'icon': '🎂',
+      'category': 'special',
+      'tier': 'special',
+      'requirement': '생일 후원',
+      'isUnlocked': true,
+      'unlockedAt': '2024-12-25',
+    },
+    {
+      'id': 'badge-special-debut',
+      'name': '데뷔 기념',
+      'description': '아이돌 데뷔일에 함께했어요!',
+      'icon': '⭐',
+      'category': 'special',
+      'tier': 'special',
+      'requirement': '데뷔 기념일 참여',
+      'isUnlocked': true,
+      'unlockedAt': '2024-03-15',
+    },
+  ];
+
+  // 오타 활동 요약
+  static final Map<String, dynamic> userActivitySummary = {
+    'totalEvents': 7,
+    'totalFundings': 6,
+    'totalSupport': 170000,
+    'subscriptionMonths': 5,
+    'unlockedBadges': 10,
+    'totalBadges': 14,
+    'favoriteIdol': 'idol-001',
+    'memberSince': '2024-08-01',
+    'rank': '실버 오타',
+  };
 
   // ============ 메이드카페 데이터 ============
   static final List<Map<String, dynamic>> maidCafes = [

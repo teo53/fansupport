@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
+import '../../../core/mock/mock_data.dart';
 import '../../auth/providers/auth_provider.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -154,6 +156,10 @@ class ProfileScreen extends ConsumerWidget {
                 ),
               ),
             ),
+            SizedBox(height: Responsive.hp(3)),
+
+            // Badges Section
+            _buildBadgesSection(context),
             SizedBox(height: Responsive.hp(3)),
 
             // Menu List
@@ -598,6 +604,606 @@ class ProfileScreen extends ConsumerWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildBadgesSection(BuildContext context) {
+    final unlockedBadges = MockData.userBadges.where((b) => b['isUnlocked'] == true).toList();
+    final lockedBadges = MockData.userBadges.where((b) => b['isUnlocked'] == false).toList();
+    final activitySummary = MockData.userActivitySummary;
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: Responsive.wp(4)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header with badge count
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    '🏅 나의 뱃지',
+                    style: TextStyle(
+                      fontSize: Responsive.sp(16),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(width: Responsive.wp(2)),
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: Responsive.wp(2),
+                      vertical: Responsive.hp(0.3),
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      '${activitySummary['unlockedBadges']}/${activitySummary['totalBadges']}',
+                      style: TextStyle(
+                        fontSize: Responsive.sp(12),
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              TextButton(
+                onPressed: () => _showAllBadges(context),
+                child: Text(
+                  '전체보기',
+                  style: TextStyle(fontSize: Responsive.sp(13)),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: Responsive.hp(1.5)),
+
+          // User Rank Card
+          Container(
+            padding: EdgeInsets.all(Responsive.wp(4)),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  AppColors.silver.withOpacity(0.3),
+                  AppColors.silver.withOpacity(0.1),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.silver.withOpacity(0.5)),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(Responsive.wp(3)),
+                  decoration: BoxDecoration(
+                    color: AppColors.silver,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.workspace_premium,
+                    color: Colors.white,
+                    size: Responsive.sp(24),
+                  ),
+                ),
+                SizedBox(width: Responsive.wp(3)),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        activitySummary['rank'] as String,
+                        style: TextStyle(
+                          fontSize: Responsive.sp(18),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        '가입일: ${activitySummary['memberSince']}',
+                        style: TextStyle(
+                          fontSize: Responsive.sp(12),
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      '공연 ${activitySummary['totalEvents']}회',
+                      style: TextStyle(
+                        fontSize: Responsive.sp(11),
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                    Text(
+                      '펀딩 ${activitySummary['totalFundings']}회',
+                      style: TextStyle(
+                        fontSize: Responsive.sp(11),
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                    Text(
+                      '구독 ${activitySummary['subscriptionMonths']}개월',
+                      style: TextStyle(
+                        fontSize: Responsive.sp(11),
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: Responsive.hp(2)),
+
+          // Unlocked Badges Grid
+          Text(
+            '획득한 뱃지',
+            style: TextStyle(
+              fontSize: Responsive.sp(14),
+              fontWeight: FontWeight.w600,
+              color: AppColors.textSecondary,
+            ),
+          ),
+          SizedBox(height: Responsive.hp(1)),
+          SizedBox(
+            height: Responsive.hp(12),
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: unlockedBadges.length,
+              itemBuilder: (context, index) {
+                final badge = unlockedBadges[index];
+                return _buildBadgeItem(context, badge, isUnlocked: true);
+              },
+            ),
+          ),
+
+          // Locked Badges Preview
+          if (lockedBadges.isNotEmpty) ...[
+            SizedBox(height: Responsive.hp(2)),
+            Text(
+              '도전 중',
+              style: TextStyle(
+                fontSize: Responsive.sp(14),
+                fontWeight: FontWeight.w600,
+                color: AppColors.textSecondary,
+              ),
+            ),
+            SizedBox(height: Responsive.hp(1)),
+            SizedBox(
+              height: Responsive.hp(12),
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: lockedBadges.length > 3 ? 3 : lockedBadges.length,
+                itemBuilder: (context, index) {
+                  final badge = lockedBadges[index];
+                  return _buildBadgeItem(context, badge, isUnlocked: false);
+                },
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBadgeItem(BuildContext context, Map<String, dynamic> badge, {required bool isUnlocked}) {
+    final tierColors = {
+      'bronze': AppColors.bronze,
+      'silver': AppColors.silver,
+      'gold': AppColors.gold,
+      'special': AppColors.primary,
+    };
+    final tierColor = tierColors[badge['tier']] ?? AppColors.primary;
+
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        _showBadgeDetail(context, badge);
+      },
+      child: Container(
+        width: Responsive.wp(22),
+        margin: EdgeInsets.only(right: Responsive.wp(3)),
+        padding: EdgeInsets.all(Responsive.wp(2)),
+        decoration: BoxDecoration(
+          color: isUnlocked ? Colors.white : Colors.grey[100],
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isUnlocked ? tierColor.withOpacity(0.5) : Colors.grey[300]!,
+          ),
+          boxShadow: isUnlocked
+              ? [
+                  BoxShadow(
+                    color: tierColor.withOpacity(0.2),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : null,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                Text(
+                  badge['icon'] as String,
+                  style: TextStyle(
+                    fontSize: Responsive.sp(28),
+                    color: isUnlocked ? null : Colors.grey[400],
+                  ),
+                ),
+                if (!isUnlocked)
+                  Icon(
+                    Icons.lock,
+                    color: Colors.grey[400],
+                    size: Responsive.sp(16),
+                  ),
+              ],
+            ),
+            SizedBox(height: Responsive.hp(0.5)),
+            Text(
+              badge['name'] as String,
+              style: TextStyle(
+                fontSize: Responsive.sp(10),
+                fontWeight: FontWeight.w600,
+                color: isUnlocked ? AppColors.textPrimary : AppColors.textTertiary,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            if (!isUnlocked && badge['progress'] != null) ...[
+              SizedBox(height: Responsive.hp(0.5)),
+              LinearProgressIndicator(
+                value: (badge['progress'] as int) / (badge['total'] as int),
+                backgroundColor: Colors.grey[300],
+                valueColor: AlwaysStoppedAnimation(tierColor),
+                minHeight: 3,
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showBadgeDetail(BuildContext context, Map<String, dynamic> badge) {
+    final isUnlocked = badge['isUnlocked'] as bool;
+    final tierColors = {
+      'bronze': AppColors.bronze,
+      'silver': AppColors.silver,
+      'gold': AppColors.gold,
+      'special': AppColors.primary,
+    };
+    final tierColor = tierColors[badge['tier']] ?? AppColors.primary;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        padding: EdgeInsets.all(Responsive.wp(6)),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: Responsive.wp(10),
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.border,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            SizedBox(height: Responsive.hp(3)),
+            Container(
+              padding: EdgeInsets.all(Responsive.wp(5)),
+              decoration: BoxDecoration(
+                color: tierColor.withOpacity(0.1),
+                shape: BoxShape.circle,
+                border: Border.all(color: tierColor, width: 2),
+              ),
+              child: Text(
+                badge['icon'] as String,
+                style: TextStyle(fontSize: Responsive.sp(40)),
+              ),
+            ),
+            SizedBox(height: Responsive.hp(2)),
+            Text(
+              badge['name'] as String,
+              style: TextStyle(
+                fontSize: Responsive.sp(20),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: Responsive.hp(1)),
+            Text(
+              badge['description'] as String,
+              style: TextStyle(
+                fontSize: Responsive.sp(14),
+                color: AppColors.textSecondary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: Responsive.hp(2)),
+            Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: Responsive.wp(4),
+                vertical: Responsive.hp(1),
+              ),
+              decoration: BoxDecoration(
+                color: AppColors.backgroundAlt,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                '조건: ${badge['requirement']}',
+                style: TextStyle(
+                  fontSize: Responsive.sp(13),
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ),
+            SizedBox(height: Responsive.hp(2)),
+            if (isUnlocked)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.check_circle, color: AppColors.success, size: Responsive.sp(18)),
+                  SizedBox(width: Responsive.wp(1)),
+                  Text(
+                    '${badge['unlockedAt']} 획득',
+                    style: TextStyle(
+                      fontSize: Responsive.sp(13),
+                      color: AppColors.success,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              )
+            else if (badge['progress'] != null) ...[
+              Text(
+                '진행률: ${badge['progress']}/${badge['total']}',
+                style: TextStyle(
+                  fontSize: Responsive.sp(13),
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              SizedBox(height: Responsive.hp(1)),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: LinearProgressIndicator(
+                  value: (badge['progress'] as int) / (badge['total'] as int),
+                  backgroundColor: Colors.grey[200],
+                  valueColor: AlwaysStoppedAnimation(tierColor),
+                  minHeight: 8,
+                ),
+              ),
+            ],
+            SizedBox(height: Responsive.hp(3)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showAllBadges(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => _AllBadgesScreen(),
+      ),
+    );
+  }
+}
+
+class _AllBadgesScreen extends StatelessWidget {
+  final categories = {
+    'event': '공연/이벤트',
+    'subscribe': '구독',
+    'funding': '펀딩',
+    'support': '후원',
+    'special': '특별',
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    Responsive.init(context);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('나의 뱃지'),
+        centerTitle: true,
+      ),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(Responsive.wp(4)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: categories.entries.map((entry) {
+            final categoryBadges = MockData.userBadges
+                .where((b) => b['category'] == entry.key)
+                .toList();
+            if (categoryBadges.isEmpty) return const SizedBox.shrink();
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: Responsive.hp(1.5)),
+                  child: Text(
+                    entry.value,
+                    style: TextStyle(
+                      fontSize: Responsive.sp(16),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    crossAxisSpacing: Responsive.wp(3),
+                    mainAxisSpacing: Responsive.hp(1.5),
+                    childAspectRatio: 0.85,
+                  ),
+                  itemCount: categoryBadges.length,
+                  itemBuilder: (context, index) {
+                    final badge = categoryBadges[index];
+                    final isUnlocked = badge['isUnlocked'] as bool;
+                    final tierColors = {
+                      'bronze': AppColors.bronze,
+                      'silver': AppColors.silver,
+                      'gold': AppColors.gold,
+                      'special': AppColors.primary,
+                    };
+                    final tierColor = tierColors[badge['tier']] ?? AppColors.primary;
+
+                    return GestureDetector(
+                      onTap: () {
+                        HapticFeedback.lightImpact();
+                        _showBadgeDetail(context, badge);
+                      },
+                      child: Container(
+                        padding: EdgeInsets.all(Responsive.wp(2)),
+                        decoration: BoxDecoration(
+                          color: isUnlocked ? Colors.white : Colors.grey[100],
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: isUnlocked ? tierColor.withOpacity(0.5) : Colors.grey[300]!,
+                          ),
+                          boxShadow: isUnlocked
+                              ? [
+                                  BoxShadow(
+                                    color: tierColor.withOpacity(0.15),
+                                    blurRadius: 8,
+                                  ),
+                                ]
+                              : null,
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              badge['icon'] as String,
+                              style: TextStyle(
+                                fontSize: Responsive.sp(32),
+                                color: isUnlocked ? null : Colors.grey[400],
+                              ),
+                            ),
+                            SizedBox(height: Responsive.hp(0.5)),
+                            Text(
+                              badge['name'] as String,
+                              style: TextStyle(
+                                fontSize: Responsive.sp(11),
+                                fontWeight: FontWeight.w600,
+                                color: isUnlocked ? AppColors.textPrimary : AppColors.textTertiary,
+                              ),
+                              textAlign: TextAlign.center,
+                              maxLines: 2,
+                            ),
+                            if (!isUnlocked) ...[
+                              SizedBox(height: Responsive.hp(0.5)),
+                              Icon(Icons.lock, size: Responsive.sp(14), color: Colors.grey[400]),
+                            ],
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                SizedBox(height: Responsive.hp(2)),
+              ],
+            );
+          }).toList(),
+        ),
+      ),
+    );
+  }
+
+  void _showBadgeDetail(BuildContext context, Map<String, dynamic> badge) {
+    final isUnlocked = badge['isUnlocked'] as bool;
+    final tierColors = {
+      'bronze': AppColors.bronze,
+      'silver': AppColors.silver,
+      'gold': AppColors.gold,
+      'special': AppColors.primary,
+    };
+    final tierColor = tierColors[badge['tier']] ?? AppColors.primary;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        padding: EdgeInsets.all(Responsive.wp(6)),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: EdgeInsets.all(Responsive.wp(5)),
+              decoration: BoxDecoration(
+                color: tierColor.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Text(
+                badge['icon'] as String,
+                style: TextStyle(fontSize: Responsive.sp(40)),
+              ),
+            ),
+            SizedBox(height: Responsive.hp(2)),
+            Text(
+              badge['name'] as String,
+              style: TextStyle(
+                fontSize: Responsive.sp(20),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: Responsive.hp(1)),
+            Text(
+              badge['description'] as String,
+              style: TextStyle(
+                fontSize: Responsive.sp(14),
+                color: AppColors.textSecondary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: Responsive.hp(3)),
+            if (isUnlocked)
+              Text(
+                '✅ ${badge['unlockedAt']} 획득',
+                style: TextStyle(
+                  fontSize: Responsive.sp(13),
+                  color: AppColors.success,
+                ),
+              )
+            else if (badge['progress'] != null)
+              Column(
+                children: [
+                  Text('진행률: ${badge['progress']}/${badge['total']}'),
+                  SizedBox(height: Responsive.hp(1)),
+                  LinearProgressIndicator(
+                    value: (badge['progress'] as int) / (badge['total'] as int),
+                    backgroundColor: Colors.grey[200],
+                    valueColor: AlwaysStoppedAnimation(tierColor),
+                  ),
+                ],
+              ),
+            SizedBox(height: Responsive.hp(3)),
+          ],
+        ),
       ),
     );
   }
