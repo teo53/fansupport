@@ -1,22 +1,81 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'core/theme/app_theme.dart';
 import 'core/constants/app_constants.dart';
 import 'shared/providers/router_provider.dart';
+import 'features/splash/screens/splash_screen.dart';
+import 'features/onboarding/screens/onboarding_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const ProviderScope(child: IdolSupportApp()));
 }
 
-class IdolSupportApp extends ConsumerWidget {
+class IdolSupportApp extends ConsumerStatefulWidget {
   const IdolSupportApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<IdolSupportApp> createState() => _IdolSupportAppState();
+}
+
+class _IdolSupportAppState extends ConsumerState<IdolSupportApp> {
+  bool _showSplash = true;
+  bool _showOnboarding = false;
+  bool _isFirstLaunch = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkFirstLaunch();
+  }
+
+  Future<void> _checkFirstLaunch() async {
+    final prefs = await SharedPreferences.getInstance();
+    _isFirstLaunch = prefs.getBool('first_launch') ?? true;
+  }
+
+  void _onSplashComplete() {
+    setState(() {
+      _showSplash = false;
+      if (_isFirstLaunch) {
+        _showOnboarding = true;
+      }
+    });
+  }
+
+  Future<void> _onOnboardingComplete() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('first_launch', false);
+    setState(() {
+      _showOnboarding = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final router = ref.watch(routerProvider);
 
+    // Show splash screen first
+    if (_showSplash) {
+      return MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.lightTheme,
+        home: SplashScreen(onComplete: _onSplashComplete),
+      );
+    }
+
+    // Show onboarding for first-time users
+    if (_showOnboarding) {
+      return MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.lightTheme,
+        home: OnboardingScreen(onComplete: _onOnboardingComplete),
+      );
+    }
+
+    // Main app
     return MaterialApp.router(
       title: AppConstants.appName,
       debugShowCheckedModeBanner: false,

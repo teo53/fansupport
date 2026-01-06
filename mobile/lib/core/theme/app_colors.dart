@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  // Primary Brand Colors (Coral Pink - 사용자 선호)
-  static const Color primary = Color(0xFFFB7185); // Coral Pink (rose-400)
-  static const Color primaryDark = Color(0xFFF43F5E); // Deeper coral (rose-500)
-  static const Color primaryLight = Color(0xFFFDA4AF); // Light coral (rose-300)
-  static const Color primarySoft = Color(0xFFFFF1F2); // Very light coral tint
+  // Primary Brand Colors (Brand Key Color #FF5A5F)
+  static const Color primary = Color(0xFFFF5A5F); // Brand Key Color
+  static const Color primaryDark = Color(0xFFE84C51); // Deeper
+  static const Color primaryLight = Color(0xFFFF8A8E); // Lighter
+  static const Color primarySoft = Color(0xFFFFF0F0); // Very light tint
 
   // Secondary Brand Colors (Neutral Dark)
   static const Color secondary = Color(0xFF1B1B1E);
@@ -54,29 +54,29 @@ class AppColors {
   static const Color google = Colors.white;
   static const Color apple = Colors.black;
 
-  // Category Colors (Coral Pink 계열 조화)
-  static const Color idolCategory = Color(0xFFFB7185);
+  // Category Colors (Brand Color 계열 조화)
+  static const Color idolCategory = Color(0xFFFF5A5F);
   static const Color maidCategory = Color(0xFFF472B6);
   static const Color cosplayCategory = Color(0xFFE879F9);
   static const Color vtuberCategory = Color(0xFF38BDF8);
   static const Color streamerCategory = Color(0xFFFB923C);
   static const Color cosplayerCategory = cosplayCategory;
 
-  // Premium Gradients (Subtle Coral Pink)
+  // Premium Gradients (Brand #FF5A5F)
   static const LinearGradient primaryGradient = LinearGradient(
-    colors: [Color(0xFFFB7185), Color(0xFFFDA4AF)],
+    colors: [Color(0xFFFF5A5F), Color(0xFFFF8A8E)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
   static const LinearGradient premiumGradient = LinearGradient(
-    colors: [Color(0xFFF43F5E), Color(0xFFFB7185)],
+    colors: [Color(0xFFE84C51), Color(0xFFFF5A5F)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
   static const LinearGradient subtleGradient = LinearGradient(
-    colors: [Color(0xFFFDA4AF), Color(0xFFFECDD3)],
+    colors: [Color(0xFFFF8A8E), Color(0xFFFFB8BA)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
@@ -88,33 +88,33 @@ class AppColors {
   );
 
   // Shimmer Colors (for loading effects)
-  static const Color shimmerBase = Color(0xFFFFF1F2);
+  static const Color shimmerBase = Color(0xFFFFF0F0);
   static const Color shimmerHighlight = Color(0xFFFFFFFF);
 
-  // Glow Colors (Coral Pink)
-  static const Color glowPink = Color(0xFFFB7185);
-  static const Color glowLight = Color(0xFFFDA4AF);
+  // Glow Colors (Brand #FF5A5F)
+  static const Color glowPink = Color(0xFFFF5A5F);
+  static const Color glowLight = Color(0xFFFF8A8E);
 
   // Glassmorphism Colors
   static const Color glassWhite = Color(0x33FFFFFF);
   static const Color glassBorder = Color(0x66FFFFFF);
   static const Color glassOverlay = Color(0x1AFFFFFF);
 
-  // Premium Holographic Gradient (Coral Pink 기반)
+  // Premium Holographic Gradient (Brand #FF5A5F 기반)
   static const LinearGradient holographicGradient = LinearGradient(
     colors: [
-      Color(0xFFFB7185),
+      Color(0xFFFF5A5F),
       Color(0xFFF472B6),
-      Color(0xFFFDA4AF),
-      Color(0xFFFECDD3),
+      Color(0xFFFF8A8E),
+      Color(0xFFFFB8BA),
     ],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
-  // Coral Glow Gradient (for borders)
+  // Brand Glow Gradient (for borders)
   static const LinearGradient glowBorderGradient = LinearGradient(
-    colors: [Color(0xFFFB7185), Color(0xFFFDA4AF), Color(0xFFFECDD3)],
+    colors: [Color(0xFFFF5A5F), Color(0xFFFF8A8E), Color(0xFFFFB8BA)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
@@ -124,28 +124,28 @@ class AppColors {
   static const Color silver = Color(0xFFC0C0C0);
   static const Color bronze = Color(0xFFCD7F32);
 
-  // Legacy Neon Colors (Coral Pink 계열로 대체 - 호환성 유지)
-  static const Color neonPink = Color(0xFFFB7185);
-  static const Color neonPurple = Color(0xFFF472B6); // pink-400 대체
+  // Legacy Neon Colors (Brand #FF5A5F 계열로 대체 - 호환성 유지)
+  static const Color neonPink = Color(0xFFFF5A5F);
+  static const Color neonPurple = Color(0xFFF472B6);
   static const Color neonBlue = Color(0xFF38BDF8);
   static const Color neonCyan = Color(0xFF22D3EE);
   static const Color neonMagenta = Color(0xFFF472B6);
 
   // Legacy Holo Colors (호환성 유지)
   static const Color holoGold = Color(0xFFFFD700);
-  static const Color holoPink = Color(0xFFFDA4AF);
+  static const Color holoPink = Color(0xFFFF8A8E);
   static const Color holoBlue = Color(0xFF38BDF8);
   static const Color holoGreen = Color(0xFF4ADE80);
 
-  // Legacy Neon Gradient (Coral Pink)
+  // Legacy Neon Gradient (Brand #FF5A5F)
   static const LinearGradient neonGradient = LinearGradient(
-    colors: [Color(0xFFFB7185), Color(0xFFFDA4AF)],
+    colors: [Color(0xFFFF5A5F), Color(0xFFFF8A8E)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
   static const LinearGradient neonBorderGradient = LinearGradient(
-    colors: [Color(0xFFFB7185), Color(0xFFFDA4AF), Color(0xFFFECDD3)],
+    colors: [Color(0xFFFF5A5F), Color(0xFFFF8A8E), Color(0xFFFFB8BA)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
