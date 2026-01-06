@@ -59,8 +59,22 @@ jobs:
         run: dart run build_runner build --delete-conflicting-outputs || echo "No code generation needed"
         continue-on-error: true
 
-      - name: Build APK
-        run: flutter build apk --${{ github.event.inputs.build_type || 'debug' }} --verbose
+      - name: Build APK (with retry)
+        run: |
+          MAX_ATTEMPTS=3
+          ATTEMPT=0
+          until [ $ATTEMPT -ge $MAX_ATTEMPTS ]
+          do
+            ATTEMPT=$((ATTEMPT+1))
+            echo "Build attempt $ATTEMPT of $MAX_ATTEMPTS..."
+            flutter build apk --${{ github.event.inputs.build_type || 'debug' }} --verbose && break
+            echo "Build failed, retrying..."
+            sleep 10
+          done
+          if [ $ATTEMPT -ge $MAX_ATTEMPTS ]; then
+            echo "Build failed after $MAX_ATTEMPTS attempts"
+            exit 1
+          fi
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
