@@ -77,6 +77,15 @@ class IdolModel extends Equatable {
   // 구독 티어
   final List<SubscriptionTier> subscriptionTiers;
 
+  // 트위터 마이그레이션 관련
+  final bool importedFromTwitter;
+  final DateTime? twitterImportedAt;
+  final String? twitterUserId; // 트위터 사용자 ID
+  final String? twitterHandle; // @username
+  final int? twitterFollowersAtImport; // 이주 당시 팔로워 수
+  final bool twitterAnnouncementSent; // 공지 트윗 발송 여부
+  final int twitterFollowersConverted; // 앱에 가입한 팔로워 수
+
   final DateTime createdAt;
   final DateTime? updatedAt;
 
@@ -121,6 +130,13 @@ class IdolModel extends Equatable {
     this.hasBubble = false,
     this.bubblePrice,
     this.subscriptionTiers = const [],
+    this.importedFromTwitter = false,
+    this.twitterImportedAt,
+    this.twitterUserId,
+    this.twitterHandle,
+    this.twitterFollowersAtImport,
+    this.twitterAnnouncementSent = false,
+    this.twitterFollowersConverted = 0,
     required this.createdAt,
     this.updatedAt,
   });
@@ -171,6 +187,15 @@ class IdolModel extends Equatable {
               ?.map((e) => SubscriptionTier.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
+      importedFromTwitter: json['importedFromTwitter'] as bool? ?? false,
+      twitterImportedAt: json['twitterImportedAt'] != null
+          ? DateTime.parse(json['twitterImportedAt'] as String)
+          : null,
+      twitterUserId: json['twitterUserId'] as String?,
+      twitterHandle: json['twitterHandle'] as String?,
+      twitterFollowersAtImport: json['twitterFollowersAtImport'] as int?,
+      twitterAnnouncementSent: json['twitterAnnouncementSent'] as bool? ?? false,
+      twitterFollowersConverted: json['twitterFollowersConverted'] as int? ?? 0,
       createdAt: DateTime.parse(
           json['createdAt'] as String? ?? DateTime.now().toIso8601String()),
       updatedAt: json['updatedAt'] != null
@@ -221,6 +246,13 @@ class IdolModel extends Equatable {
       'hasBubble': hasBubble,
       'bubblePrice': bubblePrice,
       'subscriptionTiers': subscriptionTiers.map((e) => e.toJson()).toList(),
+      'importedFromTwitter': importedFromTwitter,
+      'twitterImportedAt': twitterImportedAt?.toIso8601String(),
+      'twitterUserId': twitterUserId,
+      'twitterHandle': twitterHandle,
+      'twitterFollowersAtImport': twitterFollowersAtImport,
+      'twitterAnnouncementSent': twitterAnnouncementSent,
+      'twitterFollowersConverted': twitterFollowersConverted,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
     };

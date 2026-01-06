@@ -341,6 +341,10 @@ class _IdolRegistrationScreenState extends ConsumerState<IdolRegistrationScreen>
         ),
         SizedBox(height: Responsive.hp(2)),
 
+        // Twitter Import Button
+        _buildTwitterImportCard(),
+        SizedBox(height: Responsive.hp(2)),
+
         _buildSectionCard(
           'SNS 계정 연결',
           [
@@ -1003,6 +1007,196 @@ class _IdolRegistrationScreenState extends ConsumerState<IdolRegistrationScreen>
     return amount.toString().replaceAllMapped(
       RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
       (Match m) => '${m[1]},',
+    );
+  }
+
+  Widget _buildTwitterImportCard() {
+    return Container(
+      padding: EdgeInsets.all(Responsive.wp(4)),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: AppColors.softShadow(),
+        border: Border.all(color: const Color(0xFF1DA1F2).withValues(alpha: 0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: EdgeInsets.all(Responsive.wp(2.5)),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1DA1F2).withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  Icons.download,
+                  color: const Color(0xFF1DA1F2),
+                  size: Responsive.sp(24),
+                ),
+              ),
+              SizedBox(width: Responsive.wp(3)),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'X(트위터)에서 프로필 가져오기',
+                      style: TextStyle(
+                        fontSize: Responsive.sp(15),
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    Text(
+                      '프로필, 사진, 팔로워 정보를 자동으로 가져옵니다',
+                      style: TextStyle(
+                        fontSize: Responsive.sp(12),
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: Responsive.hp(2)),
+          Row(
+            children: [
+              Icon(Icons.check_circle, color: AppColors.success, size: Responsive.sp(16)),
+              SizedBox(width: Responsive.wp(2)),
+              Text(
+                '프로필 이미지 & 헤더',
+                style: TextStyle(fontSize: Responsive.sp(12), color: AppColors.textSecondary),
+              ),
+            ],
+          ),
+          SizedBox(height: Responsive.hp(0.8)),
+          Row(
+            children: [
+              Icon(Icons.check_circle, color: AppColors.success, size: Responsive.sp(16)),
+              SizedBox(width: Responsive.wp(2)),
+              Text(
+                '자기소개 & 소셜 링크',
+                style: TextStyle(fontSize: Responsive.sp(12), color: AppColors.textSecondary),
+              ),
+            ],
+          ),
+          SizedBox(height: Responsive.hp(0.8)),
+          Row(
+            children: [
+              Icon(Icons.check_circle, color: AppColors.success, size: Responsive.sp(16)),
+              SizedBox(width: Responsive.wp(2)),
+              Text(
+                '갤러리 사진 최대 20장',
+                style: TextStyle(fontSize: Responsive.sp(12), color: AppColors.textSecondary),
+              ),
+            ],
+          ),
+          SizedBox(height: Responsive.hp(2)),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: _importFromTwitter,
+              icon: Icon(Icons.download, size: Responsive.sp(18)),
+              label: Text(
+                '트위터에서 가져오기',
+                style: TextStyle(
+                  fontSize: Responsive.sp(14),
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF1DA1F2),
+                foregroundColor: Colors.white,
+                padding: EdgeInsets.symmetric(vertical: Responsive.hp(1.5)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _importFromTwitter() async {
+    // Show loading dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Center(
+        child: Container(
+          padding: EdgeInsets.all(Responsive.wp(5)),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(color: AppColors.primary),
+              SizedBox(height: Responsive.hp(2)),
+              Text(
+                'X에서 데이터를 가져오는 중...',
+                style: TextStyle(fontSize: Responsive.sp(14)),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    // TODO: 실제 구현에서는 TwitterImportService 사용
+    // final service = TwitterImportService();
+    // final result = await service.importFromTwitter();
+
+    // Mock implementation for demo
+    await Future.delayed(const Duration(seconds: 2));
+
+    if (mounted) {
+      Navigator.of(context).pop(); // Close loading dialog
+
+      // Mock success
+      _showTwitterImportSuccess();
+    }
+  }
+
+  void _showTwitterImportSuccess() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            Icon(Icons.check_circle, color: AppColors.success, size: Responsive.sp(28)),
+            SizedBox(width: Responsive.wp(2)),
+            Text(
+              '가져오기 완료',
+              style: TextStyle(fontSize: Responsive.sp(18)),
+            ),
+          ],
+        ),
+        content: Text(
+          '프로필 정보와 사진들을 성공적으로 가져왔습니다.\n\n'
+          '확인 후 필요한 부분을 수정하고 다음 단계로 진행해주세요.',
+          style: TextStyle(fontSize: Responsive.sp(14), height: 1.5),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(
+              '확인',
+              style: TextStyle(
+                color: AppColors.primary,
+                fontSize: Responsive.sp(15),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
