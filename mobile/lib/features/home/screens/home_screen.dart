@@ -13,6 +13,8 @@ import '../../auth/providers/auth_provider.dart';
 import '../../../shared/models/idol_model.dart';
 import '../../live/screens/incoming_call_screen.dart';
 import '../../chat/screens/chat_screen.dart';
+import '../../../shared/widgets/premium_idol_card.dart';
+import '../../../shared/widgets/wow_effects.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -357,7 +359,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   Widget _buildHeroCard(BuildContext context) {
     return Padding(
       padding: PipoSpacing.screenPadding,
-      child: GestureDetector(
+      child: Tilt3DCard(
+        maxTilt: 12,
+        depth: 10,
         onTap: () => context.go('/campaigns'),
         child: Container(
           height: 180,
@@ -368,6 +372,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
           ),
           child: Stack(
             children: [
+              // Animated particle overlay
+              Positioned.fill(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(PipoRadius.xxl),
+                  child: ParticleBackground(
+                    particleCount: 20,
+                    particleColor: Colors.white,
+                    maxSize: 3,
+                  ),
+                ),
+              ),
               // Decorative circles
               Positioned(
                 right: -30,
@@ -393,6 +408,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   ),
                 ),
               ),
+              // Holographic shimmer effect
+              Positioned.fill(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(PipoRadius.xxl),
+                  child: _HolographicShimmer(),
+                ),
+              ),
               // Content
               Padding(
                 padding: const EdgeInsets.all(PipoSpacing.xxl),
@@ -400,22 +422,24 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(PipoRadius.sm),
-                      ),
-                      child: const Text(
-                        'NEW',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 0.5,
+                    RippleBadge(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(PipoRadius.sm),
+                        ),
+                        child: const Text(
+                          'NEW',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.5,
+                          ),
                         ),
                       ),
                     ),
@@ -729,11 +753,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: actions.map((action) {
-          return GestureDetector(
-            onTap: () {
-              HapticFeedback.lightImpact();
-              action.onTap();
-            },
+          return SpringButton(
+            onTap: action.onTap,
             child: SizedBox(
               width: 70,
               child: Column(
@@ -744,6 +765,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                     decoration: BoxDecoration(
                       color: action.color.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(PipoRadius.lg),
+                      boxShadow: [
+                        BoxShadow(
+                          color: action.color.withOpacity(0.15),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
                     child: Icon(
                       action.icon,
@@ -840,11 +868,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     ];
     final rankGradient = rank <= 5 ? rankColors[rank - 1] : rankColors[3];
 
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.lightImpact();
-        context.go('/idols/${idol.id}');
-      },
+    return Tilt3DCard(
+      maxTilt: 8,
+      depth: 6,
+      onTap: () => context.go('/idols/${idol.id}'),
       child: Container(
         width: 160,
         margin: const EdgeInsets.only(right: PipoSpacing.md),
@@ -881,134 +908,110 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                     maxLines: 1,
                   ),
                   const Spacer(),
-                  // Stats row
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: PipoColors.backgroundAlt,
-                      borderRadius: BorderRadius.circular(PipoRadius.md),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.favorite_rounded,
-                            color: PipoColors.primary, size: 14),
-                        const SizedBox(width: 4),
-                        Text(
-                          _formatCompact(idol.totalSupport),
-                          style: PipoTypography.labelSmall.copyWith(
-                            color: PipoColors.primary,
-                            fontWeight: FontWeight.w700,
+                  // Stats row with gradient border
+                  GradientBorderCard(
+                    borderRadius: PipoRadius.md,
+                    gradientColors: [rankGradient[0].withOpacity(0.5), rankGradient[1].withOpacity(0.3)],
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: PipoColors.backgroundAlt,
+                        borderRadius: BorderRadius.circular(PipoRadius.md - 1),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.favorite_rounded,
+                              color: PipoColors.primary, size: 14),
+                          const SizedBox(width: 4),
+                          Text(
+                            _formatCompact(idol.totalSupport),
+                            style: PipoTypography.labelSmall.copyWith(
+                              color: PipoColors.primary,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 10),
-                        Icon(Icons.people_rounded,
-                            color: PipoColors.textSecondary, size: 14),
-                        const SizedBox(width: 4),
-                        Text(
-                          _formatCompact(idol.fanCount),
-                          style: PipoTypography.labelSmall.copyWith(
-                            color: PipoColors.textSecondary,
-                            fontWeight: FontWeight.w600,
+                          const SizedBox(width: 10),
+                          Icon(Icons.people_rounded,
+                              color: PipoColors.textSecondary, size: 14),
+                          const SizedBox(width: 4),
+                          Text(
+                            _formatCompact(idol.fanCount),
+                            style: PipoTypography.labelSmall.copyWith(
+                              color: PipoColors.textSecondary,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
 
-            // Profile image (floating)
+            // Profile image (floating) with pulse effect for top 3
             Positioned(
               top: 0,
               left: 0,
               right: 0,
               child: Center(
-                child: Container(
-                  width: 72,
-                  height: 72,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: LinearGradient(
-                      colors: rankGradient,
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: rankGradient[0].withOpacity(0.4),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  padding: const EdgeInsets.all(3),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white,
-                    ),
-                    padding: const EdgeInsets.all(2),
-                    child: ClipOval(
-                      child: CachedNetworkImage(
-                        imageUrl: idol.profileImage,
-                        fit: BoxFit.cover,
-                        placeholder: (context, url) => Container(
-                          color: imageColor,
-                          child: const Icon(Icons.person,
-                              color: Colors.white54, size: 28),
-                        ),
-                        errorWidget: (context, url, error) => Container(
-                          color: imageColor,
-                          child: const Icon(Icons.person,
-                              color: Colors.white54, size: 28),
-                        ),
-                      ),
-                    ),
-                  ),
+                child: _AnimatedProfileImage(
+                  imageUrl: idol.profileImage,
+                  imageColor: imageColor,
+                  rankGradient: rankGradient,
+                  isTopRank: rank <= 3,
                 ),
               ),
             ),
 
-            // Rank badge
+            // Rank badge with glow
             Positioned(
               top: 48,
               right: 20,
-              child: Container(
-                width: 26,
-                height: 26,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: rankGradient,
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: rankGradient[0].withOpacity(0.3),
-                      blurRadius: 6,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Center(
-                  child: Text(
-                    '$rank',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                ),
-              ),
+              child: rank <= 3
+                ? RippleBadge(
+                    color: rankGradient[0],
+                    child: _buildRankBadgeContent(rank, rankGradient),
+                  )
+                : _buildRankBadgeContent(rank, rankGradient),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRankBadgeContent(int rank, List<Color> rankGradient) {
+    return Container(
+      width: 26,
+      height: 26,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: rankGradient,
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: rankGradient[0].withOpacity(0.3),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Center(
+        child: Text(
+          '$rank',
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 12,
+            fontWeight: FontWeight.w900,
+          ),
         ),
       ),
     );
@@ -1402,4 +1405,163 @@ class _Category {
     required this.color,
     required this.value,
   });
+}
+
+/// 애니메이션 프로필 이미지 (탑 랭커용 펄스 효과)
+class _AnimatedProfileImage extends StatefulWidget {
+  final String imageUrl;
+  final Color imageColor;
+  final List<Color> rankGradient;
+  final bool isTopRank;
+
+  const _AnimatedProfileImage({
+    required this.imageUrl,
+    required this.imageColor,
+    required this.rankGradient,
+    required this.isTopRank,
+  });
+
+  @override
+  State<_AnimatedProfileImage> createState() => _AnimatedProfileImageState();
+}
+
+class _AnimatedProfileImageState extends State<_AnimatedProfileImage>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _pulseAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    );
+    _pulseAnimation = Tween(begin: 1.0, end: 1.08).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+    if (widget.isTopRank) {
+      _controller.repeat(reverse: true);
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _pulseAnimation,
+      builder: (context, child) {
+        return Transform.scale(
+          scale: widget.isTopRank ? _pulseAnimation.value : 1.0,
+          child: Container(
+            width: 72,
+            height: 72,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: LinearGradient(
+                colors: widget.rankGradient,
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: widget.rankGradient[0].withOpacity(
+                    widget.isTopRank ? 0.4 * _pulseAnimation.value : 0.4,
+                  ),
+                  blurRadius: widget.isTopRank ? 12 * _pulseAnimation.value : 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            padding: const EdgeInsets.all(3),
+            child: Container(
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white,
+              ),
+              padding: const EdgeInsets.all(2),
+              child: ClipOval(
+                child: CachedNetworkImage(
+                  imageUrl: widget.imageUrl,
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) => Container(
+                    color: widget.imageColor,
+                    child: const Icon(Icons.person,
+                        color: Colors.white54, size: 28),
+                  ),
+                  errorWidget: (context, url, error) => Container(
+                    color: widget.imageColor,
+                    child: const Icon(Icons.person,
+                        color: Colors.white54, size: 28),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// 홀로그래픽 쉬머 효과
+class _HolographicShimmer extends StatefulWidget {
+  @override
+  State<_HolographicShimmer> createState() => _HolographicShimmerState();
+}
+
+class _HolographicShimmerState extends State<_HolographicShimmer>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 2500),
+      vsync: this,
+    )..repeat();
+    _animation = Tween(begin: -1.0, end: 2.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _animation,
+      builder: (context, child) {
+        return Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.transparent,
+                Colors.white.withOpacity(0.08),
+                Colors.transparent,
+              ],
+              stops: [
+                (_animation.value - 0.3).clamp(0.0, 1.0),
+                _animation.value.clamp(0.0, 1.0),
+                (_animation.value + 0.3).clamp(0.0, 1.0),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 }

@@ -25,6 +25,7 @@ import '../../features/idol/screens/idol_dashboard_screen.dart';
 import '../../features/message/screens/message_creation_screen.dart';
 import '../../features/schedule/screens/schedule_screen.dart';
 import '../../shared/models/idol_model.dart';
+import '../../core/navigation/page_transitions.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authStateProvider);
@@ -68,8 +69,24 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: '/idols/:id',
-            builder: (context, state) => IdolDetailScreen(
-              idolId: state.pathParameters['id']!,
+            pageBuilder: (context, state) => CustomTransitionPage(
+              key: state.pageKey,
+              child: IdolDetailScreen(
+                idolId: state.pathParameters['id']!,
+              ),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                final curvedAnimation = CurvedAnimation(
+                  parent: animation,
+                  curve: Curves.easeOutCubic,
+                );
+                return FadeTransition(
+                  opacity: curvedAnimation,
+                  child: ScaleTransition(
+                    scale: Tween(begin: 0.92, end: 1.0).animate(curvedAnimation),
+                    child: child,
+                  ),
+                );
+              },
             ),
           ),
           GoRoute(
@@ -82,8 +99,27 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: '/campaigns/:id',
-            builder: (context, state) => CampaignDetailScreen(
-              campaignId: state.pathParameters['id']!,
+            pageBuilder: (context, state) => CustomTransitionPage(
+              key: state.pageKey,
+              child: CampaignDetailScreen(
+                campaignId: state.pathParameters['id']!,
+              ),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                final curvedAnimation = CurvedAnimation(
+                  parent: animation,
+                  curve: Curves.easeOutCubic,
+                );
+                return SlideTransition(
+                  position: Tween(
+                    begin: const Offset(0.0, 0.08),
+                    end: Offset.zero,
+                  ).animate(curvedAnimation),
+                  child: FadeTransition(
+                    opacity: curvedAnimation,
+                    child: child,
+                  ),
+                );
+              },
             ),
           ),
           GoRoute(
@@ -110,7 +146,23 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: '/profile',
-            builder: (context, state) => const ProfileScreen(),
+            pageBuilder: (context, state) => CustomTransitionPage(
+              key: state.pageKey,
+              child: const ProfileScreen(),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                final curvedAnimation = CurvedAnimation(
+                  parent: animation,
+                  curve: Curves.easeOutCubic,
+                );
+                return FadeTransition(
+                  opacity: curvedAnimation,
+                  child: ScaleTransition(
+                    scale: Tween(begin: 0.95, end: 1.0).animate(curvedAnimation),
+                    child: child,
+                  ),
+                );
+              },
+            ),
           ),
           GoRoute(
             path: '/bubble',
@@ -118,7 +170,29 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: '/date-tickets',
-            builder: (context, state) => const DateTicketScreen(),
+            pageBuilder: (context, state) => CustomTransitionPage(
+              key: state.pageKey,
+              child: const DateTicketScreen(),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                final curvedAnimation = CurvedAnimation(
+                  parent: animation,
+                  curve: Curves.easeOutBack,
+                );
+                return FadeTransition(
+                  opacity: CurvedAnimation(
+                    parent: animation,
+                    curve: Curves.easeOut,
+                  ),
+                  child: SlideTransition(
+                    position: Tween(
+                      begin: const Offset(0.0, 0.1),
+                      end: Offset.zero,
+                    ).animate(curvedAnimation),
+                    child: child,
+                  ),
+                );
+              },
+            ),
           ),
           GoRoute(
             path: '/ad-shop',
