@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/design_system.dart';
 import '../../../shared/widgets/custom_button.dart';
 import '../../../shared/widgets/custom_text_field.dart';
 import '../providers/auth_provider.dart';
@@ -22,6 +24,48 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   bool _agreeToTerms = false;
+
+  bool get _hasFormData =>
+      _emailController.text.isNotEmpty ||
+      _passwordController.text.isNotEmpty ||
+      _confirmPasswordController.text.isNotEmpty ||
+      _nicknameController.text.isNotEmpty;
+
+  Future<bool> _onWillPop() async {
+    if (!_hasFormData) return true;
+
+    final shouldLeave = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('회원가입 취소'),
+        content: const Text('입력한 정보가 저장되지 않습니다.\n정말 나가시겠습니까?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(
+              '계속 작성',
+              style: TextStyle(color: PipoColors.textSecondary),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: PipoColors.error,
+            ),
+            child: const Text('나가기'),
+          ),
+        ],
+      ),
+    );
+    return shouldLeave ?? false;
+  }
+
+  void _handleBack() async {
+    if (await _onWillPop()) {
+      if (mounted) context.go('/login');
+    }
+  }
 
   @override
   void dispose() {
@@ -48,14 +92,16 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     final isLoading = authState.value?.isLoading ?? false;
     final error = authState.value?.error;
 
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/login'),
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: _handleBack,
+          ),
         ),
-      ),
-      body: SafeArea(
+        body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: Form(
@@ -268,6 +314,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           ),
         ),
       ),
-    );
+    ));
   }
 }

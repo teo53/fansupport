@@ -812,7 +812,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     final idols = MockData.idolModels.take(5).toList();
 
     return SizedBox(
-      height: 260,
+      height: 200,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
@@ -830,135 +830,185 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     final imageColor =
         AppColors.fromHex(idol.imageColor, defaultColor: PipoColors.primary);
 
+    // Rank colors
+    final rankColors = [
+      [const Color(0xFFFFD700), const Color(0xFFFFA500)], // Gold
+      [const Color(0xFFC0C0C0), const Color(0xFF9E9E9E)], // Silver
+      [const Color(0xFFCD7F32), const Color(0xFF8B4513)], // Bronze
+      [PipoColors.primary, PipoColors.primary.withOpacity(0.7)],
+      [PipoColors.purple, PipoColors.purple.withOpacity(0.7)],
+    ];
+    final rankGradient = rank <= 5 ? rankColors[rank - 1] : rankColors[3];
+
     return GestureDetector(
-      onTap: () => context.go('/idols/${idol.id}'),
+      onTap: () {
+        HapticFeedback.lightImpact();
+        context.go('/idols/${idol.id}');
+      },
       child: Container(
-        width: 180,
+        width: 160,
         margin: const EdgeInsets.only(right: PipoSpacing.md),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(PipoRadius.xl),
-          boxShadow: PipoShadows.md,
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(PipoRadius.xl),
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              // Image
-              CachedNetworkImage(
-                imageUrl: idol.profileImage,
-                fit: BoxFit.cover,
-                placeholder: (context, url) => Container(color: imageColor),
-                errorWidget: (context, url, error) => Container(
-                  color: imageColor,
-                  child: const Icon(Icons.person, color: Colors.white54, size: 40),
-                ),
+        child: Stack(
+          children: [
+            // Main card
+            Container(
+              margin: const EdgeInsets.only(top: 20),
+              padding: const EdgeInsets.fromLTRB(12, 50, 12, 14),
+              decoration: BoxDecoration(
+                color: PipoColors.surface,
+                borderRadius: BorderRadius.circular(PipoRadius.xl),
+                boxShadow: PipoShadows.md,
               ),
-              // Gradient overlay
-              Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.transparent,
-                      Colors.black.withOpacity(0.7),
-                    ],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    stops: const [0.4, 1.0],
-                  ),
-                ),
-              ),
-              // Rank badge
-              Positioned(
-                top: PipoSpacing.md,
-                left: PipoSpacing.md,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(PipoRadius.sm),
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(PipoRadius.sm),
-                        border: Border.all(
-                          color: Colors.white.withOpacity(0.3),
-                        ),
-                      ),
-                      child: Text(
-                        '#$rank',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w800,
-                          fontStyle: FontStyle.italic,
-                        ),
-                      ),
+              child: Column(
+                children: [
+                  // Name
+                  Text(
+                    idol.stageName,
+                    style: PipoTypography.titleMedium.copyWith(
+                      color: PipoColors.textPrimary,
+                      fontWeight: FontWeight.w800,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-              ),
-              // Info
-              Positioned(
-                bottom: PipoSpacing.lg,
-                left: PipoSpacing.lg,
-                right: PipoSpacing.lg,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (idol.groupName != null)
-                      Container(
-                        margin: const EdgeInsets.only(bottom: 4),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: imageColor.withOpacity(0.9),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          idol.groupName!,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                    Text(
-                      idol.stageName,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: -0.3,
-                      ),
+                  const SizedBox(height: 2),
+                  // Group name or category
+                  Text(
+                    idol.groupName ?? idol.category ?? '',
+                    style: PipoTypography.caption.copyWith(
+                      color: PipoColors.textTertiary,
                     ),
-                    const SizedBox(height: 4),
-                    Row(
+                    maxLines: 1,
+                  ),
+                  const Spacer(),
+                  // Stats row
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: PipoColors.backgroundAlt,
+                      borderRadius: BorderRadius.circular(PipoRadius.md),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.favorite,
+                        Icon(Icons.favorite_rounded,
                             color: PipoColors.primary, size: 14),
                         const SizedBox(width: 4),
                         Text(
                           _formatCompact(idol.totalSupport),
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.9),
-                            fontSize: 12,
+                          style: PipoTypography.labelSmall.copyWith(
+                            color: PipoColors.primary,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Icon(Icons.people_rounded,
+                            color: PipoColors.textSecondary, size: 14),
+                        const SizedBox(width: 4),
+                        Text(
+                          _formatCompact(idol.fanCount),
+                          style: PipoTypography.labelSmall.copyWith(
+                            color: PipoColors.textSecondary,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
                       ],
                     ),
-                  ],
+                  ),
+                ],
+              ),
+            ),
+
+            // Profile image (floating)
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: Container(
+                  width: 72,
+                  height: 72,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      colors: rankGradient,
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: rankGradient[0].withOpacity(0.4),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  padding: const EdgeInsets.all(3),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white,
+                    ),
+                    padding: const EdgeInsets.all(2),
+                    child: ClipOval(
+                      child: CachedNetworkImage(
+                        imageUrl: idol.profileImage,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => Container(
+                          color: imageColor,
+                          child: const Icon(Icons.person,
+                              color: Colors.white54, size: 28),
+                        ),
+                        errorWidget: (context, url, error) => Container(
+                          color: imageColor,
+                          child: const Icon(Icons.person,
+                              color: Colors.white54, size: 28),
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ),
-            ],
-          ),
+            ),
+
+            // Rank badge
+            Positioned(
+              top: 48,
+              right: 20,
+              child: Container(
+                width: 26,
+                height: 26,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: rankGradient,
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: rankGradient[0].withOpacity(0.3),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Center(
+                  child: Text(
+                    '$rank',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

@@ -13,6 +13,8 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
+  DateTime? _lastBackPressTime;
+
   int _calculateSelectedIndex(BuildContext context) {
     final location = GoRouterState.of(context).matchedLocation;
     if (location.startsWith('/idols') || location.startsWith('/ranking')) {
@@ -21,7 +23,7 @@ class _MainScreenState extends State<MainScreen> {
     if (location.startsWith('/campaigns')) {
       return 2;
     }
-    if (location.startsWith('/community')) {
+    if (location.startsWith('/schedule') || location.startsWith('/calendar')) {
       return 3;
     }
     if (location.startsWith('/profile') || location.startsWith('/wallet')) {
@@ -43,7 +45,7 @@ class _MainScreenState extends State<MainScreen> {
         context.go('/campaigns');
         break;
       case 3:
-        context.go('/community');
+        context.go('/schedule');
         break;
       case 4:
         context.go('/profile');
@@ -51,14 +53,60 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
+  Future<bool> _onWillPop() async {
+    // Check if we can pop the current route
+    if (GoRouter.of(context).canPop()) {
+      GoRouter.of(context).pop();
+      return false;
+    }
+
+    // We're at the root, show exit confirmation
+    final now = DateTime.now();
+    if (_lastBackPressTime == null ||
+        now.difference(_lastBackPressTime!) > const Duration(seconds: 2)) {
+      _lastBackPressTime = now;
+      _showExitSnackBar();
+      return false;
+    }
+    return true;
+  }
+
+  void _showExitSnackBar() {
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(Icons.exit_to_app_rounded, color: Colors.white, size: 20),
+            const SizedBox(width: 12),
+            const Text(
+              '뒤로가기를 한 번 더 누르면 앱이 종료됩니다',
+              style: TextStyle(fontSize: 14),
+            ),
+          ],
+        ),
+        backgroundColor: PipoColors.textPrimary.withOpacity(0.9),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        margin: const EdgeInsets.fromLTRB(16, 0, 16, 100),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final selectedIndex = _calculateSelectedIndex(context);
 
-    return Scaffold(
-      body: widget.child,
-      extendBody: true,
-      bottomNavigationBar: _buildBottomNavBar(context, selectedIndex),
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: Scaffold(
+        body: widget.child,
+        extendBody: true,
+        bottomNavigationBar: _buildBottomNavBar(context, selectedIndex),
+      ),
     );
   }
 
@@ -77,8 +125,8 @@ class _MainScreenState extends State<MainScreen> {
       child: SafeArea(
         top: false,
         child: Container(
-          height: 80,
-          padding: const EdgeInsets.symmetric(horizontal: PipoSpacing.sm),
+          height: 72,
+          padding: const EdgeInsets.symmetric(horizontal: PipoSpacing.xs),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -103,9 +151,9 @@ class _MainScreenState extends State<MainScreen> {
                 context: context,
                 index: 3,
                 selectedIndex: selectedIndex,
-                icon: Icons.chat_bubble_outline_rounded,
-                selectedIcon: Icons.chat_bubble_rounded,
-                label: '커뮤니티',
+                icon: Icons.calendar_month_outlined,
+                selectedIcon: Icons.calendar_month_rounded,
+                label: '캘린더',
               ),
               _buildNavItem(
                 context: context,
@@ -139,31 +187,31 @@ class _MainScreenState extends State<MainScreen> {
         child: AnimatedContainer(
           duration: PipoAnimations.fast,
           curve: PipoAnimations.standard,
-          padding: const EdgeInsets.symmetric(vertical: PipoSpacing.sm),
+          padding: const EdgeInsets.symmetric(vertical: PipoSpacing.xs),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               AnimatedContainer(
                 duration: PipoAnimations.fast,
                 padding: EdgeInsets.symmetric(
-                  horizontal: isSelected ? 14 : 0,
-                  vertical: isSelected ? 6 : 0,
+                  horizontal: isSelected ? 12 : 0,
+                  vertical: isSelected ? 5 : 0,
                 ),
                 decoration: BoxDecoration(
                   color: isSelected
                       ? PipoColors.primarySoft
                       : Colors.transparent,
-                  borderRadius: BorderRadius.circular(PipoRadius.lg),
+                  borderRadius: BorderRadius.circular(PipoRadius.md),
                 ),
                 child: Icon(
                   isSelected ? selectedIcon : icon,
-                  size: 24,
+                  size: 22,
                   color: isSelected
                       ? PipoColors.primary
                       : PipoColors.textTertiary,
                 ),
               ),
-              const SizedBox(height: PipoSpacing.xs),
+              const SizedBox(height: 3),
               AnimatedDefaultTextStyle(
                 duration: PipoAnimations.fast,
                 style: TextStyle(
@@ -195,8 +243,8 @@ class _MainScreenState extends State<MainScreen> {
           children: [
             AnimatedContainer(
               duration: PipoAnimations.fast,
-              width: 50,
-              height: 50,
+              width: 46,
+              height: 46,
               decoration: BoxDecoration(
                 gradient: PipoColors.primaryGradient,
                 shape: BoxShape.circle,
@@ -205,15 +253,14 @@ class _MainScreenState extends State<MainScreen> {
                     : [
                         BoxShadow(
                           color: PipoColors.primary.withOpacity(0.25),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
+                          blurRadius: 10,
+                          offset: const Offset(0, 3),
                         ),
                       ],
               ),
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  // Shimmer effect when selected
                   if (isSelected)
                     Container(
                       decoration: BoxDecoration(
@@ -231,13 +278,13 @@ class _MainScreenState extends State<MainScreen> {
                     ),
                   const Icon(
                     Icons.rocket_launch_rounded,
-                    size: 24,
+                    size: 22,
                     color: Colors.white,
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: PipoSpacing.xs),
+            const SizedBox(height: 3),
             Text(
               '펀딩',
               style: TextStyle(

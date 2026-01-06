@@ -23,6 +23,7 @@ import '../../features/crm/screens/idol_registration_screen.dart';
 import '../../features/agency/screens/agency_dashboard_screen.dart';
 import '../../features/idol/screens/idol_dashboard_screen.dart';
 import '../../features/message/screens/message_creation_screen.dart';
+import '../../features/schedule/screens/schedule_screen.dart';
 import '../../shared/models/idol_model.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -92,6 +93,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/community',
             builder: (context, state) => const CommunityFeedScreen(),
+          ),
+          GoRoute(
+            path: '/schedule',
+            builder: (context, state) => const ScheduleScreen(),
           ),
           GoRoute(
             path: '/wallet',
