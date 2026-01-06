@@ -1,21 +1,22 @@
+import '../config/env_config.dart';
+
 class AppConstants {
   static const String appName = 'PIPO';
   static const String appNameEn = 'PIPO';
   static const String appTagline = '좋아하는 크리에이터를 응원하세요';
   static const String appTaglineEn = 'Support Your Favorite Creators';
 
-  // API
-  static const String baseUrl = 'https://api.idol-support.com';
-  static const String devBaseUrl = 'http://localhost:3000';
+  // API - Now using EnvConfig
+  static String get baseUrl => EnvConfig.apiBaseUrl;
 
   // Storage Keys
   static const String accessTokenKey = 'access_token';
   static const String refreshTokenKey = 'refresh_token';
   static const String userKey = 'user_data';
 
-  // Timeouts
-  static const int connectionTimeout = 30000;
-  static const int receiveTimeout = 30000;
+  // Timeouts - Now using EnvConfig
+  static int get connectionTimeout => EnvConfig.connectionTimeout;
+  static int get receiveTimeout => EnvConfig.receiveTimeout;
 
   // Pagination
   static const int defaultPageSize = 20;

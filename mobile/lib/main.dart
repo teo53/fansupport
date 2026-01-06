@@ -1,15 +1,46 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'core/theme/app_theme.dart';
 import 'core/constants/app_constants.dart';
+import 'core/config/env_config.dart';
+import 'core/utils/logger.dart';
 import 'shared/providers/router_provider.dart';
 import 'features/splash/screens/splash_screen.dart';
 import 'features/onboarding/screens/onboarding_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize environment configuration
+  EnvConfig.init();
+  EnvConfig.printConfig();
+
+  // Set up global error handlers
+  FlutterError.onError = (FlutterErrorDetails details) {
+    AppLogger.error(
+      'Flutter error',
+      tag: 'FLUTTER',
+      error: details.exception,
+      stackTrace: details.stack,
+    );
+
+    // In production, you might want to send this to a crash reporting service
+    // like Sentry or Firebase Crashlytics
+  };
+
+  PlatformDispatcher.instance.onError = (error, stack) {
+    AppLogger.error(
+      'Platform error',
+      tag: 'PLATFORM',
+      error: error,
+      stackTrace: stack,
+    );
+    return true;
+  };
+
   runApp(const ProviderScope(child: IdolSupportApp()));
 }
 
