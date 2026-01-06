@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/theme/app_colors.dart';
-import '../../../core/utils/responsive.dart';
+import '../../../core/theme/design_system.dart';
 
 class MainScreen extends StatefulWidget {
   final Widget child;
@@ -54,7 +53,6 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Responsive.init(context);
     final selectedIndex = _calculateSelectedIndex(context);
 
     return Scaffold(
@@ -67,11 +65,11 @@ class _MainScreenState extends State<MainScreen> {
   Widget _buildBottomNavBar(BuildContext context, int selectedIndex) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: PipoColors.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
-            blurRadius: 20,
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 24,
             offset: const Offset(0, -4),
           ),
         ],
@@ -79,8 +77,8 @@ class _MainScreenState extends State<MainScreen> {
       child: SafeArea(
         top: false,
         child: Container(
-          height: 90,
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+          height: 80,
+          padding: const EdgeInsets.symmetric(horizontal: PipoSpacing.sm),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -98,7 +96,7 @@ class _MainScreenState extends State<MainScreen> {
                 selectedIndex: selectedIndex,
                 icon: Icons.favorite_outline_rounded,
                 selectedIcon: Icons.favorite_rounded,
-                label: '아이돌',
+                label: '크리에이터',
               ),
               _buildCenterNavItem(context, selectedIndex),
               _buildNavItem(
@@ -139,40 +137,42 @@ class _MainScreenState extends State<MainScreen> {
         onTap: () => _onItemTapped(context, index),
         behavior: HitTestBehavior.opaque,
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeOutCubic,
-          padding: const EdgeInsets.symmetric(vertical: 6),
+          duration: PipoAnimations.fast,
+          curve: PipoAnimations.standard,
+          padding: const EdgeInsets.symmetric(vertical: PipoSpacing.sm),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
+                duration: PipoAnimations.fast,
                 padding: EdgeInsets.symmetric(
-                  horizontal: isSelected ? 16 : 0,
+                  horizontal: isSelected ? 14 : 0,
                   vertical: isSelected ? 6 : 0,
                 ),
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? AppColors.primary.withValues(alpha: 0.1)
+                      ? PipoColors.primarySoft
                       : Colors.transparent,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(PipoRadius.lg),
                 ),
                 child: Icon(
                   isSelected ? selectedIcon : icon,
                   size: 24,
-                  color:
-                      isSelected ? AppColors.primary : AppColors.textTertiary,
+                  color: isSelected
+                      ? PipoColors.primary
+                      : PipoColors.textTertiary,
                 ),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: PipoSpacing.xs),
               AnimatedDefaultTextStyle(
-                duration: const Duration(milliseconds: 200),
+                duration: PipoAnimations.fast,
                 style: TextStyle(
-                  fontSize: 11,
+                  fontSize: 10,
                   fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                  color:
-                      isSelected ? AppColors.primary : AppColors.textTertiary,
-                  fontFamily: 'Pretendard',
+                  color: isSelected
+                      ? PipoColors.primary
+                      : PipoColors.textTertiary,
+                  fontFamily: PipoTypography.fontFamily,
                 ),
                 child: Text(label),
               ),
@@ -193,35 +193,27 @@ class _MainScreenState extends State<MainScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              width: 52,
-              height: 52,
+            AnimatedContainer(
+              duration: PipoAnimations.fast,
+              width: 50,
+              height: 50,
               decoration: BoxDecoration(
-                gradient: isSelected
-                    ? AppColors.primaryGradient
-                    : LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          AppColors.primary.withValues(alpha: 0.8),
-                          AppColors.secondary.withValues(alpha: 0.8),
-                        ],
-                      ),
+                gradient: PipoColors.primaryGradient,
                 shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.primary
-                        .withValues(alpha: isSelected ? 0.4 : 0.25),
-                    blurRadius: isSelected ? 16 : 12,
-                    offset: const Offset(0, 4),
-                    spreadRadius: isSelected ? 0 : -2,
-                  ),
-                ],
+                boxShadow: isSelected
+                    ? PipoShadows.primaryGlow
+                    : [
+                        BoxShadow(
+                          color: PipoColors.primary.withOpacity(0.25),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
               ),
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  // Shimmer effect
+                  // Shimmer effect when selected
                   if (isSelected)
                     Container(
                       decoration: BoxDecoration(
@@ -230,29 +222,31 @@ class _MainScreenState extends State<MainScreen> {
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                           colors: [
-                            Colors.white.withValues(alpha: 0.25),
+                            Colors.white.withOpacity(0.25),
                             Colors.transparent,
-                            Colors.white.withValues(alpha: 0.1),
+                            Colors.white.withOpacity(0.1),
                           ],
                         ),
                       ),
                     ),
-                  Icon(
+                  const Icon(
                     Icons.rocket_launch_rounded,
-                    size: 26,
+                    size: 24,
                     color: Colors.white,
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 2),
+            const SizedBox(height: PipoSpacing.xs),
             Text(
               '펀딩',
               style: TextStyle(
-                fontSize: 11,
+                fontSize: 10,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
-                color: isSelected ? AppColors.primary : AppColors.textSecondary,
-                fontFamily: 'Pretendard',
+                color: isSelected
+                    ? PipoColors.primary
+                    : PipoColors.textSecondary,
+                fontFamily: PipoTypography.fontFamily,
               ),
             ),
           ],
