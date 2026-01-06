@@ -7,6 +7,7 @@ import 'core/theme/app_theme.dart';
 import 'core/constants/app_constants.dart';
 import 'core/config/env_config.dart';
 import 'core/utils/logger.dart';
+import 'core/providers/theme_provider.dart';
 import 'shared/providers/router_provider.dart';
 import 'features/splash/screens/splash_screen.dart';
 import 'features/onboarding/screens/onboarding_screen.dart';
@@ -87,12 +88,15 @@ class _IdolSupportAppState extends ConsumerState<IdolSupportApp> {
   @override
   Widget build(BuildContext context) {
     final router = ref.watch(routerProvider);
+    final themeMode = ref.watch(themeModeProvider);
 
     // Show splash screen first
     if (_showSplash) {
       return MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
+        darkTheme: AppTheme.darkTheme,
+        themeMode: themeMode,
         home: SplashScreen(onComplete: _onSplashComplete),
       );
     }
@@ -102,6 +106,8 @@ class _IdolSupportAppState extends ConsumerState<IdolSupportApp> {
       return MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
+        darkTheme: AppTheme.darkTheme,
+        themeMode: themeMode,
         home: OnboardingScreen(onComplete: _onOnboardingComplete),
       );
     }
@@ -112,7 +118,7 @@ class _IdolSupportAppState extends ConsumerState<IdolSupportApp> {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
+      themeMode: themeMode,
       routerConfig: router,
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,

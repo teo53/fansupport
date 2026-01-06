@@ -59,6 +59,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     super.dispose();
   }
 
+  Future<void> _handleRefresh() async {
+    // Simulate network refresh
+    await Future.delayed(const Duration(seconds: 1));
+
+    // In a real app, you would:
+    // - Refresh data from API
+    // - Update state with new data
+    // - Show success message if needed
+
+    if (mounted) {
+      // Optional: Show success message
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   const SnackBar(content: Text('새로고침 완료')),
+      // );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     Responsive.init(context);
@@ -74,10 +91,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
             Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 480),
-                child: CustomScrollView(
-                  controller: _scrollController,
-                  physics: const BouncingScrollPhysics(),
-                  slivers: [
+                child: RefreshIndicator(
+                  onRefresh: _handleRefresh,
+                  color: PipoColors.primary,
+                  child: CustomScrollView(
+                    controller: _scrollController,
+                    physics: const BouncingScrollPhysics(
+                      parent: AlwaysScrollableScrollPhysics(),
+                    ),
+                    slivers: [
                     SliverToBoxAdapter(child: _buildHeader(context, user)),
                     const SliverToBoxAdapter(child: HeroCard()),
                     SliverToBoxAdapter(child: _buildLiveStoriesSection(context)),
@@ -114,10 +136,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                       ),
                     ),
                     SliverToBoxAdapter(child: _buildRecentActivity(context)),
-                    SliverToBoxAdapter(
-                      child: SizedBox(height: PipoSpacing.screen + 40),
-                    ),
-                  ],
+                      SliverToBoxAdapter(
+                        child: SizedBox(height: PipoSpacing.screen + 40),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
