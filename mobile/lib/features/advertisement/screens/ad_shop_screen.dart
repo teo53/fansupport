@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/design_system.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../core/mock/mock_data.dart';
 import '../../../shared/models/advertisement_model.dart';
@@ -72,7 +73,7 @@ class _AdShopScreenState extends ConsumerState<AdShopScreen>
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: AppColors.backgroundAlt,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(PipoRadius.md),
               ),
               child: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
             ),
@@ -115,13 +116,13 @@ class _AdShopScreenState extends ConsumerState<AdShopScreen>
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
         color: AppColors.backgroundAlt,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(PipoRadius.md),
       ),
       child: TabBar(
         controller: _tabController,
         indicator: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(PipoRadius.sm),
           boxShadow: AppColors.softShadow(),
         ),
         indicatorSize: TabBarIndicatorSize.tab,
@@ -173,7 +174,7 @@ class _AdShopScreenState extends ConsumerState<AdShopScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: AppColors.premiumGradient,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(PipoRadius.xl),
         boxShadow: [
           BoxShadow(
             color: AppColors.secondary.withValues(alpha: 0.3),
@@ -206,7 +207,7 @@ class _AdShopScreenState extends ConsumerState<AdShopScreen>
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(PipoRadius.md),
                     ),
                     child: Text(
                       'PREMIUM',
@@ -246,7 +247,7 @@ class _AdShopScreenState extends ConsumerState<AdShopScreen>
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(PipoRadius.md),
                 ),
                 child: Text(
                   '자세히 보기',
@@ -292,7 +293,7 @@ class _AdShopScreenState extends ConsumerState<AdShopScreen>
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(PipoRadius.lg),
         boxShadow: AppColors.softShadow(),
       ),
       child: Column(
@@ -327,7 +328,7 @@ class _AdShopScreenState extends ConsumerState<AdShopScreen>
                         ),
                         decoration: BoxDecoration(
                           gradient: AppColors.primaryGradient,
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(PipoRadius.sm),
                         ),
                         child: Text(
                           '인기',
@@ -439,7 +440,7 @@ class _AdShopScreenState extends ConsumerState<AdShopScreen>
                         ),
                         decoration: BoxDecoration(
                           gradient: AppColors.primaryGradient,
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(PipoRadius.md),
                         ),
                         child: Text(
                           '구매하기',
@@ -479,7 +480,7 @@ class _AdShopScreenState extends ConsumerState<AdShopScreen>
                 AppColors.primary.withValues(alpha: 0.1),
               ],
             ),
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(PipoRadius.lg),
             border: Border.all(color: AppColors.info.withValues(alpha: 0.3)),
           ),
           child: Row(
@@ -488,7 +489,7 @@ class _AdShopScreenState extends ConsumerState<AdShopScreen>
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: AppColors.info.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(PipoRadius.md),
                 ),
                 child: Icon(Icons.groups_rounded, color: AppColors.info, size: 24),
               ),
@@ -532,7 +533,7 @@ class _AdShopScreenState extends ConsumerState<AdShopScreen>
                   content: const Text('팬덤 광고 펀딩 개설 기능 준비 중입니다'),
                   behavior: SnackBarBehavior.floating,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(PipoRadius.md),
                   ),
                 ),
               );
@@ -562,7 +563,7 @@ class _AdShopScreenState extends ConsumerState<AdShopScreen>
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(PipoRadius.xl),
         boxShadow: AppColors.softShadow(),
       ),
       child: Column(
@@ -611,7 +612,7 @@ class _AdShopScreenState extends ConsumerState<AdShopScreen>
                     color: funding.isFunded
                         ? AppColors.successSoft
                         : AppColors.primarySoft,
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(PipoRadius.sm),
                   ),
                   child: Text(
                     funding.isFunded ? '달성!' : 'D-${funding.daysLeft}',
@@ -632,7 +633,7 @@ class _AdShopScreenState extends ConsumerState<AdShopScreen>
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(PipoRadius.md),
                 child: CachedNetworkImage(
                   imageUrl: funding.adDesignImage!,
                   height: 100,
@@ -705,7 +706,7 @@ class _AdShopScreenState extends ConsumerState<AdShopScreen>
                     ),
                     const SizedBox(height: 8),
                     ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
+                      borderRadius: BorderRadius.circular(PipoRadius.xs),
                       child: LinearProgressIndicator(
                         value: progress / 100,
                         minHeight: 8,
@@ -750,7 +751,7 @@ class _AdShopScreenState extends ConsumerState<AdShopScreen>
                         content: const Text('펀딩 참여 페이지로 이동합니다'),
                         behavior: SnackBarBehavior.floating,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(PipoRadius.md),
                         ),
                       ),
                     );
@@ -789,7 +790,7 @@ class _AdShopScreenState extends ConsumerState<AdShopScreen>
               height: 4,
               decoration: BoxDecoration(
                 color: AppColors.border,
-                borderRadius: BorderRadius.circular(2),
+                borderRadius: BorderRadius.circular(PipoRadius.xs),
               ),
             ),
             Expanded(
@@ -820,7 +821,7 @@ class _AdShopScreenState extends ConsumerState<AdShopScreen>
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         color: AppColors.backgroundAlt,
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(PipoRadius.lg),
                       ),
                       child: Column(
                         children: [
@@ -897,7 +898,7 @@ class _AdShopScreenState extends ConsumerState<AdShopScreen>
                             content: const Text('광고 구매 신청이 완료되었습니다'),
                             behavior: SnackBarBehavior.floating,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(PipoRadius.md),
                             ),
                           ),
                         );

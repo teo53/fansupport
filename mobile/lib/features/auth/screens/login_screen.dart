@@ -69,10 +69,34 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   Future<void> _handleLogin() async {
     HapticFeedback.mediumImpact();
     if (_formKey.currentState!.validate()) {
-      await ref.read(authStateProvider.notifier).login(
-            _emailController.text.trim(),
-            _passwordController.text,
+      try {
+        await ref.read(authStateProvider.notifier).login(
+              _emailController.text.trim(),
+              _passwordController.text,
+            );
+
+        // Check for errors after login attempt
+        final authState = ref.read(authStateProvider).value;
+        if (authState?.error != null && mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(authState!.error!),
+              backgroundColor: AppColors.error,
+              behavior: SnackBarBehavior.floating,
+            ),
           );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('로그인 중 오류가 발생했습니다: ${e.toString()}'),
+              backgroundColor: AppColors.error,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      }
     }
   }
 
@@ -211,9 +235,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   @override
   Widget build(BuildContext context) {
     Responsive.init(context);
+
+    // Listen for auth state changes to show errors
+    ref.listen(authStateProvider, (previous, next) {
+      final error = next.value?.error;
+      if (error != null && error.isNotEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(error),
+            backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    });
+
     final authState = ref.watch(authStateProvider);
     final isLoading = authState.value?.isLoading ?? false;
-    final error = authState.value?.error;
 
     return Scaffold(
       body: Stack(
