@@ -777,15 +777,31 @@ class _CampaignDetailScreenState extends ConsumerState<CampaignDetailScreen> {
     if (_selectedRewardAmount == null || reward == null) return;
 
     setState(() => _isLoading = true);
-    await Future.delayed(const Duration(seconds: 1));
 
-    final currentBalance = ref.read(currentUserProvider)?.walletBalance ?? 0;
-    ref.read(authStateProvider.notifier).updateWalletBalance(currentBalance - _selectedRewardAmount!);
+    try {
+      await Future.delayed(const Duration(seconds: 1));
 
-    setState(() => _isLoading = false);
-    if (!mounted) return;
+      final currentBalance = ref.read(currentUserProvider)?.walletBalance ?? 0;
+      ref.read(authStateProvider.notifier).updateWalletBalance(currentBalance - _selectedRewardAmount!);
 
-    Navigator.pop(context);
+      setState(() => _isLoading = false);
+      if (!mounted) return;
+
+      Navigator.pop(context);
+    } catch (e) {
+      setState(() => _isLoading = false);
+      if (!mounted) return;
+
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('펀딩 참여 중 오류가 발생했습니다: ${e.toString()}'),
+          backgroundColor: AppColors.error,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
 
     showDialog(
       context: context,

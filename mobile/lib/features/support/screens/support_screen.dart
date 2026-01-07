@@ -319,15 +319,30 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
 
   void _handleSupport(BuildContext context) async {
     setState(() => _isLoading = true);
-    await Future.delayed(const Duration(seconds: 1));
 
-    final currentBalance = ref.read(currentUserProvider)?.walletBalance ?? 0;
-    ref
-        .read(authStateProvider.notifier)
-        .updateWalletBalance(currentBalance - _selectedAmount);
+    try {
+      await Future.delayed(const Duration(seconds: 1));
 
-    setState(() => _isLoading = false);
-    if (!mounted) return;
+      final currentBalance = ref.read(currentUserProvider)?.walletBalance ?? 0;
+      ref
+          .read(authStateProvider.notifier)
+          .updateWalletBalance(currentBalance - _selectedAmount);
+
+      setState(() => _isLoading = false);
+      if (!mounted) return;
+    } catch (e) {
+      setState(() => _isLoading = false);
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('후원 처리 중 오류가 발생했습니다: ${e.toString()}'),
+          backgroundColor: AppColors.error,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
 
     showDialog(
       context: context,
