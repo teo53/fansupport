@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:state_notifier/state_notifier.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Theme mode state notifier
+/// Theme mode notifier
 ///
 /// Manages theme mode (light, dark, system) and persists to storage
-class ThemeModeNotifier extends StateNotifier<ThemeMode> {
+class ThemeModeNotifier extends Notifier<ThemeMode> {
   static const String _themeKey = 'theme_mode';
 
-  ThemeModeNotifier() : super(ThemeMode.system) {
+  @override
+  ThemeMode build() {
     _loadThemeMode();
+    return ThemeMode.system;
   }
 
   Future<void> _loadThemeMode() async {
@@ -42,6 +43,6 @@ class ThemeModeNotifier extends StateNotifier<ThemeMode> {
 }
 
 /// Theme mode provider
-final themeModeProvider = StateNotifierProvider<ThemeModeNotifier, ThemeMode>(
-  (ref) => ThemeModeNotifier(),
+final themeModeProvider = NotifierProvider<ThemeModeNotifier, ThemeMode>(
+  () => ThemeModeNotifier(),
 );

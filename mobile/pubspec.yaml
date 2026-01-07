@@ -14,10 +14,8 @@ dependencies:
     sdk: flutter
 
   # State Management
-  state_notifier: ^1.0.0
-  riverpod: ^2.6.1
-  flutter_riverpod: ^2.6.1
-  riverpod_annotation: ^2.6.1
+  flutter_riverpod: ^3.1.0
+  riverpod_annotation: ^4.0.0
 
   # Navigation
   go_router: ^17.0.0
@@ -52,7 +50,7 @@ dependencies:
   # Utils
   intl: ^0.20.2
   json_annotation: ^4.8.1
-  freezed_annotation: ^2.4.4
+  freezed_annotation: ^3.1.0
   equatable: ^2.0.5
   url_launcher: ^6.2.2
   image_picker: ^1.0.5
@@ -68,9 +66,9 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   build_runner: ^2.4.7
   json_serializable: ^6.7.1
-  freezed: ^2.5.7
+  freezed: ^3.2.3
   retrofit_generator: ^10.2.1
-  riverpod_generator: ^2.6.2
+  riverpod_generator: ^4.0.0+1
   mockito: ^5.4.3
   integration_test:
     sdk: flutter

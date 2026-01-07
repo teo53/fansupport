@@ -1,17 +1,18 @@
-import 'package:state_notifier/state_notifier.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/app_settings.dart';
 import '../storage/local_storage.dart';
 import '../utils/logger.dart';
 
-/// Settings state notifier
+/// Settings notifier
 ///
 /// Manages app settings and persists to local storage
-class SettingsNotifier extends StateNotifier<AppSettings> {
+class SettingsNotifier extends Notifier<AppSettings> {
   static const String _settingsKey = 'app_settings';
 
-  SettingsNotifier() : super(AppSettings.defaults) {
+  @override
+  AppSettings build() {
     _loadSettings();
+    return AppSettings.defaults;
   }
 
   /// Load settings from storage
@@ -93,8 +94,8 @@ class SettingsNotifier extends StateNotifier<AppSettings> {
 }
 
 /// Settings provider
-final settingsProvider = StateNotifierProvider<SettingsNotifier, AppSettings>(
-  (ref) => SettingsNotifier(),
+final settingsProvider = NotifierProvider<SettingsNotifier, AppSettings>(
+  () => SettingsNotifier(),
 );
 
 /// Language provider (convenience)
