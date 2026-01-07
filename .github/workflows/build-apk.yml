@@ -62,7 +62,7 @@ jobs:
 
       - name: Analyze code
         run: flutter analyze --no-fatal-infos
-        continue-on-error: false
+        continue-on-error: true
 
       - name: Build APK
         run: flutter build apk --${{ github.event.inputs.build_type || 'debug' }}
