@@ -106,11 +106,13 @@ export class WalletService {
     amount: number,
     type: TransactionType,
     description?: string,
-    referenceId?: string,
+    tx?: any,
   ) {
     if (amount <= 0) {
       throw new BadRequestException('Amount must be positive');
     }
+
+    const prismaClient = tx || this.prisma;
 
     const fromWallet = await this.getOrCreateWallet(fromUserId);
     const toWallet = await this.getOrCreateWallet(toUserId);
@@ -124,44 +126,53 @@ export class WalletService {
     const toBalanceBefore = toWallet.balance;
     const toBalanceAfter = new Decimal(toWallet.balance).plus(amount);
 
-    const result = await this.prisma.$transaction([
-      this.prisma.wallet.update({
-        where: { id: fromWallet.id },
-        data: { balance: fromBalanceAfter },
-      }),
-      this.prisma.wallet.update({
-        where: { id: toWallet.id },
-        data: { balance: toBalanceAfter },
-      }),
-      this.prisma.transaction.create({
-        data: {
-          walletId: fromWallet.id,
-          type: type === TransactionType.SUPPORT_SENT ? TransactionType.SUPPORT_SENT : TransactionType.SUBSCRIPTION_PAYMENT,
-          amount: new Decimal(-amount),
-          balanceBefore: fromBalanceBefore,
-          balanceAfter: fromBalanceAfter,
-          description,
-          referenceId,
-          status: TransactionStatus.COMPLETED,
-        },
-      }),
-      this.prisma.transaction.create({
-        data: {
-          walletId: toWallet.id,
-          type: type === TransactionType.SUPPORT_SENT ? TransactionType.SUPPORT_RECEIVED : TransactionType.SUPPORT_RECEIVED,
-          amount: new Decimal(amount),
-          balanceBefore: toBalanceBefore,
-          balanceAfter: toBalanceAfter,
-          description,
-          referenceId,
-          status: TransactionStatus.COMPLETED,
-        },
-      }),
-    ]);
+    const executeTransfer = async (client: any) => {
+      const result = await Promise.all([
+        client.wallet.update({
+          where: { id: fromWallet.id },
+          data: { balance: fromBalanceAfter },
+        }),
+        client.wallet.update({
+          where: { id: toWallet.id },
+          data: { balance: toBalanceAfter },
+        }),
+        client.transaction.create({
+          data: {
+            walletId: fromWallet.id,
+            type: type === TransactionType.SUPPORT_SENT ? TransactionType.SUPPORT_SENT : TransactionType.SUBSCRIPTION_PAYMENT,
+            amount: new Decimal(-amount),
+            balanceBefore: fromBalanceBefore,
+            balanceAfter: fromBalanceAfter,
+            description,
+            status: TransactionStatus.COMPLETED,
+          },
+        }),
+        client.transaction.create({
+          data: {
+            walletId: toWallet.id,
+            type: type === TransactionType.SUPPORT_SENT ? TransactionType.SUPPORT_RECEIVED : TransactionType.SUPPORT_RECEIVED,
+            amount: new Decimal(amount),
+            balanceBefore: toBalanceBefore,
+            balanceAfter: toBalanceAfter,
+            description,
+            status: TransactionStatus.COMPLETED,
+          },
+        }),
+      ]);
 
-    return {
-      fromWallet: result[0],
-      toWallet: result[1],
+      return {
+        fromWallet: result[0],
+        toWallet: result[1],
+      };
     };
+
+    // If tx is provided, use it; otherwise create a new transaction
+    if (tx) {
+      return executeTransfer(tx);
+    } else {
+      return this.prisma.$transaction(async (newTx) => {
+        return executeTransfer(newTx);
+      });
+    }
   }
 }
