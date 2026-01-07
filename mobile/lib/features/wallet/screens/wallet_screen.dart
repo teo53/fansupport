@@ -6,6 +6,7 @@ import '../../../core/mock/mock_data.dart';
 import '../../../shared/widgets/custom_button.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../providers/wallet_provider.dart';
+import '../repositories/supabase_wallet_repository.dart';
 
 class WalletScreen extends ConsumerStatefulWidget {
   const WalletScreen({super.key});

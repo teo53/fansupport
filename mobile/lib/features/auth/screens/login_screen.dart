@@ -252,6 +252,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
     final authState = ref.watch(authStateProvider);
     final isLoading = authState.value?.isLoading ?? false;
+    final error = authState.value?.error;
 
     return Scaffold(
       body: Stack(
@@ -280,7 +281,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                         SizedBox(height: Responsive.hp(5)),
 
                         // Error Message
-                        if (error != null) ...[
+                        if (error != null && error.isNotEmpty) ...[
                           _buildErrorMessage(error),
                           SizedBox(height: Responsive.hp(2)),
                         ],
