@@ -7,6 +7,8 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../core/mock/mock_data.dart';
 import '../../auth/providers/auth_provider.dart';
+import '../../idol/providers/idol_provider.dart';
+import '../../campaign/providers/campaign_provider.dart';
 import '../widgets/hero_card.dart';
 import '../widgets/creator_card.dart';
 import '../widgets/funding_card.dart';
@@ -327,38 +329,94 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   }
 
   Widget _buildCreatorCards(BuildContext context) {
-    final idols = MockData.idolModels.take(5).toList();
+    final idolsAsync = ref.watch(popularIdolsProvider);
 
-    return SizedBox(
-      height: 260,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.symmetric(horizontal: PipoSpacing.xl),
-        itemCount: idols.length,
-        itemBuilder: (context, index) {
-          final idol = idols[index];
-          return CreatorCard(idol: idol, rank: index + 1);
-        },
+    return idolsAsync.when(
+      data: (idols) {
+        final displayIdols = idols.take(5).toList();
+        return SizedBox(
+          height: 260,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: PipoSpacing.xl),
+            itemCount: displayIdols.length,
+            itemBuilder: (context, index) {
+              final idol = displayIdols[index];
+              return CreatorCard(idol: idol, rank: index + 1);
+            },
+          ),
+        );
+      },
+      loading: () => SizedBox(
+        height: 260,
+        child: Center(
+          child: CircularProgressIndicator(color: PipoColors.primary),
+        ),
       ),
+      error: (error, stack) {
+        // Fallback to mock data on error
+        final idols = MockData.idolModels.take(5).toList();
+        return SizedBox(
+          height: 260,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: PipoSpacing.xl),
+            itemCount: idols.length,
+            itemBuilder: (context, index) {
+              final idol = idols[index];
+              return CreatorCard(idol: idol, rank: index + 1);
+            },
+          ),
+        );
+      },
     );
   }
 
   Widget _buildFundingCards(BuildContext context) {
-    final campaigns = MockData.campaigns.take(3).toList();
+    final campaignsAsync = ref.watch(popularCampaignsProvider);
 
-    return SizedBox(
-      height: 180,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.symmetric(horizontal: PipoSpacing.xl),
-        itemCount: campaigns.length,
-        itemBuilder: (context, index) {
-          final campaign = campaigns[index];
-          return FundingCard(campaign: campaign);
-        },
+    return campaignsAsync.when(
+      data: (campaigns) {
+        final displayCampaigns = campaigns.take(3).toList();
+        return SizedBox(
+          height: 180,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: PipoSpacing.xl),
+            itemCount: displayCampaigns.length,
+            itemBuilder: (context, index) {
+              final campaign = displayCampaigns[index];
+              return FundingCard(campaign: campaign);
+            },
+          ),
+        );
+      },
+      loading: () => SizedBox(
+        height: 180,
+        child: Center(
+          child: CircularProgressIndicator(color: PipoColors.primary),
+        ),
       ),
+      error: (error, stack) {
+        // Fallback to mock data on error
+        final campaigns = MockData.campaigns.take(3).toList();
+        return SizedBox(
+          height: 180,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: PipoSpacing.xl),
+            itemCount: campaigns.length,
+            itemBuilder: (context, index) {
+              final campaign = campaigns[index];
+              return FundingCard(campaign: campaign);
+            },
+          ),
+        );
+      },
     );
   }
 

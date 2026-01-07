@@ -7,34 +7,40 @@ import '../../../core/utils/responsive.dart';
 import '../../../core/mock/mock_data.dart';
 import '../../../shared/models/idol_model.dart';
 import '../../../shared/widgets/custom_button.dart';
+import '../providers/idol_provider.dart';
 
 class IdolDetailScreen extends ConsumerWidget {
   final String idolId;
 
   const IdolDetailScreen({super.key, required this.idolId});
 
-  IdolModel? _findIdol() {
-    try {
-      return MockData.idolModels.firstWhere((idol) => idol.id == idolId);
-    } catch (e) {
-      if (MockData.idolModels.isNotEmpty) {
-        return MockData.idolModels.first;
-      }
-      return null;
-    }
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     Responsive.init(context);
-    final idol = _findIdol();
+    final idolAsync = ref.watch(idolByIdProvider(idolId));
 
-    if (idol == null) {
-      return Scaffold(
+    return idolAsync.when(
+      data: (idol) {
+        if (idol == null) {
+          return Scaffold(
+            appBar: AppBar(),
+            body: const Center(child: Text('아이돌을 찾을 수 없습니다')),
+          );
+        }
+        return _buildIdolDetail(context, ref, idol);
+      },
+      loading: () => Scaffold(
         appBar: AppBar(),
-        body: const Center(child: Text('아이돌을 찾을 수 없습니다')),
-      );
-    }
+        body: const Center(child: CircularProgressIndicator()),
+      ),
+      error: (error, stack) => Scaffold(
+        appBar: AppBar(),
+        body: Center(child: Text('오류가 발생했습니다: $error')),
+      ),
+    );
+  }
+
+  Widget _buildIdolDetail(BuildContext context, WidgetRef ref, IdolModel idol) {
 
     // Parse idol image color for dynamic theming
     final idolColor =
