@@ -21,12 +21,21 @@ class AppConstants {
   // Pagination
   static const int defaultPageSize = 20;
 
-  // Support
+  // Support (must match backend validation)
   static const int minSupportAmount = 100;
-  static const int maxSupportAmount = 10000000;
+  static const int maxSupportAmount = 10000000; // 10 million KRW
 
-  // Subscription
+  // Subscription (must match backend validation)
   static const int minSubscriptionPrice = 1000;
+  static const int maxSubscriptionPrice = 1000000; // 1 million KRW per month
+
+  // Campaign (must match backend validation)
+  static const int minCampaignGoal = 10000;
+  static const int maxCampaignGoal = 100000000; // 100 million KRW
+
+  // Contribution (must match backend validation)
+  static const int minContributionAmount = 1000;
+  static const int maxContributionAmount = 10000000; // 10 million KRW
 }
 
 class ApiEndpoints {

@@ -60,6 +60,10 @@ jobs:
         run: dart run build_runner build --delete-conflicting-outputs || echo "No code generation needed"
         continue-on-error: true
 
+      - name: Analyze code
+        run: flutter analyze --no-fatal-infos
+        continue-on-error: false
+
       - name: Build APK
         run: flutter build apk --${{ github.event.inputs.build_type || 'debug' }}
 
