@@ -14,14 +14,12 @@ class SupabaseCampaignRepository {
     int limit = 20,
   }) async {
     try {
-      var query = _supabase
+      dynamic query = _supabase
           .from('campaigns')
           .select('''
             *,
             creator:creator_id(id, nickname, profile_image, is_verified)
-          ''')
-          .order('created_at', ascending: false)
-          .limit(limit);
+          ''');
 
       if (type != null) {
         query = query.eq('type', type.toString().split('.').last.toUpperCase());
@@ -30,6 +28,8 @@ class SupabaseCampaignRepository {
       if (status != null) {
         query = query.eq('status', status.toString().split('.').last.toUpperCase());
       }
+
+      query = query.order('created_at', ascending: false).limit(limit);
 
       final data = await query;
       return (data as List).map((json) => CampaignModel.fromJson(json)).toList();

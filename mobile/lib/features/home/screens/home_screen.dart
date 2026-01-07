@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/theme/design_system.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../core/mock/mock_data.dart';
+import '../../../shared/models/idol_model.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../idol/providers/idol_provider.dart';
 import '../../campaign/providers/campaign_provider.dart';
@@ -389,7 +391,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
             itemCount: displayCampaigns.length,
             itemBuilder: (context, index) {
               final campaign = displayCampaigns[index];
-              return FundingCard(campaign: campaign);
+              return FundingCard(campaign: campaign.toJson());
             },
           ),
         );

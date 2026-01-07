@@ -13,18 +13,18 @@ class SupabaseIdolRepository {
     int limit = 50,
   }) async {
     try {
-      var query = _supabase
+      dynamic query = _supabase
           .from('idol_profiles')
           .select('''
             *,
             user:user_id(id, email, nickname, profile_image, is_verified)
-          ''')
-          .order('total_support', ascending: false)
-          .limit(limit);
+          ''');
 
       if (category != null) {
         query = query.eq('category', category.toString().split('.').last.toUpperCase());
       }
+
+      query = query.order('total_support', ascending: false).limit(limit);
 
       final data = await query;
       return (data as List).map((json) => IdolModel.fromJson(json)).toList();
