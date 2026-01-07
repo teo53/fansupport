@@ -1,5 +1,4 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../../shared/models/support_model.dart';
 
 /// Supabase 후원 Repository
 class SupabaseSupportRepository {
