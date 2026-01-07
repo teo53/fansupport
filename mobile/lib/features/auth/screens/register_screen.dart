@@ -34,11 +34,23 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
   Future<void> _handleRegister() async {
     if (_formKey.currentState!.validate() && _agreeToTerms) {
-      await ref.read(authStateProvider.notifier).register(
-            _emailController.text.trim(),
-            _passwordController.text,
-            _nicknameController.text.trim(),
+      try {
+        await ref.read(authStateProvider.notifier).register(
+              _emailController.text.trim(),
+              _passwordController.text,
+              _nicknameController.text.trim(),
+            );
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('회원가입 중 오류가 발생했습니다: ${e.toString()}'),
+              backgroundColor: AppColors.error,
+              behavior: SnackBarBehavior.floating,
+            ),
           );
+        }
+      }
     }
   }
 

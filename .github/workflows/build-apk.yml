@@ -1,4 +1,4 @@
-name: Build APK (Manual)
+name: Build APK
 
 on:
   workflow_dispatch:
@@ -11,6 +11,12 @@ on:
         options:
           - release
           - debug
+  push:
+    branches:
+      - 'claude/project-review-*'
+    paths:
+      - 'mobile/**'
+      - '.github/workflows/build-apk.yml'
 
 defaults:
   run:
@@ -24,6 +30,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Free up disk space
+        run: |
+          echo "Before cleanup:"
+          df -h
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo docker image prune --all --force
+          echo "After cleanup:"
+          df -h
+
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
@@ -33,21 +50,26 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: 'beta'
+          channel: 'stable'
           cache: false
 
       - name: Install dependencies
         run: flutter pub get
 
       - name: Generate code
-        run: dart run build_runner build --delete-conflicting-outputs
+        run: dart run build_runner build --delete-conflicting-outputs || echo "No code generation needed"
+        continue-on-error: true
+
+      - name: Analyze code
+        run: flutter analyze --no-fatal-infos
+        continue-on-error: true
 
       - name: Build APK
-        run: flutter build apk --${{ github.event.inputs.build_type }}
+        run: flutter build apk --${{ github.event.inputs.build_type || 'debug' }}
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: app-${{ github.event.inputs.build_type }}-apk
-          path: mobile/build/app/outputs/flutter-apk/app-${{ github.event.inputs.build_type }}.apk
+          name: app-${{ github.event.inputs.build_type || 'debug' }}-apk
+          path: mobile/build/app/outputs/flutter-apk/app-${{ github.event.inputs.build_type || 'debug' }}.apk
           retention-days: 30

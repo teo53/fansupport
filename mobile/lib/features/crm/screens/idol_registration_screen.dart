@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/design_system.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../shared/widgets/custom_button.dart';
 
@@ -173,7 +174,7 @@ class _IdolRegistrationScreenState extends ConsumerState<IdolRegistrationScreen>
           padding: EdgeInsets.all(Responsive.wp(4)),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(PipoRadius.lg),
             boxShadow: AppColors.softShadow(),
           ),
           child: Column(
@@ -321,7 +322,7 @@ class _IdolRegistrationScreenState extends ConsumerState<IdolRegistrationScreen>
           padding: EdgeInsets.all(Responsive.wp(4)),
           decoration: BoxDecoration(
             gradient: AppColors.primaryGradient,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(PipoRadius.lg),
           ),
           child: Row(
             children: [
@@ -450,7 +451,7 @@ class _IdolRegistrationScreenState extends ConsumerState<IdolRegistrationScreen>
           padding: EdgeInsets.all(Responsive.wp(4)),
           decoration: BoxDecoration(
             color: AppColors.infoSoft,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(PipoRadius.lg),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -532,7 +533,7 @@ class _IdolRegistrationScreenState extends ConsumerState<IdolRegistrationScreen>
           padding: EdgeInsets.all(Responsive.wp(4)),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(PipoRadius.lg),
             boxShadow: AppColors.softShadow(),
           ),
           child: Column(
@@ -566,7 +567,7 @@ class _IdolRegistrationScreenState extends ConsumerState<IdolRegistrationScreen>
         ),
         decoration: BoxDecoration(
           color: isSelected ? AppColors.primary : Colors.white,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(PipoRadius.md),
           border: Border.all(
             color: isSelected ? AppColors.primary : AppColors.border,
           ),
@@ -598,7 +599,7 @@ class _IdolRegistrationScreenState extends ConsumerState<IdolRegistrationScreen>
       padding: EdgeInsets.all(Responsive.wp(4)),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(PipoRadius.lg),
         boxShadow: AppColors.softShadow(),
       ),
       child: Column(
@@ -641,15 +642,15 @@ class _IdolRegistrationScreenState extends ConsumerState<IdolRegistrationScreen>
         filled: true,
         fillColor: AppColors.inputBackground,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(PipoRadius.md),
           borderSide: BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(PipoRadius.md),
           borderSide: const BorderSide(color: AppColors.primary, width: 2),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(PipoRadius.md),
           borderSide: const BorderSide(color: AppColors.error, width: 1),
         ),
       ),
@@ -681,7 +682,7 @@ class _IdolRegistrationScreenState extends ConsumerState<IdolRegistrationScreen>
             ),
             decoration: BoxDecoration(
               color: isSelected ? AppColors.primary : AppColors.inputBackground,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(PipoRadius.xl),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -722,7 +723,7 @@ class _IdolRegistrationScreenState extends ConsumerState<IdolRegistrationScreen>
           height: 44,
           decoration: BoxDecoration(
             color: color.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(PipoRadius.md),
           ),
           child: Icon(icon, color: color, size: Responsive.sp(22)),
         ),
@@ -736,11 +737,11 @@ class _IdolRegistrationScreenState extends ConsumerState<IdolRegistrationScreen>
               filled: true,
               fillColor: AppColors.inputBackground,
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(PipoRadius.md),
                 borderSide: BorderSide.none,
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(PipoRadius.md),
                 borderSide: BorderSide(color: color, width: 2),
               ),
             ),
@@ -762,7 +763,7 @@ class _IdolRegistrationScreenState extends ConsumerState<IdolRegistrationScreen>
       padding: EdgeInsets.all(Responsive.wp(3)),
       decoration: BoxDecoration(
         color: value ? AppColors.primarySoft : AppColors.inputBackground,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(PipoRadius.md),
         border: Border.all(
           color: value ? AppColors.primary : Colors.transparent,
         ),

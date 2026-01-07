@@ -28,58 +28,66 @@ export class SupportService {
       throw new NotFoundException('Receiver not found');
     }
 
-    // Transfer funds from supporter to receiver
-    await this.walletService.transfer(
-      supporterId,
-      receiverId,
-      amount,
-      TransactionType.SUPPORT_SENT,
-      `Support to ${receiver.nickname}`,
-    );
-
-    // Create support record
-    const support = await this.prisma.support.create({
-      data: {
+    // Use transaction to ensure data consistency
+    const support = await this.prisma.$transaction(async (tx) => {
+      // Transfer funds from supporter to receiver
+      await this.walletService.transfer(
         supporterId,
         receiverId,
-        amount: new Decimal(amount),
-        message,
-        isAnonymous,
-      },
-      include: {
-        supporter: {
-          select: { id: true, nickname: true, profileImage: true },
-        },
-        receiver: {
-          select: { id: true, nickname: true, profileImage: true },
-        },
-      },
-    });
+        amount,
+        TransactionType.SUPPORT_SENT,
+        `Support to ${receiver.nickname}`,
+        tx,
+      );
 
-    // Update idol profile stats
-    if (receiver.idolProfile) {
-      await this.prisma.idolProfile.update({
-        where: { id: receiver.idolProfile.id },
+      // Create support record
+      const supportRecord = await tx.support.create({
         data: {
-          totalSupport: { increment: amount },
-          supporterCount: {
-            increment: await this.isFirstSupport(supporterId, receiverId) ? 1 : 0,
+          supporterId,
+          receiverId,
+          amount: new Decimal(amount),
+          message,
+          isAnonymous,
+        },
+        include: {
+          supporter: {
+            select: { id: true, nickname: true, profileImage: true },
+          },
+          receiver: {
+            select: { id: true, nickname: true, profileImage: true },
           },
         },
       });
-    }
 
-    // Create notification
-    await this.prisma.notification.create({
-      data: {
-        userId: receiverId,
-        type: 'SUPPORT_RECEIVED',
-        title: 'New Support Received!',
-        message: isAnonymous
-          ? `Anonymous fan sent you ${amount} KRW!`
-          : `${(await this.prisma.user.findUnique({ where: { id: supporterId } }))?.nickname} sent you ${amount} KRW!`,
-        data: { supportId: support.id, amount, isAnonymous },
-      },
+      // Update idol profile stats
+      if (receiver.idolProfile) {
+        const isFirst = await this.isFirstSupportInTransaction(supporterId, receiverId, tx);
+        await tx.idolProfile.update({
+          where: { id: receiver.idolProfile.id },
+          data: {
+            totalSupport: { increment: amount },
+            supporterCount: {
+              increment: isFirst ? 1 : 0,
+            },
+          },
+        });
+      }
+
+      // Create notification
+      const supporter = await tx.user.findUnique({ where: { id: supporterId } });
+      await tx.notification.create({
+        data: {
+          userId: receiverId,
+          type: 'SUPPORT_RECEIVED',
+          title: 'New Support Received!',
+          message: isAnonymous
+            ? `Anonymous fan sent you ${amount} KRW!`
+            : `${supporter?.nickname} sent you ${amount} KRW!`,
+          data: { supportId: supportRecord.id, amount, isAnonymous },
+        },
+      });
+
+      return supportRecord;
     });
 
     return support;
@@ -87,6 +95,13 @@ export class SupportService {
 
   private async isFirstSupport(supporterId: string, receiverId: string): Promise<boolean> {
     const count = await this.prisma.support.count({
+      where: { supporterId, receiverId },
+    });
+    return count === 1;
+  }
+
+  private async isFirstSupportInTransaction(supporterId: string, receiverId: string, tx: any): Promise<boolean> {
+    const count = await tx.support.count({
       where: { supporterId, receiverId },
     });
     return count === 1;
@@ -145,18 +160,20 @@ export class SupportService {
       take: limit,
     });
 
-    const supporters = await Promise.all(
-      supports.map(async (s) => {
-        const user = await this.prisma.user.findUnique({
-          where: { id: s.supporterId },
-          select: { id: true, nickname: true, profileImage: true },
-        });
-        return {
-          user,
-          totalAmount: s._sum.amount,
-        };
-      }),
-    );
+    // Fix N+1 query: fetch all users in a single query
+    const userIds = supports.map((s) => s.supporterId);
+    const users = await this.prisma.user.findMany({
+      where: { id: { in: userIds } },
+      select: { id: true, nickname: true, profileImage: true },
+    });
+
+    // Create a map for O(1) lookup
+    const userMap = new Map(users.map((u) => [u.id, u]));
+
+    const supporters = supports.map((s) => ({
+      user: userMap.get(s.supporterId),
+      totalAmount: s._sum.amount,
+    }));
 
     return supporters;
   }

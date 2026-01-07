@@ -5,6 +5,7 @@ import '../../../core/utils/responsive.dart';
 import '../../../core/mock/mock_data.dart';
 import '../../../shared/widgets/custom_button.dart';
 import '../../auth/providers/auth_provider.dart';
+import '../providers/wallet_provider.dart';
 
 class WalletScreen extends ConsumerStatefulWidget {
   const WalletScreen({super.key});
@@ -140,7 +141,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
               ),
             ),
             SizedBox(height: Responsive.hp(2)),
-            ...MockData.transactions.map((tx) => _buildTransactionItem(context, tx)),
+            _buildRecentTransactions(),
           ],
         ),
       ),
@@ -242,14 +243,16 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
               SizedBox(height: Responsive.hp(3)),
               GradientButton(
                 onPressed: _selectedChargeAmount != null
-                    ? () {
+                    ? () async {
+                        // TODO: Integrate with Stripe Payment Intent
+                        // For now, using mock charge for demo purposes
                         final amount = _selectedChargeAmount!;
                         final currentBalance = ref.read(currentUserProvider)?.walletBalance ?? 0;
                         ref.read(authStateProvider.notifier).updateWalletBalance(currentBalance + amount);
                         Navigator.pop(context);
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('￦${_formatCurrency(amount)} 충전 완료! (데모)'),
+                            content: Text('￦${_formatCurrency(amount)} 충전 완료! (데모 - Stripe 연동 필요)'),
                             backgroundColor: AppColors.success,
                           ),
                         );
@@ -316,6 +319,111 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRecentTransactions() {
+    final transactionsAsync = ref.watch(transactionsProvider(5));
+
+    return transactionsAsync.when(
+      data: (transactions) {
+        if (transactions.isEmpty) {
+          return Center(
+            child: Padding(
+              padding: EdgeInsets.all(Responsive.wp(8)),
+              child: Text(
+                '아직 거래 내역이 없습니다',
+                style: TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: Responsive.sp(14),
+                ),
+              ),
+            ),
+          );
+        }
+        return Column(
+          children: transactions.map((tx) {
+            return _buildSupabaseTransactionItem(context, tx);
+          }).toList(),
+        );
+      },
+      loading: () => Center(
+        child: Padding(
+          padding: EdgeInsets.all(Responsive.wp(4)),
+          child: CircularProgressIndicator(),
+        ),
+      ),
+      error: (error, stack) {
+        // Fall back to mock data on error
+        return Column(
+          children: MockData.transactions
+              .take(5)
+              .map((tx) => _buildTransactionItem(context, tx))
+              .toList(),
+        );
+      },
+    );
+  }
+
+  Widget _buildSupabaseTransactionItem(BuildContext context, Transaction tx) {
+    final isPositive = tx.amount > 0;
+    final typeIcons = {
+      'DEPOSIT': Icons.arrow_downward,
+      'CHARGE': Icons.arrow_downward,
+      'SUPPORT': Icons.favorite,
+      'SUBSCRIPTION': Icons.card_membership,
+      'CAMPAIGN': Icons.campaign,
+    };
+    final typeColors = {
+      'DEPOSIT': AppColors.success,
+      'CHARGE': AppColors.success,
+      'SUPPORT': AppColors.primary,
+      'SUBSCRIPTION': AppColors.secondary,
+      'CAMPAIGN': AppColors.accent,
+    };
+
+    final icon = typeIcons[tx.type] ?? Icons.monetization_on;
+    final color = typeColors[tx.type] ?? AppColors.primary;
+
+    return Card(
+      margin: EdgeInsets.only(bottom: Responsive.hp(1)),
+      child: ListTile(
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: Responsive.wp(4),
+          vertical: Responsive.hp(0.5),
+        ),
+        leading: Container(
+          width: Responsive.wp(11),
+          height: Responsive.wp(11),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(icon, color: color, size: Responsive.sp(22)),
+        ),
+        title: Text(
+          tx.description ?? '거래',
+          style: TextStyle(
+            fontSize: Responsive.sp(14),
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        subtitle: Text(
+          '${tx.createdAt.year}.${tx.createdAt.month.toString().padLeft(2, '0')}.${tx.createdAt.day.toString().padLeft(2, '0')}',
+          style: TextStyle(
+            fontSize: Responsive.sp(12),
+            color: AppColors.textSecondary,
+          ),
+        ),
+        trailing: Text(
+          '${isPositive ? '+' : ''}￦${_formatCurrency(tx.amount.toInt().abs())}',
+          style: TextStyle(
+            fontSize: Responsive.sp(15),
+            color: isPositive ? AppColors.success : AppColors.textPrimary,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
     );

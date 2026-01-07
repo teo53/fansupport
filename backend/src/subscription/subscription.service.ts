@@ -86,62 +86,69 @@ export class SubscriptionService {
       }
     }
 
-    // Process payment
-    await this.walletService.transfer(
-      subscriberId,
-      creatorId,
-      Number(tier.price),
-      TransactionType.SUBSCRIPTION_PAYMENT,
-      `Subscription to ${tier.name}`,
-      tierId,
-    );
-
-    // Create or update subscription
-    const renewalDate = new Date();
-    renewalDate.setMonth(renewalDate.getMonth() + 1);
-
-    if (existingSubscription) {
-      return this.prisma.subscription.update({
-        where: { id: existingSubscription.id },
-        data: {
-          tierId,
-          status: SubscriptionStatus.ACTIVE,
-          startDate: new Date(),
-          renewalDate,
-        },
-        include: {
-          tier: true,
-          creator: {
-            select: { id: true, nickname: true, profileImage: true },
-          },
-        },
-      });
-    }
-
-    const subscription = await this.prisma.subscription.create({
-      data: {
+    // Use transaction to ensure data consistency
+    const subscription = await this.prisma.$transaction(async (tx) => {
+      // Process payment
+      await this.walletService.transfer(
         subscriberId,
         creatorId,
-        tierId,
-        renewalDate,
-      },
-      include: {
-        tier: true,
-        creator: {
-          select: { id: true, nickname: true, profileImage: true },
-        },
-      },
-    });
+        Number(tier.price),
+        TransactionType.SUBSCRIPTION_PAYMENT,
+        `Subscription to ${tier.name}`,
+        tx,
+      );
 
-    // Create notification for creator
-    await this.prisma.notification.create({
-      data: {
-        userId: creatorId,
-        type: 'NEW_SUBSCRIBER',
-        title: 'New Subscriber!',
-        message: `You have a new subscriber for ${tier.name}!`,
-        data: { subscriptionId: subscription.id, tierId },
-      },
+      // Create or update subscription
+      const renewalDate = new Date();
+      renewalDate.setMonth(renewalDate.getMonth() + 1);
+
+      let subscriptionRecord;
+
+      if (existingSubscription) {
+        subscriptionRecord = await tx.subscription.update({
+          where: { id: existingSubscription.id },
+          data: {
+            tierId,
+            status: SubscriptionStatus.ACTIVE,
+            startDate: new Date(),
+            renewalDate,
+          },
+          include: {
+            tier: true,
+            creator: {
+              select: { id: true, nickname: true, profileImage: true },
+            },
+          },
+        });
+      } else {
+        subscriptionRecord = await tx.subscription.create({
+          data: {
+            subscriberId,
+            creatorId,
+            tierId,
+            renewalDate,
+          },
+          include: {
+            tier: true,
+            creator: {
+              select: { id: true, nickname: true, profileImage: true },
+            },
+          },
+        });
+      }
+
+      // Create notification for creator
+      await tx.notification.create({
+        data: {
+          userId: creatorId,
+          type: 'NEW_SUBSCRIBER',
+          title: 'New Subscriber!',
+          message: `You have a new subscriber for ${tier.name}!`,
+          data: { subscriptionId: subscriptionRecord.id, tierId },
+        },
+      });
+
+      return subscriptionRecord;
     });
 
     return subscription;

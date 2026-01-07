@@ -49,6 +49,24 @@ class PipoColors {
   static const Color orangeSoft = Color(0xFFFFF7ED);
 
   // ---------------------------------------------------------------------------
+  // Emotional & Community Colors (PIPO Differentiation)
+  // ---------------------------------------------------------------------------
+  /// Heart/Love - For fan support, emotional connection
+  static const Color heart = Color(0xFFFF6B9D);
+  static const Color heartLight = Color(0xFFFFB4D2);
+  static const Color heartSoft = Color(0xFFFFF5F9);
+
+  /// Community - For togetherness, belonging
+  static const Color community = Color(0xFF7C3AED);
+  static const Color communityLight = Color(0xFFA78BFA);
+  static const Color communitySoft = Color(0xFFF5F3FF);
+
+  /// Warmth - For friendly, welcoming feel
+  static const Color warmth = Color(0xFFFBBF24);
+  static const Color warmthLight = Color(0xFFFDE047);
+  static const Color warmthSoft = Color(0xFFFEFCE8);
+
+  // ---------------------------------------------------------------------------
   // Semantic Colors
   // ---------------------------------------------------------------------------
   /// Success - 성공, 완료
@@ -113,6 +131,27 @@ class PipoColors {
     colors: [Color(0xFFFF5A5F), Color(0xFFE84C51), Color(0xFFD43F44)],
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
+  );
+
+  /// Emotional Support Gradient - For fan letters, support messages
+  static const LinearGradient heartGradient = LinearGradient(
+    colors: [Color(0xFFFF6B9D), Color(0xFFFF5A5F)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  /// Community Connection Gradient
+  static const LinearGradient communityGradient = LinearGradient(
+    colors: [Color(0xFF7C3AED), Color(0xFFA78BFA)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  /// Warmth & Welcome Gradient
+  static const LinearGradient warmthGradient = LinearGradient(
+    colors: [Color(0xFFFBBF24), Color(0xFFFDE047)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
   );
 }
 

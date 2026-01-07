@@ -5,7 +5,7 @@ publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.2.0 <4.0.0'
+  sdk: '>=3.6.0 <4.0.0'
 
 dependencies:
   flutter:
@@ -23,6 +23,7 @@ dependencies:
   # Network
   dio: ^5.4.0
   retrofit: ^4.9.0
+  supabase_flutter: ^2.3.0
 
   # Local Storage
   shared_preferences: ^2.2.2

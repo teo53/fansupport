@@ -53,6 +53,25 @@
 - **Animation**: Framer Motion
 - **Icons**: Lucide React
 
+## 최근 개선사항 (2025-01)
+
+### 🔴 P0 - 프로덕션 준비성 향상
+- **Backend 트랜잭션 처리**: 후원/구독/지갑 결제 시 데이터 일관성 보장 (Prisma $transaction)
+- **Rate Limiting**: 전역 ThrottlerGuard 적용 (기본: 60초당 100회)
+- **N+1 쿼리 최적화**: getTopSupporters 메서드 성능 개선
+- **Flutter 에러 핸들링**: 타입별 예외 클래스 + 한국어 사용자 메시지
+
+### 🟢 빌드 안정성
+- **Kotlin 2.1.0 업그레이드**: Stripe Android SDK 호환성 해결
+- **Gradle 8.12 + AGP 8.9.1**: 최신 빌드 도구 체인
+- **compileSdk 36**: androidx 라이브러리 요구사항 충족
+- **GitHub Actions 디스크 공간 최적화**: APK 빌드 성공
+
+### 📚 문서화
+- Backend/Mobile README 업데이트
+- 환경 변수 설명 보강 (.env.example)
+- 트러블슈팅 가이드 추가
+
 ## 시작하기
 
 ### 요구사항
