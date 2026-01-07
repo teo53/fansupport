@@ -50,3 +50,17 @@ app.*.map.json
 .env.*.local
 *.env
 !.env.example
+
+# Build artifacts and logs
+*.apk
+*.aab
+*.ipa
+*.txt
+build_*.txt
+analysis*.txt
+*.log.txt
+
+# Generated files
+*.g.dart
+*.freezed.dart
+*.gr.dart
