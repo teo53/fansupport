@@ -6,9 +6,8 @@ plugins {
 
 android {
     namespace "com.idolsupport.idol_support"
-    compileSdk 33
-    buildToolsVersion "33.0.2"
-    ndkVersion "25.1.8937393"
+    compileSdk 34
+    ndkVersion flutter.ndkVersion
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
