@@ -8,6 +8,7 @@ import '../../../core/mock/mock_data.dart';
 import '../../../shared/widgets/custom_button.dart';
 import '../../../shared/widgets/custom_text_field.dart';
 import '../../auth/providers/auth_provider.dart';
+import '../providers/support_provider.dart';
 
 class SupportScreen extends ConsumerStatefulWidget {
   final String receiverId;
@@ -321,12 +322,24 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
     setState(() => _isLoading = true);
 
     try {
-      await Future.delayed(const Duration(seconds: 1));
+      // Call Supabase create_support function
+      final supportRepository = ref.read(supportRepositoryProvider);
+      await supportRepository.createSupport(
+        receiverId: widget.receiverId,
+        amount: _selectedAmount.toDouble(),
+        message: _messageController.text.trim().isEmpty
+            ? null
+            : _messageController.text.trim(),
+        isAnonymous: false,
+      );
 
-      final currentBalance = ref.read(currentUserProvider)?.walletBalance ?? 0;
-      ref
-          .read(authStateProvider.notifier)
-          .updateWalletBalance(currentBalance - _selectedAmount);
+      // Refresh user profile to get updated wallet balance
+      final authNotifier = ref.read(authStateProvider.notifier);
+      final currentUser = ref.read(currentUserProvider);
+      if (currentUser != null) {
+        // Re-fetch user profile which will include updated wallet balance
+        await authNotifier.updateUser(currentUser);
+      }
 
       setState(() => _isLoading = false);
       if (!mounted) return;
