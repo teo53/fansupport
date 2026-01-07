@@ -13,7 +13,7 @@ class SupabaseIdolRepository {
     int limit = 50,
   }) async {
     try {
-      var query = _supabase
+      dynamic query = _supabase
           .from('idol_profiles')
           .select('''
             *,

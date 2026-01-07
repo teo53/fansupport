@@ -14,7 +14,7 @@ class SupabaseCampaignRepository {
     int limit = 20,
   }) async {
     try {
-      var query = _supabase
+      dynamic query = _supabase
           .from('campaigns')
           .select('''
             *,
