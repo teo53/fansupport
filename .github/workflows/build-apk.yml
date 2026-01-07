@@ -52,28 +52,6 @@ jobs:
           channel: 'stable'
           cache: true
 
-      - name: Setup Gradle init script
-        run: |
-          mkdir -p ~/.gradle
-          cat > ~/.gradle/init.gradle << 'EOF'
-          allprojects {
-              buildscript {
-                  repositories {
-                      google()
-                      maven { url 'https://maven.google.com' }
-                      gradlePluginPortal()
-                      mavenCentral()
-                  }
-              }
-              repositories {
-                  google()
-                  maven { url 'https://maven.google.com' }
-                  gradlePluginPortal()
-                  mavenCentral()
-              }
-          }
-          EOF
-
       - name: Install dependencies
         run: flutter pub get
 
