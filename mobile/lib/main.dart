@@ -17,15 +17,15 @@ import 'features/onboarding/screens/onboarding_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Initialize environment configuration
+  EnvConfig.init();
+  EnvConfig.printConfig();
+
   // Initialize Supabase
   await Supabase.initialize(
     url: SupabaseConfig.url,
     anonKey: SupabaseConfig.anonKey,
   );
-
-  // Initialize environment configuration
-  EnvConfig.init();
-  EnvConfig.printConfig();
 
   // Set up global error handlers
   FlutterError.onError = (FlutterErrorDetails details) {
@@ -36,8 +36,8 @@ void main() async {
       stackTrace: details.stack,
     );
 
-    // In production, you might want to send this to a crash reporting service
-    // like Sentry or Firebase Crashlytics
+    // In production, send to crash reporting service
+    // e.g., Sentry.captureException(details.exception, stackTrace: details.stack);
   };
 
   PlatformDispatcher.instance.onError = (error, stack) {
@@ -60,74 +60,145 @@ class IdolSupportApp extends ConsumerStatefulWidget {
   ConsumerState<IdolSupportApp> createState() => _IdolSupportAppState();
 }
 
+enum AppState {
+  splash,
+  onboarding,
+  main,
+}
+
 class _IdolSupportAppState extends ConsumerState<IdolSupportApp> {
-  bool _showSplash = true;
-  bool _showOnboarding = false;
-  bool _isFirstLaunch = false;
+  AppState _appState = AppState.splash;
+  bool _isInitialized = false;
 
   @override
   void initState() {
     super.initState();
-    _checkFirstLaunch();
+    _initialize();
   }
 
-  Future<void> _checkFirstLaunch() async {
-    final prefs = await SharedPreferences.getInstance();
-    _isFirstLaunch = prefs.getBool('first_launch') ?? true;
+  /// Initialize app and check first launch status
+  Future<void> _initialize() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final isFirstLaunch = prefs.getBool('first_launch') ?? true;
+
+      if (mounted) {
+        setState(() {
+          _appState = AppState.splash;
+          _isInitialized = true;
+        });
+      }
+
+      // Simulate splash screen delay
+      await Future.delayed(const Duration(seconds: 2));
+
+      if (mounted) {
+        setState(() {
+          _appState = isFirstLaunch ? AppState.onboarding : AppState.main;
+        });
+      }
+    } catch (e) {
+      AppLogger.error('Failed to initialize app', error: e);
+      // Default to main app on error
+      if (mounted) {
+        setState(() {
+          _appState = AppState.main;
+          _isInitialized = true;
+        });
+      }
+    }
   }
 
+  /// Handle splash screen completion
   void _onSplashComplete() {
     setState(() {
-      _showSplash = false;
-      if (_isFirstLaunch) {
-        _showOnboarding = true;
-      }
+      _appState = AppState.main;
     });
   }
 
+  /// Handle onboarding completion
   Future<void> _onOnboardingComplete() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('first_launch', false);
-    setState(() {
-      _showOnboarding = false;
-    });
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('first_launch', false);
+
+      if (mounted) {
+        setState(() {
+          _appState = AppState.main;
+        });
+      }
+    } catch (e) {
+      AppLogger.error('Failed to save onboarding status', error: e);
+      // Continue to main app anyway
+      if (mounted) {
+        setState(() {
+          _appState = AppState.main;
+        });
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (!_isInitialized) {
+      return const MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: Scaffold(
+          body: Center(
+            child: CircularProgressIndicator(),
+          ),
+        ),
+      );
+    }
+
     final router = ref.watch(routerProvider);
     final themeMode = ref.watch(themeModeProvider);
 
-    // Show splash screen first
-    if (_showSplash) {
-      return MaterialApp(
+    // Determine which screen to show based on app state
+    Widget? home;
+    bool useRouter = false;
+
+    switch (_appState) {
+      case AppState.splash:
+        home = SplashScreen(onComplete: _onSplashComplete);
+        break;
+      case AppState.onboarding:
+        home = OnboardingScreen(onComplete: _onOnboardingComplete);
+        break;
+      case AppState.main:
+        useRouter = true;
+        break;
+    }
+
+    // Build MaterialApp with router for main app, regular MaterialApp for splash/onboarding
+    if (useRouter) {
+      return MaterialApp.router(
+        title: AppConstants.appName,
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
         darkTheme: AppTheme.darkTheme,
         themeMode: themeMode,
-        home: SplashScreen(onComplete: _onSplashComplete),
+        routerConfig: router,
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('ko', 'KR'),
+          Locale('en', 'US'),
+          Locale('ja', 'JP'),
+        ],
+        locale: const Locale('ko', 'KR'),
       );
     }
 
-    // Show onboarding for first-time users
-    if (_showOnboarding) {
-      return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.lightTheme,
-        darkTheme: AppTheme.darkTheme,
-        themeMode: themeMode,
-        home: OnboardingScreen(onComplete: _onOnboardingComplete),
-      );
-    }
-
-    // Main app
-    return MaterialApp.router(
-      title: AppConstants.appName,
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: themeMode,
-      routerConfig: router,
+      home: home,
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
