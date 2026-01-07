@@ -547,3 +547,7 @@ Copyright © 2024 PIPO. All rights reserved.
 - [GoRouter 문서](https://pub.dev/packages/go_router)
 - [성능 최적화 가이드](PERFORMANCE.md)
 - [테스트 가이드](test/README.md)
+
+## CI/CD 상태
+
+GitHub Actions를 통해 자동화된 CI/CD 파이프라인이 구축되어 있습니다.

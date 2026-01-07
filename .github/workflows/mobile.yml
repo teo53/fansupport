@@ -2,7 +2,7 @@ name: Mobile CI/CD
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main, develop, 'claude/**']
     paths:
       - 'mobile/**'
       - '.github/workflows/mobile.yml'
@@ -66,6 +66,7 @@ jobs:
         with:
           files: mobile/coverage/lcov.info
           flags: mobile
+        continue-on-error: true
 
   build-android:
     name: Build Android
