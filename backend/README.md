@@ -72,9 +72,10 @@ Swagger documentation is available at: `http://localhost:3000/docs`
 
 - **Helmet**: Security headers protection
 - **CORS**: Configurable origin whitelist
-- **Rate Limiting**: Built-in throttling (configurable via `THROTTLE_TTL` and `THROTTLE_LIMIT`)
+- **Rate Limiting**: Global throttling guard (100 req/60sec default, configurable via `THROTTLE_TTL` and `THROTTLE_LIMIT`)
 - **Input Validation**: Automatic DTO validation with class-validator
 - **JWT Authentication**: Secure token-based auth with refresh tokens
+- **Transaction Safety**: Database transactions for payment operations (support, subscription, wallet)
 
 ## Database
 
