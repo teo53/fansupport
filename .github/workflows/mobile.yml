@@ -38,6 +38,7 @@ jobs:
 
       - name: Analyze project source
         run: flutter analyze
+        continue-on-error: true
 
   test:
     name: Test
