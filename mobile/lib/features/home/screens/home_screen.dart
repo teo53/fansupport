@@ -2,21 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/theme/design_system.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../core/mock/mock_data.dart';
 import '../../auth/providers/auth_provider.dart';
-import '../../../shared/models/idol_model.dart';
-import '../../live/screens/incoming_call_screen.dart';
-import '../../chat/screens/chat_screen.dart';
 import '../widgets/hero_card.dart';
-import '../widgets/story_item.dart';
 import '../widgets/creator_card.dart';
 import '../widgets/funding_card.dart';
 import '../widgets/premium_card.dart';
 import '../widgets/section_title.dart';
+import '../widgets/live_stories_section.dart';
+import '../widgets/quick_actions_grid.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -102,8 +99,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                     slivers: [
                     SliverToBoxAdapter(child: _buildHeader(context, user)),
                     const SliverToBoxAdapter(child: HeroCard()),
-                    SliverToBoxAdapter(child: _buildLiveStoriesSection(context)),
-                    SliverToBoxAdapter(child: _buildQuickActionsGrid(context)),
+                    const SliverToBoxAdapter(child: LiveStoriesSection()),
+                    const SliverToBoxAdapter(child: QuickActionsGrid()),
                     SliverToBoxAdapter(
                       child: SectionTitle(
                         title: '인기 크리에이터',
@@ -329,245 +326,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     );
   }
 
-  Widget _buildLiveStoriesSection(BuildContext context) {
-    final idols = MockData.idolModels;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(
-            PipoSpacing.xl, PipoSpacing.xxl, PipoSpacing.xl, PipoSpacing.md,
-          ),
-          child: Text(
-            '스토리',
-            style: PipoTypography.titleMedium.copyWith(
-              color: PipoColors.textPrimary,
-            ),
-          ),
-        ),
-        SizedBox(
-          height: 100,
-          child: ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: PipoSpacing.xl),
-            scrollDirection: Axis.horizontal,
-            physics: const BouncingScrollPhysics(),
-            itemCount: idols.length,
-            itemBuilder: (context, index) {
-              final idol = idols[index];
-              final isLive = index == 0;
-              return StoryItem(
-                idol: idol,
-                isLive: isLive,
-                onTap: () {
-                  if (isLive) {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => IncomingCallScreen(idol: idol),
-                        fullscreenDialog: true,
-                      ),
-                    );
-                  } else {
-                    _showStoryView(context, idol);
-                  }
-                },
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
-  void _showStoryView(BuildContext context, IdolModel idol) {
-    showGeneralDialog(
-      context: context,
-      barrierDismissible: true,
-      barrierLabel: 'Close',
-      barrierColor: Colors.black,
-      pageBuilder: (context, anim1, anim2) {
-        return Scaffold(
-          backgroundColor: Colors.transparent,
-          body: Stack(
-            fit: StackFit.expand,
-            children: [
-              Container(
-                color: Colors.black,
-                child: Center(
-                  child: CachedNetworkImage(
-                    imageUrl: idol.profileImage,
-                    fit: BoxFit.cover,
-                    height: double.infinity,
-                    width: double.infinity,
-                  ),
-                ),
-              ),
-              Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.black.withOpacity(0.6),
-                      Colors.transparent,
-                      Colors.black.withOpacity(0.6),
-                    ],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    stops: const [0.0, 0.3, 0.8],
-                  ),
-                ),
-              ),
-              SafeArea(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(PipoSpacing.lg),
-                      child: Row(
-                        children: [
-                          CircleAvatar(
-                            radius: 18,
-                            backgroundImage:
-                                CachedNetworkImageProvider(idol.profileImage),
-                          ),
-                          const SizedBox(width: 12),
-                          Text(
-                            idol.stageName,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const Spacer(),
-                          IconButton(
-                            icon: const Icon(Icons.close,
-                                color: Colors.white, size: 28),
-                            onPressed: () => Navigator.of(context).pop(),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(PipoSpacing.xl),
-                      child: SizedBox(
-                        width: double.infinity,
-                        height: 52,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                            context.go('/idols/${idol.id}');
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            foregroundColor: Colors.black,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: PipoRadius.button,
-                            ),
-                          ),
-                          child: const Text(
-                            '프로필 방문하기',
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-      transitionBuilder: (context, anim1, anim2, child) {
-        return FadeTransition(opacity: anim1, child: child);
-      },
-    );
-  }
-
-  Widget _buildQuickActionsGrid(BuildContext context) {
-    final actions = [
-      _QuickAction(
-        icon: Icons.star_rounded,
-        label: '멤버십',
-        color: PipoColors.purple,
-        onTap: () => context.go('/membership'),
-      ),
-      _QuickAction(
-        icon: Icons.chat_bubble_rounded,
-        label: 'Bubble',
-        color: PipoColors.primary,
-        onTap: () {
-          final firstIdol = MockData.idolModels.first;
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => ChatScreen(idol: firstIdol),
-            ),
-          );
-        },
-      ),
-      _QuickAction(
-        icon: Icons.feed_rounded,
-        label: '피드',
-        color: PipoColors.teal,
-        onTap: () => context.go('/community'),
-      ),
-      _QuickAction(
-        icon: Icons.calendar_today_rounded,
-        label: '스케줄',
-        color: PipoColors.orange,
-        onTap: () => context.go('/schedule'),
-      ),
-    ];
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        PipoSpacing.xl, PipoSpacing.xxl, PipoSpacing.xl, 0,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: actions.map((action) {
-          return GestureDetector(
-            onTap: () {
-              HapticFeedback.lightImpact();
-              action.onTap();
-            },
-            child: SizedBox(
-              width: 70,
-              child: Column(
-                children: [
-                  Container(
-                    width: 56,
-                    height: 56,
-                    decoration: BoxDecoration(
-                      color: action.color.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(PipoRadius.lg),
-                    ),
-                    child: Icon(
-                      action.icon,
-                      color: action.color,
-                      size: 26,
-                    ),
-                  ),
-                  const SizedBox(height: PipoSpacing.sm),
-                  Text(
-                    action.label,
-                    style: PipoTypography.labelSmall.copyWith(
-                      color: PipoColors.textPrimary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
   Widget _buildCreatorCards(BuildContext context) {
     final idols = MockData.idolModels.take(5).toList();
 
@@ -758,7 +516,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                           ),
                           if (author?.isVerified ?? false)
                             const Padding(
-                              padding: EdgeInsets.only(left: 4),
+                              padding: const EdgeInsets.only(left: 4),
                               child: Icon(
                                 Icons.verified,
                                 size: 14,
@@ -791,20 +549,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       ),
     );
   }
-}
-
-class _QuickAction {
-  final IconData icon;
-  final String label;
-  final Color color;
-  final VoidCallback onTap;
-
-  _QuickAction({
-    required this.icon,
-    required this.label,
-    required this.color,
-    required this.onTap,
-  });
 }
 
 class _Category {
