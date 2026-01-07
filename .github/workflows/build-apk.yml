@@ -30,27 +30,29 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Free up disk space
+        run: |
+          echo "Before cleanup:"
+          df -h
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo docker image prune --all --force
+          echo "After cleanup:"
+          df -h
+
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Cache Gradle packages
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-          cache: true
+          cache: false
 
       - name: Install dependencies
         run: flutter pub get
@@ -59,22 +61,8 @@ jobs:
         run: dart run build_runner build --delete-conflicting-outputs || echo "No code generation needed"
         continue-on-error: true
 
-      - name: Build APK (with retry)
-        run: |
-          MAX_ATTEMPTS=3
-          ATTEMPT=0
-          until [ $ATTEMPT -ge $MAX_ATTEMPTS ]
-          do
-            ATTEMPT=$((ATTEMPT+1))
-            echo "Build attempt $ATTEMPT of $MAX_ATTEMPTS..."
-            flutter build apk --${{ github.event.inputs.build_type || 'debug' }} --verbose && break
-            echo "Build failed, retrying..."
-            sleep 10
-          done
-          if [ $ATTEMPT -ge $MAX_ATTEMPTS ]; then
-            echo "Build failed after $MAX_ATTEMPTS attempts"
-            exit 1
-          fi
+      - name: Build APK
+        run: flutter build apk --${{ github.event.inputs.build_type || 'debug' }}
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
