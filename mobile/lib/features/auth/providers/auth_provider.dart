@@ -130,11 +130,11 @@ class AuthNotifier extends Notifier<AsyncValue<AuthState>> {
   }) async {
     state = const AsyncValue.data(AuthState(isLoading: true));
 
-    // Map account type to role
-    final role = switch (accountType) {
-      'fan' => 'FAN',
-      'idol' => 'IDOL',
-      'agency' => 'AGENCY',
+    // Map account type to role (handle both upper/lowercase)
+    final role = switch (accountType.toUpperCase()) {
+      'FAN' => 'FAN',
+      'IDOL' => 'IDOL',
+      'AGENCY' => 'AGENCY',
       _ => 'FAN',
     };
 
