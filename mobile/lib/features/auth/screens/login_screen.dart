@@ -254,62 +254,76 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     final isLoading = authState.value?.isLoading ?? false;
     final error = authState.value?.error;
 
+    // Calculate if screen is compact (small height devices)
+    final screenHeight = MediaQuery.of(context).size.height;
+    final isCompact = screenHeight < 700;
+
     return Scaffold(
       body: Stack(
         children: [
           // Background Decorations
           _buildBackgroundDecorations(),
 
-          // Main Content
+          // Main Content - Use LayoutBuilder for adaptive layout
           SafeArea(
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              padding: EdgeInsets.symmetric(horizontal: Responsive.wp(6)),
-              child: FadeTransition(
-                opacity: _fadeAnimation,
-                child: SlideTransition(
-                  position: _slideAnimation,
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        SizedBox(height: Responsive.hp(8)),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: EdgeInsets.symmetric(horizontal: Responsive.wp(6)),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight,
+                    ),
+                    child: FadeTransition(
+                      opacity: _fadeAnimation,
+                      child: SlideTransition(
+                        position: _slideAnimation,
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              SizedBox(height: isCompact ? Responsive.hp(2) : Responsive.hp(4)),
 
-                        // Logo & Title
-                        _buildHeader(),
-                        SizedBox(height: Responsive.hp(5)),
+                              // Logo & Title (compact on small screens)
+                              _buildHeader(isCompact: isCompact),
+                              SizedBox(height: isCompact ? Responsive.hp(2) : Responsive.hp(4)),
 
-                        // Error Message
-                        if (error != null && error.isNotEmpty) ...[
-                          _buildErrorMessage(error),
-                          SizedBox(height: Responsive.hp(2)),
-                        ],
+                              // Error Message
+                              if (error != null && error.isNotEmpty) ...[
+                                _buildErrorMessage(error),
+                                SizedBox(height: Responsive.hp(1.5)),
+                              ],
 
-                        // Login Form Card
-                        _buildLoginForm(),
-                        SizedBox(height: Responsive.hp(2.5)),
+                              // Login Form Card
+                              _buildLoginForm(isCompact: isCompact),
+                              SizedBox(height: isCompact ? Responsive.hp(1.5) : Responsive.hp(2)),
 
-                        // Demo Button
-                        _buildDemoButton(isLoading),
-                        SizedBox(height: Responsive.hp(3)),
+                              // Demo Button
+                              _buildDemoButton(isLoading),
+                              SizedBox(height: isCompact ? Responsive.hp(2) : Responsive.hp(2.5)),
 
-                        // Divider
-                        _buildDivider(),
-                        SizedBox(height: Responsive.hp(3)),
+                              // Divider
+                              _buildDivider(),
+                              SizedBox(height: isCompact ? Responsive.hp(2) : Responsive.hp(2.5)),
 
-                        // Social Login Buttons
-                        _buildSocialButtons(),
-                        SizedBox(height: Responsive.hp(4)),
+                              // Social Login Buttons
+                              _buildSocialButtons(isCompact: isCompact),
+                              SizedBox(height: isCompact ? Responsive.hp(2) : Responsive.hp(3)),
 
-                        // Register Link
-                        _buildRegisterLink(),
-                        SizedBox(height: Responsive.hp(4)),
-                      ],
+                              // Register Link
+                              _buildRegisterLink(),
+                              SizedBox(height: isCompact ? Responsive.hp(2) : Responsive.hp(3)),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
+                );
+              },
             ),
           ),
         ],
@@ -323,7 +337,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader({bool isCompact = false}) {
+    final logoSize = isCompact ? Responsive.wp(16) : Responsive.wp(20);
+    final titleSize = isCompact ? Responsive.sp(28) : Responsive.sp(32);
+    final logoTextSize = isCompact ? Responsive.sp(22) : Responsive.sp(26);
+
     return Center(
       child: Column(
         children: [
@@ -336,16 +354,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
               return Transform.scale(scale: scale, child: child);
             },
             child: Container(
-              width: Responsive.wp(22),
-              height: Responsive.wp(22),
+              width: logoSize,
+              height: logoSize,
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(Responsive.wp(6)),
+                borderRadius: BorderRadius.circular(Responsive.wp(5)),
                 boxShadow: [
                   BoxShadow(
                     color: AppColors.primary.withOpacity(0.25),
-                    blurRadius: 20,
-                    offset: const Offset(0, 8),
+                    blurRadius: 16,
+                    offset: const Offset(0, 6),
                   ),
                 ],
                 border: Border.all(
@@ -357,7 +375,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                 child: Text(
                   'PIPO',
                   style: TextStyle(
-                    fontSize: Responsive.sp(28),
+                    fontSize: logoTextSize,
                     fontWeight: FontWeight.w900,
                     color: AppColors.primary,
                     fontStyle: FontStyle.italic,
@@ -367,24 +385,24 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
               ),
             ),
           ),
-          SizedBox(height: Responsive.hp(3)),
+          SizedBox(height: isCompact ? Responsive.hp(1.5) : Responsive.hp(2)),
 
           // App Name
           Text(
             'PIPO',
             style: TextStyle(
-              fontSize: Responsive.sp(36),
+              fontSize: titleSize,
               fontWeight: FontWeight.w900,
               color: AppColors.primary,
               fontStyle: FontStyle.italic,
               letterSpacing: -1,
             ),
           ),
-          SizedBox(height: Responsive.hp(1)),
+          SizedBox(height: isCompact ? 4 : Responsive.hp(0.5)),
           Text(
             '좋아하는 크리에이터를 응원하세요',
             style: TextStyle(
-              fontSize: Responsive.sp(15),
+              fontSize: isCompact ? Responsive.sp(13) : Responsive.sp(14),
               color: AppColors.textSecondary,
               fontFamily: 'Pretendard',
               letterSpacing: -0.2,
@@ -437,15 +455,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     );
   }
 
-  Widget _buildLoginForm() {
+  Widget _buildLoginForm({bool isCompact = false}) {
     final authState = ref.watch(authStateProvider);
     final isLoading = authState.value?.isLoading ?? false;
 
     return Container(
-      padding: EdgeInsets.all(Responsive.wp(5)),
+      padding: EdgeInsets.all(isCompact ? Responsive.wp(4) : Responsive.wp(5)),
       decoration: BoxDecoration(
         color: AppColors.cardBackground,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: AppColors.border.withValues(alpha: 0.5),
           width: 1,
@@ -457,7 +475,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         children: [
           // Email Field
           _buildInputLabel('이메일'),
-          SizedBox(height: Responsive.hp(1)),
+          SizedBox(height: isCompact ? 6 : Responsive.hp(1)),
           CustomTextField(
             controller: _emailController,
             hintText: 'example@email.com',
@@ -474,11 +492,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
               return null;
             },
           ),
-          SizedBox(height: Responsive.hp(2)),
+          SizedBox(height: isCompact ? Responsive.hp(1.5) : Responsive.hp(2)),
 
           // Password Field
           _buildInputLabel('비밀번호'),
-          SizedBox(height: Responsive.hp(1)),
+          SizedBox(height: isCompact ? 6 : Responsive.hp(1)),
           CustomTextField(
             controller: _passwordController,
             hintText: '비밀번호를 입력하세요',
@@ -505,7 +523,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
               return null;
             },
           ),
-          SizedBox(height: Responsive.hp(1.5)),
+          SizedBox(height: isCompact ? 8 : Responsive.hp(1.5)),
 
           // Forgot Password
           Align(
@@ -526,19 +544,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
               ),
             ),
           ),
-          SizedBox(height: Responsive.hp(2.5)),
+          SizedBox(height: isCompact ? Responsive.hp(1.5) : Responsive.hp(2)),
 
           // Login Button
           GradientButton(
             onPressed: isLoading ? null : _handleLogin,
             isLoading: isLoading,
-            height: 54,
+            height: isCompact ? 48 : 52,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
                   '로그인',
-                  style: TextStyle(fontSize: Responsive.sp(16)),
+                  style: TextStyle(fontSize: Responsive.sp(15)),
                 ),
                 if (!isLoading) ...[
                   SizedBox(width: Responsive.wp(2)),
@@ -660,14 +678,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     );
   }
 
-  Widget _buildSocialButtons() {
+  Widget _buildSocialButtons({bool isCompact = false}) {
+    final buttonHeight = isCompact ? 44.0 : 48.0;
+
     return Column(
       children: [
         // Kakao
         SocialButton.kakao(
           onPressed: () => _handleSocialLogin('카카오'),
+          height: buttonHeight,
         ),
-        SizedBox(height: Responsive.hp(1.5)),
+        SizedBox(height: isCompact ? Responsive.hp(1) : Responsive.hp(1.5)),
 
         // Row of Naver, Google, Apple
         Row(
@@ -677,22 +698,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                 icon: Text(
                   'N',
                   style: TextStyle(
-                    fontSize: 18,
+                    fontSize: isCompact ? 16 : 18,
                     fontWeight: FontWeight.w900,
                     color: Colors.white,
                   ),
                 ),
                 backgroundColor: AppColors.naver,
                 onTap: () => _handleSocialLogin('네이버'),
+                height: buttonHeight,
               ),
             ),
-            SizedBox(width: Responsive.wp(3)),
+            SizedBox(width: Responsive.wp(2.5)),
             Expanded(
               child: _buildCompactSocialButton(
                 icon: Text(
                   'G',
                   style: TextStyle(
-                    fontSize: 18,
+                    fontSize: isCompact ? 16 : 18,
                     fontWeight: FontWeight.w600,
                     color: AppColors.google,
                   ),
@@ -700,14 +722,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                 backgroundColor: Colors.white,
                 hasBorder: true,
                 onTap: () => _handleSocialLogin('Google'),
+                height: buttonHeight,
               ),
             ),
-            SizedBox(width: Responsive.wp(3)),
+            SizedBox(width: Responsive.wp(2.5)),
             Expanded(
               child: _buildCompactSocialButton(
-                icon: Icon(Icons.apple, color: Colors.white, size: 22),
+                icon: Icon(Icons.apple, color: Colors.white, size: isCompact ? 20 : 22),
                 backgroundColor: AppColors.apple,
                 onTap: () => _handleSocialLogin('Apple'),
+                height: buttonHeight,
               ),
             ),
           ],
@@ -721,14 +745,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     required Color backgroundColor,
     required VoidCallback onTap,
     bool hasBorder = false,
+    double height = 48,
   }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 52,
+        height: height,
         decoration: BoxDecoration(
           color: backgroundColor,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(12),
           border: hasBorder ? Border.all(color: AppColors.border) : null,
           boxShadow: [
             BoxShadow(
