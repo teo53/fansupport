@@ -45,11 +45,17 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Accept Android SDK licenses
+        run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-          cache: false
+          cache: true
 
       - name: Create environment files
         run: |
@@ -70,7 +76,7 @@ jobs:
         continue-on-error: true
 
       - name: Build APK
-        run: flutter build apk --${{ github.event.inputs.build_type || 'debug' }}
+        run: flutter build apk --${{ github.event.inputs.build_type || 'debug' }} --verbose
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
