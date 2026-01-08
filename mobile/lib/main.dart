@@ -66,14 +66,30 @@ enum AppState {
   main,
 }
 
-class _IdolSupportAppState extends ConsumerState<IdolSupportApp> {
+class _IdolSupportAppState extends ConsumerState<IdolSupportApp>
+    with SingleTickerProviderStateMixin {
   AppState _appState = AppState.splash;
   bool _isInitialized = false;
+  late AnimationController _transitionController;
+  late Animation<double> _fadeAnimation;
 
   @override
   void initState() {
     super.initState();
+    _transitionController = AnimationController(
+      duration: const Duration(milliseconds: 400),
+      vsync: this,
+    );
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _transitionController, curve: Curves.easeOut),
+    );
     _initialize();
+  }
+
+  @override
+  void dispose() {
+    _transitionController.dispose();
+    super.dispose();
   }
 
   /// Initialize app and check first launch status
@@ -89,17 +105,10 @@ class _IdolSupportAppState extends ConsumerState<IdolSupportApp> {
         });
       }
 
-      // Simulate splash screen delay
-      await Future.delayed(const Duration(seconds: 2));
-
-      if (mounted) {
-        setState(() {
-          _appState = isFirstLaunch ? AppState.onboarding : AppState.main;
-        });
-      }
+      // Splash screen will call onComplete when ready
+      // No manual delay here - splash handles its own timing
     } catch (e) {
       AppLogger.error('Failed to initialize app', error: e);
-      // Default to main app on error
       if (mounted) {
         setState(() {
           _appState = AppState.main;
@@ -109,11 +118,15 @@ class _IdolSupportAppState extends ConsumerState<IdolSupportApp> {
     }
   }
 
-  /// Handle splash screen completion
-  void _onSplashComplete() {
-    setState(() {
-      _appState = AppState.main;
-    });
+  /// Handle splash screen completion with smooth transition
+  void _onSplashComplete() async {
+    // Start fade transition
+    await _transitionController.forward();
+    if (mounted) {
+      setState(() {
+        _appState = AppState.main;
+      });
+    }
   }
 
   /// Handle onboarding completion
@@ -181,16 +194,19 @@ class _IdolSupportAppState extends ConsumerState<IdolSupportApp> {
 
     // Build MaterialApp with router for main app, regular MaterialApp for splash/onboarding
     if (useRouter) {
-      return MaterialApp.router(
-        title: AppConstants.appName,
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.lightTheme,
-        darkTheme: AppTheme.darkTheme,
-        themeMode: themeMode,
-        routerConfig: router,
-        localizationsDelegates: localizationsDelegates,
-        supportedLocales: supportedLocales,
-        locale: localeState.locale,
+      return FadeTransition(
+        opacity: _fadeAnimation,
+        child: MaterialApp.router(
+          title: AppConstants.appName,
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: themeMode,
+          routerConfig: router,
+          localizationsDelegates: localizationsDelegates,
+          supportedLocales: supportedLocales,
+          locale: localeState.locale,
+        ),
       );
     }
 
