@@ -1,9 +1,144 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'logger.dart';
+
+/// App-specific exception types
+enum AppErrorType {
+  network,
+  unauthorized,
+  notFound,
+  validation,
+  server,
+  unknown,
+  insufficientBalance,
+  timeout,
+}
+
+/// Unified app exception with localization support
+class AppException implements Exception {
+  final AppErrorType type;
+  final String message;
+  final String? localizedKey;
+  final dynamic originalError;
+
+  const AppException({
+    required this.type,
+    required this.message,
+    this.localizedKey,
+    this.originalError,
+  });
+
+  @override
+  String toString() => 'AppException(type: $type, message: $message)';
+}
 
 /// Global error handler for the application
 class ErrorHandler {
+  /// Convert any error to AppException
+  static AppException toAppException(Object error, [StackTrace? stackTrace]) {
+    if (error is AppException) return error;
+    if (error is DioException) return _handleDioError(error);
+    if (error is AuthException) return _handleAuthError(error);
+    if (error is PostgrestException) return _handlePostgrestError(error);
+    if (error is SocketException) {
+      return AppException(
+        type: AppErrorType.network,
+        message: '인터넷 연결을 확인해주세요.',
+        localizedKey: 'errorNetwork',
+        originalError: error,
+      );
+    }
+
+    return AppException(
+      type: AppErrorType.unknown,
+      message: error.toString(),
+      localizedKey: 'errorGeneric',
+      originalError: error,
+    );
+  }
+
+  static AppException _handleDioError(DioException error) {
+    switch (error.type) {
+      case DioExceptionType.connectionTimeout:
+      case DioExceptionType.sendTimeout:
+      case DioExceptionType.receiveTimeout:
+        return AppException(
+          type: AppErrorType.timeout,
+          message: '연결 시간이 초과되었습니다. 다시 시도해주세요.',
+          localizedKey: 'errorNetwork',
+          originalError: error,
+        );
+
+      case DioExceptionType.badResponse:
+        final statusCode = error.response?.statusCode;
+        if (statusCode == 401) {
+          return AppException(
+            type: AppErrorType.unauthorized,
+            message: '인증이 만료되었습니다. 다시 로그인해주세요.',
+            localizedKey: 'errorUnauthorized',
+            originalError: error,
+          );
+        } else if (statusCode == 404) {
+          return AppException(
+            type: AppErrorType.notFound,
+            message: '요청한 리소스를 찾을 수 없습니다.',
+            localizedKey: 'errorNotFound',
+            originalError: error,
+          );
+        } else if (statusCode != null && statusCode >= 500) {
+          return AppException(
+            type: AppErrorType.server,
+            message: '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+            localizedKey: 'errorServerError',
+            originalError: error,
+          );
+        }
+        return AppException(
+          type: AppErrorType.unknown,
+          message: '네트워크 오류가 발생했습니다.',
+          localizedKey: 'errorGeneric',
+          originalError: error,
+        );
+
+      case DioExceptionType.connectionError:
+        return AppException(
+          type: AppErrorType.network,
+          message: '인터넷 연결을 확인해주세요.',
+          localizedKey: 'errorNetwork',
+          originalError: error,
+        );
+
+      default:
+        return AppException(
+          type: AppErrorType.unknown,
+          message: '알 수 없는 오류가 발생했습니다.',
+          localizedKey: 'errorGeneric',
+          originalError: error,
+        );
+    }
+  }
+
+  static AppException _handleAuthError(AuthException error) {
+    return AppException(
+      type: AppErrorType.unauthorized,
+      message: error.message,
+      localizedKey: 'errorUnauthorized',
+      originalError: error,
+    );
+  }
+
+  static AppException _handlePostgrestError(PostgrestException error) {
+    return AppException(
+      type: AppErrorType.server,
+      message: error.message,
+      localizedKey: 'errorServerError',
+      originalError: error,
+    );
+  }
+
   /// Handle and display error to user
   static void handle(
     BuildContext context,
@@ -11,59 +146,23 @@ class ErrorHandler {
     StackTrace? stackTrace,
     String? tag,
   }) {
-    final errorMessage = _getErrorMessage(error);
+    final appError = toAppException(error, stackTrace);
 
     // Log error
     AppLogger.error(
-      errorMessage,
+      appError.message,
       tag: tag,
       error: error,
       stackTrace: stackTrace,
     );
 
     // Show user-friendly message
-    _showErrorSnackBar(context, errorMessage);
+    _showErrorSnackBar(context, appError.message);
   }
 
-  /// Get user-friendly error message
+  /// Get user-friendly error message (legacy method for compatibility)
   static String _getErrorMessage(Object error) {
-    if (error is DioException) {
-      switch (error.type) {
-        case DioExceptionType.connectionTimeout:
-        case DioExceptionType.sendTimeout:
-        case DioExceptionType.receiveTimeout:
-          return '연결 시간이 초과되었습니다. 다시 시도해주세요.';
-
-        case DioExceptionType.badResponse:
-          final statusCode = error.response?.statusCode;
-          if (statusCode == 401) {
-            return '인증이 만료되었습니다. 다시 로그인해주세요.';
-          } else if (statusCode == 403) {
-            return '접근 권한이 없습니다.';
-          } else if (statusCode == 404) {
-            return '요청한 리소스를 찾을 수 없습니다.';
-          } else if (statusCode == 500) {
-            return '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
-          }
-          return '네트워크 오류가 발생했습니다. (${statusCode ?? 'Unknown'})';
-
-        case DioExceptionType.cancel:
-          return '요청이 취소되었습니다.';
-
-        case DioExceptionType.connectionError:
-          return '인터넷 연결을 확인해주세요.';
-
-        case DioExceptionType.badCertificate:
-          return '보안 인증서 오류가 발생했습니다.';
-
-        case DioExceptionType.unknown:
-        default:
-          return '알 수 없는 오류가 발생했습니다.';
-      }
-    }
-
-    // Generic error
-    return error.toString();
+    return toAppException(error).message;
   }
 
   /// Show error snackbar
@@ -171,5 +270,79 @@ class ErrorHandler {
         duration: const Duration(seconds: 3),
       ),
     );
+  }
+}
+
+/// Extension on AsyncValue for consistent error handling with guard pattern
+extension AsyncValueGuardExtension<T> on AsyncValue<T> {
+  /// Execute async operation with automatic error handling
+  /// Returns AsyncValue.data on success, AsyncValue.error on failure
+  ///
+  /// Example:
+  /// ```dart
+  /// final result = await AsyncValueGuardExtension.guard(() async {
+  ///   return await repository.fetchData();
+  /// });
+  /// ```
+  static Future<AsyncValue<T>> guard<T>(
+    Future<T> Function() future,
+  ) async {
+    try {
+      final result = await future();
+      return AsyncValue.data(result);
+    } catch (e, st) {
+      final appError = ErrorHandler.toAppException(e, st);
+      return AsyncValue.error(appError, st);
+    }
+  }
+}
+
+/// Mixin for StateNotifiers to use guard pattern with AsyncValue state
+///
+/// Example:
+/// ```dart
+/// class UserNotifier extends StateNotifier<AsyncValue<User>>
+///     with AsyncGuardMixin<User> {
+///
+///   Future<void> fetchUser(String id) async {
+///     await guardedOperation(() => repository.getUser(id));
+///   }
+/// }
+/// ```
+mixin AsyncGuardMixin<T> on StateNotifier<AsyncValue<T>> {
+  /// Execute operation with loading state and error handling
+  Future<void> guardedOperation(Future<T> Function() operation) async {
+    state = const AsyncValue.loading();
+    try {
+      final result = await operation();
+      state = AsyncValue.data(result);
+    } catch (e, st) {
+      final appError = ErrorHandler.toAppException(e, st);
+      state = AsyncValue.error(appError, st);
+    }
+  }
+
+  /// Execute operation without changing state to loading first
+  Future<void> silentGuardedOperation(Future<T> Function() operation) async {
+    try {
+      final result = await operation();
+      state = AsyncValue.data(result);
+    } catch (e, st) {
+      final appError = ErrorHandler.toAppException(e, st);
+      state = AsyncValue.error(appError, st);
+    }
+  }
+
+  /// Execute operation and return whether it was successful
+  Future<bool> tryOperation(Future<T> Function() operation) async {
+    try {
+      final result = await operation();
+      state = AsyncValue.data(result);
+      return true;
+    } catch (e, st) {
+      final appError = ErrorHandler.toAppException(e, st);
+      state = AsyncValue.error(appError, st);
+      return false;
+    }
   }
 }

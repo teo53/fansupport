@@ -4,12 +4,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'core/theme/app_theme.dart';
 import 'core/constants/app_constants.dart';
-import 'core/config/env_config.dart';
-import 'core/config/supabase_config.dart';
+import 'core/config/app_config.dart';
 import 'core/utils/logger.dart';
 import 'core/providers/theme_provider.dart';
+import 'core/providers/locale_provider.dart';
 import 'shared/providers/router_provider.dart';
 import 'features/splash/screens/splash_screen.dart';
 import 'features/onboarding/screens/onboarding_screen.dart';
@@ -17,14 +18,13 @@ import 'features/onboarding/screens/onboarding_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize environment configuration
-  EnvConfig.init();
-  EnvConfig.printConfig();
+  // Initialize environment configuration from .env file
+  await AppConfig.init();
 
-  // Initialize Supabase
+  // Initialize Supabase with config from .env
   await Supabase.initialize(
-    url: SupabaseConfig.url,
-    anonKey: SupabaseConfig.anonKey,
+    url: AppConfig.supabaseUrl,
+    anonKey: AppConfig.supabaseAnonKey,
   );
 
   // Set up global error handlers
@@ -153,6 +153,7 @@ class _IdolSupportAppState extends ConsumerState<IdolSupportApp> {
 
     final router = ref.watch(routerProvider);
     final themeMode = ref.watch(themeModeProvider);
+    final localeState = ref.watch(localeProvider);
 
     // Determine which screen to show based on app state
     Widget? home;
@@ -170,6 +171,14 @@ class _IdolSupportAppState extends ConsumerState<IdolSupportApp> {
         break;
     }
 
+    // Common localization config
+    const localizationsDelegates = [
+      AppLocalizations.delegate,
+      GlobalMaterialLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+    ];
+
     // Build MaterialApp with router for main app, regular MaterialApp for splash/onboarding
     if (useRouter) {
       return MaterialApp.router(
@@ -179,17 +188,9 @@ class _IdolSupportAppState extends ConsumerState<IdolSupportApp> {
         darkTheme: AppTheme.darkTheme,
         themeMode: themeMode,
         routerConfig: router,
-        localizationsDelegates: const [
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: const [
-          Locale('ko', 'KR'),
-          Locale('en', 'US'),
-          Locale('ja', 'JP'),
-        ],
-        locale: const Locale('ko', 'KR'),
+        localizationsDelegates: localizationsDelegates,
+        supportedLocales: supportedLocales,
+        locale: localeState.locale,
       );
     }
 
@@ -199,17 +200,9 @@ class _IdolSupportAppState extends ConsumerState<IdolSupportApp> {
       darkTheme: AppTheme.darkTheme,
       themeMode: themeMode,
       home: home,
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: const [
-        Locale('ko', 'KR'),
-        Locale('en', 'US'),
-        Locale('ja', 'JP'),
-      ],
-      locale: const Locale('ko', 'KR'),
+      localizationsDelegates: localizationsDelegates,
+      supportedLocales: supportedLocales,
+      locale: localeState.locale,
     );
   }
 }
