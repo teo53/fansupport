@@ -88,11 +88,47 @@ export class AuthController {
     return req.user;
   }
 
+  // ==================== Kakao OAuth ====================
+
+  @Get('kakao')
+  @UseGuards(AuthGuard('kakao'))
+  @ApiOperation({ summary: '카카오 로그인' })
+  async kakaoAuth() {
+    // Initiates Kakao OAuth flow
+  }
+
+  @Get('kakao/callback')
+  @UseGuards(AuthGuard('kakao'))
+  @ApiOperation({ summary: '카카오 로그인 콜백' })
+  async kakaoAuthCallback(@Req() req: any) {
+    return req.user;
+  }
+
+  // ==================== Password Management ====================
+
+  @Post('change-password')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: '비밀번호 변경' })
+  @ApiResponse({ status: 200, description: '비밀번호 변경 성공' })
+  @ApiResponse({ status: 400, description: '현재 비밀번호 불일치' })
+  async changePassword(
+    @CurrentUser('id') userId: string,
+    @Body() body: { currentPassword: string; newPassword: string },
+  ) {
+    return this.authService.changePassword(
+      userId,
+      body.currentPassword,
+      body.newPassword,
+    );
+  }
+
   @Get('me')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get current user profile' })
   async getMe(@CurrentUser('id') userId: string) {
-    return { userId };
+    return this.authService.getProfile(userId);
   }
 }

@@ -12,6 +12,7 @@ import { BookingModule } from './booking/booking.module';
 import { CommunityModule } from './community/community.module';
 import { PaymentModule } from './payment/payment.module';
 import { DatabaseModule } from './database/database.module';
+import { VerificationModule } from './verification/verification.module';
 import {
   appConfig,
   databaseConfig,
@@ -19,6 +20,7 @@ import {
   stripeConfig,
   googleConfig,
   swaggerConfig,
+  kakaoConfig,
 } from './config';
 import { ResponseTransformInterceptor } from './common/interceptors';
 import { GlobalExceptionFilter } from './common/filters';
@@ -35,6 +37,7 @@ import { GlobalExceptionFilter } from './common/filters';
         stripeConfig,
         googleConfig,
         swaggerConfig,
+        kakaoConfig,
       ],
     }),
     ThrottlerModule.forRootAsync({
@@ -55,6 +58,7 @@ import { GlobalExceptionFilter } from './common/filters';
     BookingModule,
     CommunityModule,
     PaymentModule,
+    VerificationModule,
   ],
   providers: [
     {

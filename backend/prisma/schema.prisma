@@ -23,6 +23,21 @@ model User {
   providerId    String?
   isVerified    Boolean   @default(false)
   tokenVersion  Int       @default(0)  // Increment to invalidate all tokens
+
+  // 본인인증 관련 필드
+  phoneNumber       String?   @unique  // 인증된 휴대폰 번호
+  realName          String?            // 실명 (본인인증 시 획득)
+  birthDate         String?            // 생년월일 (YYYYMMDD)
+  gender            Gender?            // 성별
+  ci                String?   @unique  // 연계정보 (CI) - 본인확인 고유값
+  di                String?            // 중복가입확인정보 (DI)
+  identityVerifiedAt DateTime?         // 본인인증 완료 시각
+
+  // 계정 잠금 관련 필드
+  failedLoginAttempts Int       @default(0)  // 연속 로그인 실패 횟수
+  lastFailedLoginAt   DateTime?              // 마지막 로그인 실패 시각
+  lockedUntil         DateTime?              // 계정 잠금 해제 시각
+
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   deletedAt     DateTime?
@@ -41,9 +56,17 @@ model User {
   idolProfile   IdolProfile?
   notifications Notification[]
   refreshTokens RefreshToken[]
+  identityVerifications IdentityVerification[]
 
   @@index([email])
   @@index([role])
+  @@index([phoneNumber])
+  @@index([ci])
+}
+
+enum Gender {
+  MALE
+  FEMALE
 }
 
 enum UserRole {
@@ -69,6 +92,62 @@ model RefreshToken {
   createdAt DateTime @default(now())
 
   @@index([userId])
+}
+
+// ==================== 본인인증 (Identity Verification) ====================
+
+model IdentityVerification {
+  id            String                     @id @default(uuid())
+  userId        String
+  user          User                       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider      VerificationProvider       @default(KAKAO)
+  status        VerificationStatus         @default(PENDING)
+  txId          String?                    @unique  // 카카오 본인인증 트랜잭션 ID
+
+  // 인증 요청 정보
+  requestedAt   DateTime                   @default(now())
+  completedAt   DateTime?
+
+  // 인증 결과 (성공 시)
+  phoneNumber   String?                    // 마스킹된 번호 (저장용)
+  phoneCarrier  String?                    // 통신사
+  realName      String?                    // 마스킹된 이름 (저장용)
+  birthDate     String?                    // 생년월일 (YYYYMMDD)
+  gender        Gender?
+  nationality   String?                    // 내국인/외국인
+  ci            String?                    // CI (해시된 값만 저장)
+
+  // 실패 정보
+  errorCode     String?
+  errorMessage  String?
+
+  // 메타데이터
+  ipAddress     String?
+  userAgent     String?
+  deviceInfo    Json?
+
+  createdAt     DateTime                   @default(now())
+  updatedAt     DateTime                   @updatedAt
+
+  @@index([userId])
+  @@index([txId])
+  @@index([status])
+}
+
+enum VerificationProvider {
+  KAKAO
+  PASS
+  NAVER
+  TOSS
+}
+
+enum VerificationStatus {
+  PENDING     // 인증 대기
+  IN_PROGRESS // 인증 진행 중
+  COMPLETED   // 인증 완료
+  FAILED      // 인증 실패
+  EXPIRED     // 인증 만료
+  CANCELLED   // 인증 취소
 }
 
 // ==================== IDOL/MAID PROFILE ====================

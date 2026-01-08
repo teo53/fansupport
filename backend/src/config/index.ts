@@ -4,3 +4,4 @@ export { default as jwtConfig } from './jwt.config';
 export { default as stripeConfig } from './stripe.config';
 export { default as googleConfig } from './google.config';
 export { default as swaggerConfig } from './swagger.config';
+export { default as kakaoConfig } from './kakao.config';
