@@ -48,9 +48,13 @@ class SupabaseCampaignRepository {
             creator:creator_id(id, nickname, profile_image, is_verified)
           ''')
           .eq('id', campaignId)
-          .single();
+          .maybeSingle();
 
-      return CampaignModel.fromJson(data);
+      if (data == null) {
+        return null;
+      }
+
+      return CampaignModel.fromJson(data as Map<String, dynamic>);
     } catch (e) {
       return null;
     }
@@ -162,7 +166,11 @@ class SupabaseCampaignRepository {
           .from('campaigns')
           .insert(campaignData)
           .select('id')
-          .single();
+          .maybeSingle();
+
+      if (data == null || data['id'] == null) {
+        throw Exception('캠페인 생성 후 ID를 받지 못했습니다');
+      }
 
       return data['id'] as String;
     } catch (e) {

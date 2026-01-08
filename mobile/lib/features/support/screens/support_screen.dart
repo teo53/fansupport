@@ -68,10 +68,12 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
 
   Map<String, dynamic>? get _idol {
     try {
-      return MockData.idols
-          .firstWhere((idol) => idol['id'] == widget.receiverId);
+      return MockData.idols.firstWhere(
+        (idol) => idol['id'] == widget.receiverId,
+        orElse: () => <String, dynamic>{},
+      );
     } catch (e) {
-      return MockData.idols.first;
+      return null;
     }
   }
 

@@ -44,9 +44,13 @@ class SupabaseIdolRepository {
             user:user_id(id, email, nickname, profile_image, is_verified)
           ''')
           .eq('user_id', idolId)
-          .single();
+          .maybeSingle();
 
-      return IdolModel.fromJson(data);
+      if (data == null) {
+        return null;
+      }
+
+      return IdolModel.fromJson(data as Map<String, dynamic>);
     } catch (e) {
       return null;
     }

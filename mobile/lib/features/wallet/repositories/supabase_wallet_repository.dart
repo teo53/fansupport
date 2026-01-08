@@ -16,9 +16,13 @@ class SupabaseWalletRepository {
           .from('wallets')
           .select('balance')
           .eq('user_id', userId)
-          .single();
+          .maybeSingle();
 
-      return (data['balance'] as num).toDouble();
+      if (data == null) {
+        throw Exception('지갑 정보를 찾을 수 없습니다');
+      }
+
+      return (data['balance'] as num?)?.toDouble() ?? 0.0;
     } catch (e) {
       throw Exception('잔액 조회 실패: $e');
     }
@@ -34,7 +38,11 @@ class SupabaseWalletRepository {
           .from('wallets')
           .select('id')
           .eq('user_id', userId)
-          .single();
+          .maybeSingle();
+
+      if (walletData == null) {
+        throw Exception('지갑 정보를 찾을 수 없습니다');
+      }
 
       final data = await _supabase
           .from('transactions')
@@ -43,7 +51,11 @@ class SupabaseWalletRepository {
           .order('created_at', ascending: false)
           .limit(limit);
 
-      return (data as List).map((json) => Transaction.fromJson(json)).toList();
+      if (data is! List) {
+        return [];
+      }
+
+      return data.map((json) => Transaction.fromJson(json as Map<String, dynamic>)).toList();
     } catch (e) {
       throw Exception('거래 내역 조회 실패: $e');
     }
@@ -83,14 +95,27 @@ class Transaction {
   });
 
   factory Transaction.fromJson(Map<String, dynamic> json) {
-    return Transaction(
-      id: json['id'],
-      type: json['type'],
-      amount: (json['amount'] as num).toDouble(),
-      balanceBefore: (json['balance_before'] as num).toDouble(),
-      balanceAfter: (json['balance_after'] as num).toDouble(),
-      description: json['description'],
-      createdAt: DateTime.parse(json['created_at']),
-    );
+    try {
+      return Transaction(
+        id: json['id'] as String? ?? '',
+        type: json['type'] as String? ?? 'UNKNOWN',
+        amount: (json['amount'] as num?)?.toDouble() ?? 0.0,
+        balanceBefore: (json['balance_before'] as num?)?.toDouble() ?? 0.0,
+        balanceAfter: (json['balance_after'] as num?)?.toDouble() ?? 0.0,
+        description: json['description'] as String?,
+        createdAt: DateTime.tryParse(json['created_at'] as String? ?? '') ?? DateTime.now(),
+      );
+    } catch (e) {
+      // Return default transaction on error
+      return Transaction(
+        id: '',
+        type: 'ERROR',
+        amount: 0.0,
+        balanceBefore: 0.0,
+        balanceAfter: 0.0,
+        description: 'Failed to parse transaction',
+        createdAt: DateTime.now(),
+      );
+    }
   }
 }

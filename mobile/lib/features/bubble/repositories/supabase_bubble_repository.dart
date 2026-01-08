@@ -110,7 +110,11 @@ class SupabaseBubbleRepository {
             'is_subscriber_only': isSubscriberOnly,
           })
           .select('id')
-          .single();
+          .maybeSingle();
+
+      if (data == null || data['id'] == null) {
+        throw Exception('버블 메시지 생성 후 ID를 받지 못했습니다');
+      }
 
       return data['id'] as String;
     } catch (e) {

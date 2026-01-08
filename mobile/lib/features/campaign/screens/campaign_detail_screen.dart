@@ -22,19 +22,28 @@ class _CampaignDetailScreenState extends ConsumerState<CampaignDetailScreen> {
 
   Map<String, dynamic>? get _campaign {
     try {
-      return MockData.campaigns.firstWhere((c) => c['id'] == widget.campaignId);
+      return MockData.campaigns.firstWhere(
+        (c) => c['id'] == widget.campaignId,
+        orElse: () => <String, dynamic>{},
+      );
     } catch (e) {
-      return MockData.campaigns.isNotEmpty ? MockData.campaigns.first : null;
+      return null;
     }
   }
 
   Map<String, dynamic>? get _creator {
     final campaign = _campaign;
-    if (campaign == null) return null;
+    if (campaign == null || campaign.isEmpty) return null;
     try {
-      return MockData.idols.firstWhere((i) => i['id'] == campaign['creatorId']);
+      final creatorId = campaign['creatorId'];
+      if (creatorId == null) return null;
+
+      return MockData.idols.firstWhere(
+        (i) => i['id'] == creatorId,
+        orElse: () => <String, dynamic>{},
+      );
     } catch (e) {
-      return MockData.idols.isNotEmpty ? MockData.idols.first : null;
+      return null;
     }
   }
 

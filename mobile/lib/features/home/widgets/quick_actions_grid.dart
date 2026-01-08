@@ -23,6 +23,12 @@ class QuickActionsGrid extends StatelessWidget {
         label: 'Bubble',
         color: PipoColors.primary,
         onTap: () {
+          if (MockData.idolModels.isEmpty) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('아이돌 정보를 불러올 수 없습니다')),
+            );
+            return;
+          }
           final firstIdol = MockData.idolModels.first;
           Navigator.of(context).push(
             MaterialPageRoute(

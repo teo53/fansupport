@@ -71,16 +71,31 @@ class AuthNotifier extends Notifier<AsyncValue<AuthState>> {
           .from('users')
           .select('*, wallets(balance)')
           .eq('id', userId)
-          .single();
+          .maybeSingle();
+
+      if (data == null) {
+        throw Exception('User profile not found');
+      }
+
+      // Handle wallet balance safely
+      int walletBalance = 0;
+      final wallets = data['wallets'];
+      if (wallets != null) {
+        if (wallets is List && wallets.isNotEmpty) {
+          walletBalance = (wallets[0]['balance'] as num?)?.toInt() ?? 0;
+        } else if (wallets is Map) {
+          walletBalance = (wallets['balance'] as num?)?.toInt() ?? 0;
+        }
+      }
 
       return User(
-        id: data['id'],
-        email: data['email'],
-        nickname: data['nickname'] ?? 'User',
-        profileImage: data['profile_image'],
-        role: data['role'] ?? 'FAN',
-        isVerified: data['is_verified'] ?? false,
-        walletBalance: data['wallets']?[0]?['balance']?.toInt() ?? 0,
+        id: data['id'] as String,
+        email: data['email'] as String,
+        nickname: data['nickname'] as String? ?? 'User',
+        profileImage: data['profile_image'] as String?,
+        role: data['role'] as String? ?? 'FAN',
+        isVerified: data['is_verified'] as bool? ?? false,
+        walletBalance: walletBalance,
       );
     } catch (e) {
       // If user profile doesn't exist, return basic user from auth
@@ -88,9 +103,9 @@ class AuthNotifier extends Notifier<AsyncValue<AuthState>> {
       return User(
         id: userId,
         email: authUser?.email ?? '',
-        nickname: authUser?.userMetadata?['nickname'] ?? 'User',
+        nickname: authUser?.userMetadata?['nickname'] as String? ?? 'User',
         profileImage: null,
-        role: authUser?.userMetadata?['role'] ?? 'FAN',
+        role: authUser?.userMetadata?['role'] as String? ?? 'FAN',
         isVerified: false,
         walletBalance: 0,
       );
@@ -171,24 +186,44 @@ class AuthNotifier extends Notifier<AsyncValue<AuthState>> {
   }
 
   Future<void> updateUser(User user) async {
+    final currentState = state.value;
+    if (currentState == null) {
+      state = const AsyncValue.data(AuthState(error: '사용자 정보를 찾을 수 없습니다'));
+      return;
+    }
+
     try {
       await _supabase.from('users').update({
         'nickname': user.nickname,
         'profile_image': user.profileImage,
       }).eq('id', user.id);
 
-      state = AsyncValue.data(state.value!.copyWith(user: user));
+      state = AsyncValue.data(currentState.copyWith(user: user, error: null));
     } catch (e) {
-      state = AsyncValue.data(state.value!.copyWith(error: '프로필 업데이트 실패'));
+      state = AsyncValue.data(currentState.copyWith(error: '프로필 업데이트 실패'));
     }
   }
 
   void updateWalletBalance(int newBalance) {
-    if (state.value?.user != null) {
-      final updatedUser = state.value!.user!.copyWith(
+    final currentState = state.value;
+    final currentUser = currentState?.user;
+
+    if (currentUser == null) {
+      return;
+    }
+
+    try {
+      final updatedUser = currentUser.copyWith(
         walletBalance: newBalance,
       );
-      state = AsyncValue.data(AuthState(user: updatedUser));
+      state = AsyncValue.data(AuthState(
+        user: updatedUser,
+        isLoading: currentState?.isLoading ?? false,
+        error: null,
+      ));
+    } catch (e) {
+      // Fail silently for balance updates
+      return;
     }
   }
 
