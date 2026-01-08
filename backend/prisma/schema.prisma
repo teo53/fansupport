@@ -57,6 +57,8 @@ model User {
   notifications Notification[]
   refreshTokens RefreshToken[]
   identityVerifications IdentityVerification[]
+  replyRequests ReplyRequest[]   @relation("RequesterRequests")
+  creatorRequests ReplyRequest[] @relation("CreatorRequests")
 
   @@index([email])
   @@index([role])
@@ -173,6 +175,8 @@ model IdolProfile {
 
   schedules       Schedule[]
   tiers           SubscriptionTier[]
+  replyProducts   ReplyProduct[]
+  slotPolicy      ReplySlotPolicy?
 
   @@index([category])
   @@index([ranking])
@@ -242,6 +246,9 @@ enum TransactionType {
   SUBSCRIPTION_PAYMENT
   CAMPAIGN_CONTRIBUTION
   REFUND
+  REPLY_REQUEST_ESCROW     // 리프 요청 에스크로 결제
+  REPLY_REQUEST_RELEASE    // 리프 납품 후 크리에이터에게 정산
+  REPLY_REQUEST_REFUND     // 리프 환불
 }
 
 enum TransactionStatus {
@@ -530,4 +537,176 @@ enum NotificationType {
   NEW_POST
   NEW_COMMENT
   SYSTEM
+  REPLY_REQUEST_RECEIVED
+  REPLY_REQUEST_DELIVERED
+  REPLY_REQUEST_EXPIRED
+  REPLY_REQUEST_REFUNDED
+}
+
+// ==================== REPLY REQUEST (유료 리프 시스템) ====================
+
+// 리프 상품 (형식/콘텐츠 타입)
+model ReplyProduct {
+  id            String            @id @default(uuid())
+  idolProfileId String
+  idolProfile   IdolProfile       @relation(fields: [idolProfileId], references: [id], onDelete: Cascade)
+  name          String            // 예: "텍스트 메시지", "보이스 메시지", "사진", "영상"
+  description   String?
+  contentType   ReplyContentType
+  basePrice     Decimal           @db.Decimal(15, 2)
+  isActive      Boolean           @default(true)
+  sortOrder     Int               @default(0)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  slaOptions    ReplySLA[]
+  requests      ReplyRequest[]
+
+  @@index([idolProfileId])
+  @@index([contentType])
+}
+
+enum ReplyContentType {
+  TEXT
+  VOICE
+  PHOTO
+  VIDEO
+}
+
+// SLA 옵션 (납품 기한별 가격 차등)
+model ReplySLA {
+  id              String        @id @default(uuid())
+  replyProductId  String
+  replyProduct    ReplyProduct  @relation(fields: [replyProductId], references: [id], onDelete: Cascade)
+  name            String        // 예: "Standard", "Express", "Priority"
+  deadlineHours   Int           // 48, 24, 12 등
+  priceMultiplier Decimal       @db.Decimal(5, 2) @default(1.00) // 기본가격 대비 배수
+  isActive        Boolean       @default(true)
+  sortOrder       Int           @default(0)
+  createdAt       DateTime      @default(now())
+
+  requests        ReplyRequest[]
+
+  @@index([replyProductId])
+}
+
+// 슬롯 정책 (일일 요청 제한)
+model ReplySlotPolicy {
+  id              String      @id @default(uuid())
+  idolProfileId   String      @unique
+  idolProfile     IdolProfile @relation(fields: [idolProfileId], references: [id], onDelete: Cascade)
+  dailySlotLimit  Int         @default(10)  // 하루 최대 접수 가능 수
+  isAutoClose     Boolean     @default(true) // 슬롯 소진 시 자동 마감
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}
+
+// 리프 요청 (핵심 거래 모델)
+model ReplyRequest {
+  id              String              @id @default(uuid())
+  requesterId     String
+  requester       User                @relation("RequesterRequests", fields: [requesterId], references: [id])
+  creatorId       String
+  creator         User                @relation("CreatorRequests", fields: [creatorId], references: [id])
+  productId       String
+  product         ReplyProduct        @relation(fields: [productId], references: [id])
+  slaId           String
+  sla             ReplySLA            @relation(fields: [slaId], references: [id])
+
+  // 요청 내용
+  requestMessage  String              // 팬의 요청 메시지
+  isAnonymous     Boolean             @default(false)
+
+  // 가격/결제
+  basePrice       Decimal             @db.Decimal(15, 2)
+  slaPrice        Decimal             @db.Decimal(15, 2)
+  totalPrice      Decimal             @db.Decimal(15, 2)
+  escrowAmount    Decimal             @db.Decimal(15, 2) // 에스크로 금액
+
+  // 상태 관리
+  status          ReplyRequestStatus  @default(PENDING_PAYMENT)
+  queuePosition   Int?                // 큐 순서
+
+  // 시간 추적
+  paidAt          DateTime?           // 결제 완료 시간
+  queuedAt        DateTime?           // 큐 진입 시간
+  startedAt       DateTime?           // 작업 시작 시간
+  deadlineAt      DateTime?           // SLA 마감 시간
+  deliveredAt     DateTime?           // 납품 완료 시간
+  expiredAt       DateTime?           // 만료 시간
+  refundedAt      DateTime?           // 환불 시간
+
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  delivery        ReplyDelivery?
+  refund          ReplyRefund?
+
+  @@index([requesterId])
+  @@index([creatorId])
+  @@index([status])
+  @@index([deadlineAt])
+  @@index([createdAt])
+}
+
+enum ReplyRequestStatus {
+  PENDING_PAYMENT   // 결제 대기
+  QUEUED            // 큐 대기 (결제 완료)
+  IN_PROGRESS       // 작업 중
+  DELIVERED         // 납품 완료
+  EXPIRED           // SLA 만료
+  REFUNDED          // 환불 완료
+  REJECTED          // 크리에이터 거절
+  CANCELLED         // 팬 취소 (결제 전)
+}
+
+// 납품물
+model ReplyDelivery {
+  id              String        @id @default(uuid())
+  replyRequestId  String        @unique
+  replyRequest    ReplyRequest  @relation(fields: [replyRequestId], references: [id], onDelete: Cascade)
+
+  // 콘텐츠
+  textContent     String?       // 텍스트 답장
+  voiceUrl        String?       // 음성 파일 URL
+  photoUrls       String[]      // 사진 URL 배열
+  videoUrl        String?       // 영상 URL
+
+  // 메타데이터
+  duration        Int?          // 음성/영상 길이(초)
+  creatorNote     String?       // 크리에이터 메모
+
+  // 팬 피드백
+  fanRating       Int?          // 1-5 별점
+  fanFeedback     String?       // 피드백 메시지
+  isPublicAllowed Boolean       @default(false) // 공개 허용 여부 (하이라이트용)
+
+  createdAt       DateTime      @default(now())
+
+  @@index([replyRequestId])
+}
+
+// 환불 기록
+model ReplyRefund {
+  id              String            @id @default(uuid())
+  replyRequestId  String            @unique
+  replyRequest    ReplyRequest      @relation(fields: [replyRequestId], references: [id], onDelete: Cascade)
+
+  reason          ReplyRefundReason
+  amount          Decimal           @db.Decimal(15, 2)
+  description     String?
+  processedBy     String?           // 처리자 (시스템/관리자 ID)
+
+  createdAt       DateTime          @default(now())
+
+  @@index([replyRequestId])
+}
+
+enum ReplyRefundReason {
+  SLA_EXPIRED       // SLA 만료
+  CREATOR_REJECTED  // 크리에이터 거절
+  FAN_CANCELLED     // 팬 취소 (결제 후 일정 시간 내)
+  CONTENT_VIOLATION // 콘텐츠 정책 위반
+  DISPUTE_RESOLVED  // 분쟁 해결
+  ADMIN_REFUND      // 관리자 환불
 }

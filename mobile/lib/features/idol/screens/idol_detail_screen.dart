@@ -208,28 +208,148 @@ class IdolDetailScreen extends ConsumerWidget {
                   ),
                   SizedBox(height: Responsive.hp(3)),
 
-                  // Action Buttons
+                  // Reply Request Stats (NEW)
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: Responsive.wp(4)),
+                    child: Container(
+                      padding: EdgeInsets.all(Responsive.wp(4)),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.05),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: AppColors.primary.withValues(alpha: 0.1)),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.event_available_rounded,
+                                        size: 16, color: AppColors.success),
+                                    SizedBox(width: 4),
+                                    Text(
+                                      '5슬롯',
+                                      style: TextStyle(
+                                        fontSize: Responsive.sp(14),
+                                        fontWeight: FontWeight.w700,
+                                        color: AppColors.success,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 2),
+                                Text(
+                                  '오늘 남은 슬롯',
+                                  style: TextStyle(
+                                    fontSize: Responsive.sp(11),
+                                    color: AppColors.textSecondary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Container(width: 1, height: 30, color: AppColors.border),
+                          Expanded(
+                            child: Column(
+                              children: [
+                                Text(
+                                  '12시간',
+                                  style: TextStyle(
+                                    fontSize: Responsive.sp(14),
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.textPrimary,
+                                  ),
+                                ),
+                                SizedBox(height: 2),
+                                Text(
+                                  '평균 응답',
+                                  style: TextStyle(
+                                    fontSize: Responsive.sp(11),
+                                    color: AppColors.textSecondary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Container(width: 1, height: 30, color: AppColors.border),
+                          Expanded(
+                            child: Column(
+                              children: [
+                                Text(
+                                  '98%',
+                                  style: TextStyle(
+                                    fontSize: Responsive.sp(14),
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.primary,
+                                  ),
+                                ),
+                                SizedBox(height: 2),
+                                Text(
+                                  '이행률',
+                                  style: TextStyle(
+                                    fontSize: Responsive.sp(11),
+                                    color: AppColors.textSecondary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: Responsive.hp(2)),
+
+                  // Primary Action: Reply Request (NEW)
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: Responsive.wp(4)),
+                    child: GradientButton(
+                      onPressed: () => context.push('/create?creatorId=${idol.id}'),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.mail_rounded,
+                              color: Colors.white,
+                              size: Responsive.sp(20)),
+                          SizedBox(width: Responsive.wp(2)),
+                          Text(
+                            '리프 요청하기',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                              fontSize: Responsive.sp(15),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: Responsive.hp(1.5)),
+
+                  // Secondary Actions
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: Responsive.wp(4)),
                     child: Row(
                       children: [
                         Expanded(
-                          child: GradientButton(
-                            onPressed: () => context.go('/support/${idol.id}'),
+                          child: CustomButton(
+                            onPressed: () => context.push('/bubble'),
+                            isOutlined: true,
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.favorite_rounded,
-                                    color: Colors.white,
-                                    size: Responsive.sp(20)),
+                                Icon(Icons.chat_bubble_rounded,
+                                    size: Responsive.sp(18),
+                                    color: AppColors.primary),
                                 SizedBox(width: Responsive.wp(2)),
                                 Text(
-                                  '후원하기',
+                                  'DM 구독',
                                   style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: Responsive.sp(15),
-                                  ),
+                                      fontSize: Responsive.sp(14),
+                                      color: AppColors.primary,
+                                      fontWeight: FontWeight.w600),
                                 ),
                               ],
                             ),
@@ -239,9 +359,8 @@ class IdolDetailScreen extends ConsumerWidget {
                         Expanded(
                           child: CustomButton(
                             onPressed: () {
-                              // Follow Logic (Toggle)
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('아이돌을 팔로우했습니다!')),
+                                const SnackBar(content: Text('크리에이터를 팔로우했습니다!')),
                               );
                             },
                             isOutlined: true,
@@ -249,13 +368,13 @@ class IdolDetailScreen extends ConsumerWidget {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(Icons.star_outline_rounded,
-                                    size: Responsive.sp(20),
+                                    size: Responsive.sp(18),
                                     color: AppColors.textPrimary),
                                 SizedBox(width: Responsive.wp(2)),
                                 Text(
                                   '팔로우',
                                   style: TextStyle(
-                                      fontSize: Responsive.sp(15),
+                                      fontSize: Responsive.sp(14),
                                       color: AppColors.textPrimary,
                                       fontWeight: FontWeight.w600),
                                 ),

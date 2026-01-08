@@ -15,18 +15,27 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _calculateSelectedIndex(BuildContext context) {
     final location = GoRouterState.of(context).matchedLocation;
-    if (location.startsWith('/idols') || location.startsWith('/ranking')) {
+    // Inbox tab - request list, request details
+    if (location.startsWith('/inbox') || location.startsWith('/reply-requests')) {
+      return 0;
+    }
+    // Explore tab - creator list, creator profiles
+    if (location.startsWith('/explore') || location.startsWith('/idols') || location.startsWith('/ranking')) {
       return 1;
     }
-    if (location.startsWith('/campaigns')) {
+    // Create tab - request composer
+    if (location.startsWith('/create')) {
       return 2;
     }
-    if (location.startsWith('/community')) {
+    // Feed tab - highlights, community posts
+    if (location.startsWith('/feed') || location.startsWith('/community')) {
       return 3;
     }
-    if (location.startsWith('/profile') || location.startsWith('/wallet')) {
+    // Wallet/My tab - wallet, profile, settings
+    if (location.startsWith('/wallet') || location.startsWith('/profile') || location.startsWith('/settings')) {
       return 4;
     }
+    // Default to inbox
     return 0;
   }
 
@@ -34,19 +43,19 @@ class _MainScreenState extends State<MainScreen> {
     HapticFeedback.selectionClick();
     switch (index) {
       case 0:
-        context.go('/');
+        context.go('/inbox');
         break;
       case 1:
-        context.go('/idols');
+        context.go('/explore');
         break;
       case 2:
-        context.go('/campaigns');
+        context.go('/create');
         break;
       case 3:
-        context.go('/community');
+        context.go('/feed');
         break;
       case 4:
-        context.go('/profile');
+        context.go('/wallet');
         break;
     }
   }
@@ -86,34 +95,34 @@ class _MainScreenState extends State<MainScreen> {
                 context: context,
                 index: 0,
                 selectedIndex: selectedIndex,
-                icon: Icons.home_outlined,
-                selectedIcon: Icons.home_rounded,
-                label: '홈',
+                icon: Icons.inbox_outlined,
+                selectedIcon: Icons.inbox_rounded,
+                label: '받은함',
               ),
               _buildNavItem(
                 context: context,
                 index: 1,
                 selectedIndex: selectedIndex,
-                icon: Icons.favorite_outline_rounded,
-                selectedIcon: Icons.favorite_rounded,
-                label: '크리에이터',
+                icon: Icons.explore_outlined,
+                selectedIcon: Icons.explore_rounded,
+                label: '탐색',
               ),
               _buildCenterNavItem(context, selectedIndex),
               _buildNavItem(
                 context: context,
                 index: 3,
                 selectedIndex: selectedIndex,
-                icon: Icons.chat_bubble_outline_rounded,
-                selectedIcon: Icons.chat_bubble_rounded,
-                label: '커뮤니티',
+                icon: Icons.feed_outlined,
+                selectedIcon: Icons.feed_rounded,
+                label: '피드',
               ),
               _buildNavItem(
                 context: context,
                 index: 4,
                 selectedIndex: selectedIndex,
-                icon: Icons.person_outline_rounded,
-                selectedIcon: Icons.person_rounded,
-                label: '마이',
+                icon: Icons.account_balance_wallet_outlined,
+                selectedIcon: Icons.account_balance_wallet_rounded,
+                label: '지갑',
               ),
             ],
           ),
@@ -230,7 +239,7 @@ class _MainScreenState extends State<MainScreen> {
                       ),
                     ),
                   const Icon(
-                    Icons.rocket_launch_rounded,
+                    Icons.mail_rounded,
                     size: 24,
                     color: Colors.white,
                   ),
@@ -239,7 +248,7 @@ class _MainScreenState extends State<MainScreen> {
             ),
             const SizedBox(height: PipoSpacing.xs),
             Text(
-              '펀딩',
+              '리프',
               style: TextStyle(
                 fontSize: 10,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,

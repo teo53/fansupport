@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD, APP_INTERCEPTOR, APP_FILTER } from '@nestjs/core';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { ScheduleModule } from '@nestjs/schedule';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { WalletModule } from './wallet/wallet.module';
@@ -13,6 +14,7 @@ import { CommunityModule } from './community/community.module';
 import { PaymentModule } from './payment/payment.module';
 import { DatabaseModule } from './database/database.module';
 import { VerificationModule } from './verification/verification.module';
+import { ReplyRequestsModule } from './reply-requests/reply-requests.module';
 import {
   appConfig,
   databaseConfig,
@@ -48,6 +50,7 @@ import { GlobalExceptionFilter } from './common/filters';
         limit: config.get<number>('app.throttle.limit', 100),
       }],
     }),
+    ScheduleModule.forRoot(),
     DatabaseModule,
     AuthModule,
     UsersModule,
@@ -59,6 +62,7 @@ import { GlobalExceptionFilter } from './common/filters';
     CommunityModule,
     PaymentModule,
     VerificationModule,
+    ReplyRequestsModule,
   ],
   providers: [
     {
