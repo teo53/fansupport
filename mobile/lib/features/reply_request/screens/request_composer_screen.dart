@@ -1,8 +1,14 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/design_system.dart';
 import '../../../shared/widgets/glass_card.dart';
+import '../providers/reply_request_provider.dart';
+import '../models/reply_request_model.dart';
+import '../../safety/services/content_filter_service.dart';
+import '../../safety/services/spending_limit_service.dart';
+import '../../safety/widgets/content_warning.dart';
 
 /// Request Composer Screen - Create a new reply request
 /// Can be accessed from:
@@ -26,17 +32,58 @@ class _RequestComposerScreenState extends ConsumerState<RequestComposerScreen> {
   String? _selectedSlaId;
   final _messageController = TextEditingController();
   bool _isAnonymous = false;
+  bool _isSubmitting = false;
+
+  // Content filtering
+  final _contentFilter = ContentFilterService();
+  ContentFilterResult? _filterResult;
+  Timer? _filterDebounce;
+  bool _isFiltering = false;
+
+  // Spending limits
+  final _spendingService = SpendingLimitService();
+  SpendingCheckResult? _spendingCheck;
 
   @override
   void initState() {
     super.initState();
     _selectedCreatorId = widget.creatorId;
+    _messageController.addListener(_onMessageChanged);
+    _initSpendingService();
+  }
+
+  Future<void> _initSpendingService() async {
+    await _spendingService.initialize();
+  }
+
+  void _onMessageChanged() {
+    _filterDebounce?.cancel();
+    setState(() => _isFiltering = true);
+
+    _filterDebounce = Timer(const Duration(milliseconds: 500), () {
+      if (mounted) {
+        final result = _contentFilter.checkContent(_messageController.text);
+        setState(() {
+          _filterResult = result;
+          _isFiltering = false;
+        });
+      }
+    });
   }
 
   @override
   void dispose() {
+    _filterDebounce?.cancel();
+    _messageController.removeListener(_onMessageChanged);
     _messageController.dispose();
     super.dispose();
+  }
+
+  void _checkSpendingLimit(double amount) {
+    final result = _spendingService.checkTransaction(amount);
+    setState(() {
+      _spendingCheck = result;
+    });
   }
 
   @override
@@ -113,9 +160,15 @@ class _RequestComposerScreenState extends ConsumerState<RequestComposerScreen> {
   }
 
   Widget _buildRequestForm() {
-    // TODO: Fetch creator data and products from API
+    // Use providers when creatorId is available, fallback to mock data
+    final productsAsync = _selectedCreatorId != null
+        ? ref.watch(creatorProductsProvider(_selectedCreatorId!))
+        : null;
+
+    // For now use mock data while API is being integrated
     final creator = _getMockCreator();
-    final products = _getMockProducts();
+    final products = productsAsync?.valueOrNull?.products ?? _getMockProducts();
+    final slaOptions = productsAsync?.valueOrNull?.slas ?? _getMockSlaOptions();
 
     return Column(
       children: [
@@ -144,9 +197,25 @@ class _RequestComposerScreenState extends ConsumerState<RequestComposerScreen> {
                 ],
 
                 // Message input
-                _buildSectionTitle('요청 메시지'),
+                Row(
+                  children: [
+                    Expanded(child: _buildSectionTitle('요청 메시지')),
+                    ContentFilterIndicator(
+                      isFiltering: _isFiltering,
+                      severity: _filterResult?.severity,
+                    ),
+                  ],
+                ),
                 const SizedBox(height: PipoSpacing.sm),
                 _buildMessageInput(),
+
+                // Content warning (if any)
+                if (_filterResult != null && _filterResult!.needsWarning)
+                  ContentWarning(
+                    result: _filterResult!,
+                    onLearnMore: () => GuidelinesDialog.show(context),
+                  ),
+
                 const SizedBox(height: PipoSpacing.md),
 
                 // Prohibited content notice
@@ -583,9 +652,11 @@ class _RequestComposerScreenState extends ConsumerState<RequestComposerScreen> {
   }
 
   Widget _buildBottomBar() {
-    final canSubmit = _selectedProductId != null &&
+    final hasAllFields = _selectedProductId != null &&
         _selectedSlaId != null &&
         _messageController.text.isNotEmpty;
+    final contentBlocked = _filterResult != null && !_filterResult!.canProceed;
+    final canSubmit = hasAllFields && !contentBlocked && !_isSubmitting;
 
     return Container(
       padding: const EdgeInsets.all(PipoSpacing.md),
@@ -604,7 +675,7 @@ class _RequestComposerScreenState extends ConsumerState<RequestComposerScreen> {
         child: ElevatedButton(
           onPressed: canSubmit ? _submitRequest : null,
           style: ElevatedButton.styleFrom(
-            backgroundColor: PipoColors.primary,
+            backgroundColor: contentBlocked ? PipoColors.error : PipoColors.primary,
             foregroundColor: Colors.white,
             disabledBackgroundColor: PipoColors.surfaceVariant,
             disabledForegroundColor: PipoColors.textTertiary,
@@ -614,36 +685,138 @@ class _RequestComposerScreenState extends ConsumerState<RequestComposerScreen> {
             ),
             minimumSize: const Size(double.infinity, 56),
           ),
-          child: const Text(
-            '리프 요청하기',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+          child: _isSubmitting
+              ? const SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
+                )
+              : Text(
+                  contentBlocked ? '금지된 내용 포함' : '리프 요청하기',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
         ),
       ),
     );
   }
 
-  void _submitRequest() {
-    // TODO: Implement API call
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('요청 완료'),
-        content: const Text('리프 요청이 성공적으로 전송되었습니다!'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              context.go('/inbox');
-            },
-            child: const Text('확인'),
+  Future<void> _submitRequest() async {
+    // Check content filter
+    if (_filterResult != null && !_filterResult!.canProceed) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(_contentFilter.getWarningMessage(_filterResult!.severity)),
+          backgroundColor: PipoColors.error,
+        ),
+      );
+      return;
+    }
+
+    // Calculate total price
+    final basePrice = 5000.0;
+    final multiplier = _selectedSlaId == 'express' ? 2.0 : _selectedSlaId == 'priority' ? 1.5 : 1.0;
+    final totalPrice = basePrice * multiplier;
+
+    // Check spending limit
+    final spendingCheck = _spendingService.checkTransaction(totalPrice);
+    if (!spendingCheck.allowed) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('지출 한도 초과'),
+          content: Text(spendingCheck.message ?? '지출 한도를 초과했습니다.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('확인'),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
+    // Show spending warning if applicable
+    if (spendingCheck.isWarning) {
+      final proceed = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('지출 알림'),
+          content: Text(spendingCheck.message ?? ''),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('취소'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('계속'),
+            ),
+          ],
+        ),
+      );
+      if (proceed != true) return;
+    }
+
+    setState(() => _isSubmitting = true);
+
+    try {
+      // Create request DTO
+      final dto = CreateReplyRequestDto(
+        creatorId: _selectedCreatorId!,
+        productId: _selectedProductId!,
+        slaId: _selectedSlaId!,
+        requestMessage: _messageController.text,
+        isAnonymous: _isAnonymous,
+      );
+
+      // Submit using provider
+      final notifier = ref.read(createRequestProvider.notifier);
+      final result = await notifier.createRequest(dto);
+
+      if (result != null) {
+        // Record spending
+        await _spendingService.recordTransaction(totalPrice);
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('리프 요청이 성공적으로 전송되었습니다!'),
+              backgroundColor: PipoColors.success,
+            ),
+          );
+          context.go('/inbox');
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('요청 전송에 실패했습니다. 다시 시도해 주세요.'),
+              backgroundColor: PipoColors.error,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('오류가 발생했습니다: $e'),
+            backgroundColor: PipoColors.error,
           ),
-        ],
-      ),
-    );
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+      }
+    }
   }
 
   IconData _getProductIcon(String contentType) {

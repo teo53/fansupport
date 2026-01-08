@@ -3,6 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/design_system.dart';
 import '../../../shared/widgets/glass_card.dart';
+import '../../reply_request/providers/reply_request_provider.dart';
+import '../../reply_request/models/reply_request_model.dart';
+import '../../reply_request/widgets/status_timeline.dart';
+import '../../reply_request/widgets/sla_countdown.dart';
 
 /// Inbox Dashboard - Shows fan's reply requests organized by status
 class InboxDashboardScreen extends ConsumerStatefulWidget {
@@ -108,7 +112,82 @@ class _InboxDashboardScreenState extends ConsumerState<InboxDashboardScreen>
   }
 
   Widget _buildRequestList(String filter) {
-    // TODO: Replace with actual data from provider
+    // Get the appropriate status filter
+    final statusFilter = _getStatusFilter(filter);
+    final inboxFilter = InboxFilter(status: statusFilter);
+
+    // Watch the provider
+    final requestsAsync = ref.watch(inboxRequestsProvider(inboxFilter));
+
+    return requestsAsync.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, stack) => _buildErrorState(error.toString()),
+      data: (response) {
+        if (response.data.isEmpty) {
+          return _buildEmptyState(filter);
+        }
+
+        return RefreshIndicator(
+          onRefresh: () async {
+            ref.invalidate(inboxRequestsProvider(inboxFilter));
+          },
+          child: ListView.builder(
+            padding: const EdgeInsets.all(PipoSpacing.md),
+            itemCount: response.data.length,
+            itemBuilder: (context, index) {
+              return _buildRequestCardFromModel(response.data[index]);
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  ReplyRequestStatus? _getStatusFilter(String filter) {
+    switch (filter) {
+      case 'queued':
+        return ReplyRequestStatus.queued;
+      case 'delivered':
+        return ReplyRequestStatus.delivered;
+      case 'refunded':
+        return ReplyRequestStatus.refunded;
+      default:
+        return null; // All requests
+    }
+  }
+
+  Widget _buildErrorState(String error) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.error_outline_rounded,
+            size: 64,
+            color: PipoColors.error,
+          ),
+          const SizedBox(height: PipoSpacing.md),
+          Text(
+            '데이터를 불러오지 못했습니다',
+            style: PipoTypography.bodyLarge.copyWith(
+              color: PipoColors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: PipoSpacing.sm),
+          Text(
+            error,
+            style: PipoTypography.bodySmall.copyWith(
+              color: PipoColors.textTertiary,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Legacy method for mock data fallback
+  Widget _buildRequestListMock(String filter) {
     final mockRequests = _getMockRequests(filter);
 
     if (mockRequests.isEmpty) {
@@ -122,6 +201,93 @@ class _InboxDashboardScreenState extends ConsumerState<InboxDashboardScreen>
         return _buildRequestCard(mockRequests[index]);
       },
     );
+  }
+
+  Widget _buildRequestCardFromModel(ReplyRequest request) {
+    return GlassCard(
+      margin: const EdgeInsets.only(bottom: PipoSpacing.md),
+      onTap: () {
+        context.push('/reply-requests/${request.id}');
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 24,
+                backgroundImage: request.creator?.profileImageUrl != null
+                    ? NetworkImage(request.creator!.profileImageUrl!)
+                    : null,
+                backgroundColor: PipoColors.surfaceVariant,
+                child: request.creator?.profileImageUrl == null
+                    ? const Icon(Icons.person, color: PipoColors.textTertiary)
+                    : null,
+              ),
+              const SizedBox(width: PipoSpacing.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      request.creator?.displayName ?? 'Creator',
+                      style: PipoTypography.titleMedium.copyWith(
+                        color: PipoColors.textPrimary,
+                      ),
+                    ),
+                    Text(
+                      request.product?.name ?? 'Product',
+                      style: PipoTypography.bodySmall.copyWith(
+                        color: PipoColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              StatusBadge(status: request.status),
+            ],
+          ),
+          const SizedBox(height: PipoSpacing.md),
+          Text(
+            request.requestMessage,
+            style: PipoTypography.bodyMedium.copyWith(
+              color: PipoColors.textSecondary,
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: PipoSpacing.md),
+          Row(
+            children: [
+              if (request.deadlineAt != null &&
+                  (request.status == ReplyRequestStatus.queued ||
+                      request.status == ReplyRequestStatus.inProgress)) ...[
+                SLACountdown(
+                  deadline: request.deadlineAt!,
+                  style: SLACountdownStyle.badge,
+                ),
+                const Spacer(),
+              ],
+              Text(
+                '${_formatPrice(request.totalPrice)}원',
+                style: PipoTypography.titleSmall.copyWith(
+                  color: PipoColors.primary,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatPrice(double price) {
+    if (price >= 1000) {
+      return price.toStringAsFixed(0).replaceAllMapped(
+          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]},');
+    }
+    return price.toStringAsFixed(0);
   }
 
   Widget _buildEmptyState(String filter) {

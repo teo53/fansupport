@@ -25,6 +25,7 @@ import '../../features/agency/screens/agency_dashboard_screen.dart';
 import '../../features/idol/screens/idol_dashboard_screen.dart';
 import '../../features/message/screens/message_creation_screen.dart';
 import '../../shared/models/idol_model.dart';
+import '../../features/safety/screens/spending_limit_screen.dart';
 // New Inbox-first screens
 import '../../features/inbox/screens/inbox_dashboard_screen.dart';
 import '../../features/explore/screens/explore_screen.dart';
@@ -209,6 +210,11 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: '/message/create',
             builder: (context, state) =>
                 MessageCreationScreen(idol: state.extra as IdolModel),
+          ),
+          // Safety settings
+          GoRoute(
+            path: '/settings/spending-limits',
+            builder: (context, state) => const SpendingLimitScreen(),
           ),
         ],
       ),
