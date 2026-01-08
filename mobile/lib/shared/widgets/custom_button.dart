@@ -399,6 +399,7 @@ class SocialButton extends StatelessWidget {
   final Color backgroundColor;
   final Color textColor;
   final bool isLoading;
+  final double height;
 
   const SocialButton({
     super.key,
@@ -408,11 +409,13 @@ class SocialButton extends StatelessWidget {
     required this.backgroundColor,
     this.textColor = Colors.black,
     this.isLoading = false,
+    this.height = 52,
   });
 
   factory SocialButton.kakao({
     required VoidCallback? onPressed,
     bool isLoading = false,
+    double height = 52,
   }) {
     return SocialButton(
       onPressed: onPressed,
@@ -421,12 +424,14 @@ class SocialButton extends StatelessWidget {
       backgroundColor: AppColors.kakao,
       textColor: const Color(0xFF381E1F),
       isLoading: isLoading,
+      height: height,
     );
   }
 
   factory SocialButton.naver({
     required VoidCallback? onPressed,
     bool isLoading = false,
+    double height = 52,
   }) {
     return SocialButton(
       onPressed: onPressed,
@@ -437,12 +442,14 @@ class SocialButton extends StatelessWidget {
       backgroundColor: AppColors.naver,
       textColor: Colors.white,
       isLoading: isLoading,
+      height: height,
     );
   }
 
   factory SocialButton.google({
     required VoidCallback? onPressed,
     bool isLoading = false,
+    double height = 52,
   }) {
     return SocialButton(
       onPressed: onPressed,
@@ -455,12 +462,14 @@ class SocialButton extends StatelessWidget {
       backgroundColor: Colors.white,
       textColor: AppColors.textPrimary,
       isLoading: isLoading,
+      height: height,
     );
   }
 
   factory SocialButton.apple({
     required VoidCallback? onPressed,
     bool isLoading = false,
+    double height = 52,
   }) {
     return SocialButton(
       onPressed: onPressed,
@@ -469,6 +478,7 @@ class SocialButton extends StatelessWidget {
       backgroundColor: AppColors.apple,
       textColor: Colors.white,
       isLoading: isLoading,
+      height: height,
     );
   }
 
@@ -476,10 +486,10 @@ class SocialButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: 56,
+      height: height,
       decoration: BoxDecoration(
         color: backgroundColor,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         border: backgroundColor == Colors.white
             ? Border.all(color: AppColors.border)
             : null,
@@ -488,19 +498,19 @@ class SocialButton extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: isLoading ? null : onPressed,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(14),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
-                SizedBox(width: 32, child: Center(child: icon)),
-                const SizedBox(width: 12),
+                SizedBox(width: 28, child: Center(child: icon)),
+                const SizedBox(width: 10),
                 Expanded(
                   child: isLoading
                       ? Center(
                           child: SizedBox(
-                            width: 22,
-                            height: 22,
+                            width: 20,
+                            height: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
                               valueColor:
@@ -513,13 +523,13 @@ class SocialButton extends StatelessWidget {
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: textColor,
-                            fontSize: 15,
+                            fontSize: 14,
                             fontWeight: FontWeight.w600,
                             fontFamily: 'Pretendard',
                           ),
                         ),
                 ),
-                const SizedBox(width: 44),
+                const SizedBox(width: 38),
               ],
             ),
           ),
