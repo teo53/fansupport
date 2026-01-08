@@ -138,6 +138,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             _emailController.text.trim(),
             _passwordController.text,
             _nicknameController.text.trim(),
+            realName: _realNameController.text.trim(),
+            phone: _phoneController.text.trim(),
+            birthDate: _selectedBirthDate?.toIso8601String(),
+            accountType: _accountType.name.toUpperCase(),
           );
     } catch (e) {
       if (mounted) {

@@ -32,14 +32,22 @@ final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: '/',
     redirect: (context, state) {
+      // While auth is loading, don't redirect
+      final isLoading = authState.isLoading;
+      if (isLoading) {
+        return null;
+      }
+
       final isLoggedIn = authState.value?.isLoggedIn ?? false;
       final isLoggingIn = state.matchedLocation == '/login' ||
           state.matchedLocation == '/register';
 
+      // Not logged in and not on login/register page -> redirect to login
       if (!isLoggedIn && !isLoggingIn) {
         return '/login';
       }
 
+      // Logged in and on login/register page -> redirect to home
       if (isLoggedIn && isLoggingIn) {
         return '/';
       }

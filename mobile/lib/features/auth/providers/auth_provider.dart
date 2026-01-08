@@ -119,8 +119,24 @@ class AuthNotifier extends Notifier<AsyncValue<AuthState>> {
     }
   }
 
-  Future<void> register(String email, String password, String nickname) async {
+  Future<void> register(
+    String email,
+    String password,
+    String nickname, {
+    String? realName,
+    String? phone,
+    String? birthDate,
+    String accountType = 'FAN',
+  }) async {
     state = const AsyncValue.data(AuthState(isLoading: true));
+
+    // Map account type to role
+    final role = switch (accountType) {
+      'fan' => 'FAN',
+      'idol' => 'IDOL',
+      'agency' => 'AGENCY',
+      _ => 'FAN',
+    };
 
     try {
       final response = await _supabase.auth.signUp(
@@ -128,7 +144,10 @@ class AuthNotifier extends Notifier<AsyncValue<AuthState>> {
         password: password,
         data: {
           'nickname': nickname,
-          'role': 'FAN',
+          'role': role,
+          if (realName != null) 'real_name': realName,
+          if (phone != null) 'phone': phone,
+          if (birthDate != null) 'birth_date': birthDate,
         },
       );
 

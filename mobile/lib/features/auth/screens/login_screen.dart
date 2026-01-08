@@ -383,8 +383,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Widget _buildLogo(bool isSmallScreen) {
-    final logoSize = isSmallScreen ? 60.0 : 72.0;
-    final fontSize = isSmallScreen ? 24.0 : 28.0;
+    final logoSize = isSmallScreen ? 72.0 : 88.0;
+    final fontSize = isSmallScreen ? 28.0 : 34.0;
 
     return Column(
       children: [
@@ -393,12 +393,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           height: logoSize,
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(logoSize * 0.22),
+            borderRadius: BorderRadius.circular(logoSize * 0.25),
             boxShadow: [
               BoxShadow(
-                color: AppColors.primary.withOpacity(0.2),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
+                color: AppColors.primary.withOpacity(0.25),
+                blurRadius: 20,
+                offset: const Offset(0, 6),
               ),
             ],
           ),
@@ -406,7 +406,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             child: Text(
               'PIPO',
               style: TextStyle(
-                fontSize: fontSize * 0.8,
+                fontSize: fontSize,
                 fontWeight: FontWeight.w900,
                 color: AppColors.primary,
                 fontStyle: FontStyle.italic,
@@ -415,22 +415,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             ),
           ),
         ),
-        SizedBox(height: isSmallScreen ? 10 : 14),
-        Text(
-          'PIPO',
-          style: TextStyle(
-            fontSize: fontSize,
-            fontWeight: FontWeight.w900,
-            color: AppColors.primary,
-            fontStyle: FontStyle.italic,
-            letterSpacing: -1,
-          ),
-        ),
-        const SizedBox(height: 4),
+        SizedBox(height: isSmallScreen ? 14 : 18),
         Text(
           '좋아하는 크리에이터를 응원하세요',
           style: TextStyle(
-            fontSize: isSmallScreen ? 13 : 14,
+            fontSize: isSmallScreen ? 14 : 15,
             color: AppColors.textSecondary,
           ),
         ),
