@@ -141,7 +141,11 @@ class SupabaseBubbleRepository {
         .eq('idol_id', idolId)
         .order('created_at', ascending: false)
         .limit(50)
-        .map((data) => data.map((json) => BubbleMessageModel.fromJson(json)).toList());
+        .map((data) => data.map((json) => BubbleMessageModel.fromJson(json)).toList())
+        .handleError((error) {
+          print('Bubble stream error: $error');
+          return <BubbleMessageModel>[];
+        });
   }
 
   /// 모든 버블 메시지 실시간 구독 (피드)
@@ -151,7 +155,11 @@ class SupabaseBubbleRepository {
         .stream(primaryKey: ['id'])
         .order('created_at', ascending: false)
         .limit(50)
-        .map((data) => data.map((json) => BubbleMessageModel.fromJson(json)).toList());
+        .map((data) => data.map((json) => BubbleMessageModel.fromJson(json)).toList())
+        .handleError((error) {
+          print('Bubble stream error: $error');
+          return <BubbleMessageModel>[];
+        });
   }
 
   /// 버블 메시지 삭제 (아이돌 전용)

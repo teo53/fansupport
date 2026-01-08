@@ -33,8 +33,29 @@ final campaignByIdProvider = FutureProvider.autoDispose.family<CampaignModel?, S
     final campaign = await repository.getCampaignById(campaignId);
 
     if (campaign == null) {
+      // Fallback to mock data
       try {
-        return MockData.campaignModels.firstWhere((c) => c.id == campaignId);
+        return MockData.campaignModels.firstWhere(
+          (c) => c.id == campaignId,
+          orElse: () => CampaignModel(
+            id: '',
+            title: '',
+            description: '',
+            type: CampaignType.FUNDING,
+            status: CampaignStatus.DRAFT,
+            goalAmount: 0,
+            currentAmount: 0,
+            startDate: DateTime.now(),
+            endDate: DateTime.now(),
+            creatorId: '',
+            creatorName: '',
+            supporterCount: 0,
+            rewards: [],
+            images: [],
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+          ),
+        );
       } catch (e) {
         return null;
       }
@@ -42,11 +63,9 @@ final campaignByIdProvider = FutureProvider.autoDispose.family<CampaignModel?, S
 
     return campaign;
   } catch (e) {
-    try {
-      return MockData.campaignModels.firstWhere((c) => c.id == campaignId);
-    } catch (e) {
-      return null;
-    }
+    return null;
+  }
+});
   }
 });
 

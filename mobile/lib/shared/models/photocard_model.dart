@@ -78,7 +78,7 @@ class PhotocardModel {
       idolGroup: json['idolGroup'] as String? ?? '',
       imageUrl: json['imageUrl'] as String,
       backImageUrl: json['backImageUrl'] as String?,
-      issuedAt: DateTime.parse(json['issuedAt'] as String),
+      issuedAt: DateTime.tryParse(json['issuedAt'] as String? ?? '' ?? DateTime.now(),
       type: PhotocardType.values.firstWhere(
         (e) => e.name == json['type'],
         orElse: () => PhotocardType.support,

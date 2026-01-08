@@ -93,7 +93,11 @@ class SupabaseSupportRepository {
         .eq('receiver_id', idolId)
         .order('created_at', ascending: false)
         .limit(20)
-        .map((data) => data.map((json) => SupportModel.fromJson(json)).toList());
+        .map((data) => data.map((json) => SupportModel.fromJson(json)).toList())
+        .handleError((error) {
+          print('Support stream error: $error');
+          return <SupportModel>[];
+        });
   }
 }
 

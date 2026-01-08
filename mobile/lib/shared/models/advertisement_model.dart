@@ -187,19 +187,19 @@ class AdOrder extends Equatable {
       targetIdolName: json['targetIdolName'] as String?,
       price: json['price'] as int,
       status: AdStatus.fromCode(json['status'] as String),
-      startDate: DateTime.parse(json['startDate'] as String),
-      endDate: DateTime.parse(json['endDate'] as String),
+      startDate: DateTime.tryParse(json['startDate'] as String? ?? '' ?? DateTime.now(),
+      endDate: DateTime.tryParse(json['endDate'] as String? ?? '' ?? DateTime.now(),
       adImages: List<String>.from(json['adImages'] ?? []),
       adText: json['adText'] as String?,
       rejectionReason: json['rejectionReason'] as String?,
       impressions: json['impressions'] as int?,
       clicks: json['clicks'] as int?,
-      orderedAt: DateTime.parse(json['orderedAt'] as String),
+      orderedAt: DateTime.tryParse(json['orderedAt'] as String? ?? '' ?? DateTime.now(),
       approvedAt: json['approvedAt'] != null
-          ? DateTime.parse(json['approvedAt'] as String)
+          ? DateTime.tryParse(json['approvedAt'] as String? ?? '' ?? DateTime.now()
           : null,
       completedAt: json['completedAt'] != null
-          ? DateTime.parse(json['completedAt'] as String)
+          ? DateTime.tryParse(json['completedAt'] as String? ?? '' ?? DateTime.now()
           : null,
     );
   }
@@ -301,13 +301,13 @@ class AdFunding extends Equatable {
       goalAmount: json['goalAmount'] as int,
       currentAmount: json['currentAmount'] as int? ?? 0,
       supporterCount: json['supporterCount'] as int? ?? 0,
-      startDate: DateTime.parse(json['startDate'] as String),
-      endDate: DateTime.parse(json['endDate'] as String),
+      startDate: DateTime.tryParse(json['startDate'] as String? ?? '' ?? DateTime.now(),
+      endDate: DateTime.tryParse(json['endDate'] as String? ?? '' ?? DateTime.now(),
       organizerId: json['organizerId'] as String,
       organizerName: json['organizerName'] as String,
       adDesignImage: json['adDesignImage'] as String?,
       isCompleted: json['isCompleted'] as bool? ?? false,
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '' ?? DateTime.now(),
     );
   }
 

@@ -171,9 +171,16 @@ class _CampaignListScreenState extends ConsumerState<CampaignListScreen> {
     // Get creator info
     Map<String, dynamic>? creator;
     try {
-      creator = MockData.idols.firstWhere((i) => i['id'] == campaign['creatorId']);
+      final creatorId = campaign['creatorId'];
+      if (creatorId != null) {
+        creator = MockData.idols.firstWhere(
+          (i) => i['id'] == creatorId,
+          orElse: () => <String, dynamic>{},
+        );
+        if (creator?.isEmpty ?? true) creator = null;
+      }
     } catch (e) {
-      creator = MockData.idols.isNotEmpty ? MockData.idols.first : null;
+      creator = null;
     }
 
     return Card(

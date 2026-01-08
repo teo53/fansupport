@@ -154,8 +154,8 @@ class CampaignModel extends Equatable {
       goalAmount: json['goalAmount'] as int,
       currentAmount: json['currentAmount'] as int? ?? 0,
       supporterCount: json['supporterCount'] as int? ?? 0,
-      startDate: DateTime.parse(json['startDate'] as String),
-      endDate: DateTime.parse(json['endDate'] as String),
+      startDate: DateTime.tryParse(json['startDate'] as String? ?? '') ?? DateTime.now(),
+      endDate: DateTime.tryParse(json['endDate'] as String? ?? '') ?? DateTime.now().add(const Duration(days: 30)),
       rewards: (json['rewards'] as List<dynamic>?)
               ?.map((e) => CampaignReward.fromJson(e as Map<String, dynamic>))
               .toList() ??
@@ -169,8 +169,8 @@ class CampaignModel extends Equatable {
       likeCount: json['likeCount'] as int? ?? 0,
       shareCount: json['shareCount'] as int? ?? 0,
       isLiked: json['isLiked'] as bool? ?? false,
-      createdAt: DateTime.parse(json['createdAt'] as String? ?? DateTime.now().toIso8601String()),
-      updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt'] as String) : null,
+      createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
+      updatedAt: json['updatedAt'] != null ? DateTime.tryParse(json['updatedAt'] as String? ?? '') : null,
     );
   }
 
@@ -250,7 +250,7 @@ class CampaignReward extends Equatable {
       items: List<String>.from(json['items'] ?? []),
       deliveryInfo: json['deliveryInfo'] as String?,
       expectedDelivery: json['expectedDelivery'] != null
-          ? DateTime.parse(json['expectedDelivery'] as String)
+          ? DateTime.tryParse(json['expectedDelivery'] as String? ?? '')
           : null,
     );
   }
@@ -296,7 +296,7 @@ class CampaignUpdate extends Equatable {
       title: json['title'] as String,
       content: json['content'] as String,
       images: List<String>.from(json['images'] ?? []),
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
     );
   }
 

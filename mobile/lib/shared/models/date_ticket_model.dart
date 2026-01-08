@@ -106,7 +106,7 @@ class DateTicketProduct extends Equatable {
       includeItems: List<String>.from(json['includeItems'] ?? []),
       excludeItems: List<String>.from(json['excludeItems'] ?? []),
       notice: json['notice'] as String?,
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      createdAt: DateTime.tryParse(json['createdAt'] as String? ?? ''),
     );
   }
 
@@ -197,22 +197,22 @@ class DateTicketReservation extends Equatable {
       price: json['price'] as int,
       status: DateTicketStatus.fromCode(json['status'] as String),
       scheduledDate: json['scheduledDate'] != null
-          ? DateTime.parse(json['scheduledDate'] as String)
+          ? DateTime.tryParse(json['scheduledDate'] as String? ?? '')
           : null,
       scheduledTime: json['scheduledTime'] as String?,
       location: json['location'] as String?,
       userMessage: json['userMessage'] as String?,
       idolMessage: json['idolMessage'] as String?,
       cancelReason: json['cancelReason'] as String?,
-      purchasedAt: DateTime.parse(json['purchasedAt'] as String),
+      purchasedAt: DateTime.tryParse(json['purchasedAt'] as String? ?? ''),
       confirmedAt: json['confirmedAt'] != null
-          ? DateTime.parse(json['confirmedAt'] as String)
+          ? DateTime.tryParse(json['confirmedAt'] as String? ?? '')
           : null,
       completedAt: json['completedAt'] != null
-          ? DateTime.parse(json['completedAt'] as String)
+          ? DateTime.tryParse(json['completedAt'] as String? ?? '')
           : null,
       cancelledAt: json['cancelledAt'] != null
-          ? DateTime.parse(json['cancelledAt'] as String)
+          ? DateTime.tryParse(json['cancelledAt'] as String? ?? '')
           : null,
     );
   }

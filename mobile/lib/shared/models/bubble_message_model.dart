@@ -71,7 +71,7 @@ class BubbleMessageModel extends Equatable {
       likeCount: json['likeCount'] as int? ?? 0,
       isLiked: json['isLiked'] as bool? ?? false,
       isRead: json['isRead'] as bool? ?? false,
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
     );
   }
 
@@ -174,8 +174,8 @@ class BubbleSubscription extends Equatable {
       idolName: json['idolName'] as String,
       idolProfileImage: json['idolProfileImage'] as String? ?? '',
       price: json['price'] as int,
-      startDate: DateTime.parse(json['startDate'] as String),
-      endDate: DateTime.parse(json['endDate'] as String),
+      startDate: DateTime.tryParse(json['startDate'] as String? ?? '') ?? DateTime.now(),
+      endDate: DateTime.tryParse(json['endDate'] as String? ?? '') ?? DateTime.now().add(const Duration(days: 30)),
       isActive: json['isActive'] as bool? ?? true,
       autoRenew: json['autoRenew'] as bool? ?? true,
       unreadCount: json['unreadCount'] as int? ?? 0,

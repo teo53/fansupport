@@ -37,7 +37,27 @@ final idolByIdProvider = FutureProvider.autoDispose.family<IdolModel?, String>((
     // If not found in Supabase, try mock data
     if (idol == null) {
       try {
-        return MockData.idolModels.firstWhere((i) => i.id == idolId);
+        return MockData.idolModels.firstWhere(
+          (i) => i.id == idolId,
+          orElse: () => IdolModel(
+            id: '',
+            userId: '',
+            stageName: 'Unknown',
+            realName: '',
+            category: IdolCategory.UNDERGROUND_IDOL,
+            bio: '',
+            debutDate: DateTime.now(),
+            totalSupport: 0,
+            monthlySupport: 0,
+            supporterCount: 0,
+            isVerified: false,
+            profileImage: '',
+            coverImage: '',
+            socialLinks: {},
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+          ),
+        );
       } catch (e) {
         return null;
       }
@@ -45,12 +65,7 @@ final idolByIdProvider = FutureProvider.autoDispose.family<IdolModel?, String>((
 
     return idol;
   } catch (e) {
-    // Fallback to mock data
-    try {
-      return MockData.idolModels.firstWhere((i) => i.id == idolId);
-    } catch (e) {
-      return null;
-    }
+    return null;
   }
 });
 

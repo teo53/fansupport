@@ -171,10 +171,10 @@ class IdolModel extends Equatable {
               ?.map((e) => SubscriptionTier.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
-      createdAt: DateTime.parse(
-          json['createdAt'] as String? ?? DateTime.now().toIso8601String()),
+      createdAt: DateTime.tryParse(
+          json['createdAt'] as String? ?? '') ?? DateTime.now(),
       updatedAt: json['updatedAt'] != null
-          ? DateTime.parse(json['updatedAt'] as String)
+          ? DateTime.tryParse(json['updatedAt'] as String? ?? '')
           : null,
     );
   }

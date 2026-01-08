@@ -211,7 +211,11 @@ class SupabaseCampaignRepository {
         .eq('id', campaignId)
         .map((data) {
           if (data.isEmpty) return null;
-          return CampaignModel.fromJson(data.first);
+          return CampaignModel.fromJson(data.first as Map<String, dynamic>);
+        })
+        .handleError((error) {
+          print('Campaign stream error: $error');
+          return null;
         });
   }
 }
