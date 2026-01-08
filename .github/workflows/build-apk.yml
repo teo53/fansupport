@@ -15,9 +15,6 @@ on:
     branches:
       - 'claude/project-review-*'
       - 'claude/enhance-*'
-    paths:
-      - 'mobile/**'
-      - '.github/workflows/build-apk.yml'
 
 defaults:
   run:
