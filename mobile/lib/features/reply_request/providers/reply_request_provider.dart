@@ -18,6 +18,11 @@ final inboxRequestsProvider = FutureProvider.autoDispose
     throw Exception('Not authenticated');
   }
 
+  // Demo mode: return mock data
+  if (authState.token == 'demo-token') {
+    return _getMockInboxData(filter);
+  }
+
   return repo.getMyRequests(
     token: authState.token!,
     status: filter.status,
@@ -25,6 +30,87 @@ final inboxRequestsProvider = FutureProvider.autoDispose
     limit: filter.limit,
   );
 });
+
+/// Mock data for demo mode
+PaginatedResponse<ReplyRequest> _getMockInboxData(InboxFilter filter) {
+  final now = DateTime.now();
+  final mockRequests = [
+    ReplyRequest(
+      id: 'demo-1',
+      requesterId: 'demo-user',
+      creatorId: 'creator-1',
+      productId: 'product-1',
+      slaId: 'sla-1',
+      status: ReplyRequestStatus.queued,
+      requestMessage: '안녕하세요! 팬입니다. 응원 메시지 보내주세요!',
+      isAnonymous: false,
+      basePrice: 5000,
+      slaPrice: 0,
+      totalPrice: 5000,
+      escrowAmount: 5000,
+      createdAt: now.subtract(const Duration(hours: 2)),
+      updatedAt: now.subtract(const Duration(hours: 2)),
+      queuedAt: now.subtract(const Duration(hours: 2)),
+      deadlineAt: now.add(const Duration(hours: 46)),
+      queuePosition: 3,
+      creator: const UserInfo(
+        id: 'creator-1',
+        nickname: '아이유',
+        profileImage: null,
+      ),
+      product: const ReplyProduct(
+        id: 'product-1',
+        idolProfileId: 'creator-1',
+        name: '음성 메시지',
+        description: '팬을 위한 특별한 음성 메시지',
+        contentType: ReplyContentType.voice,
+        basePrice: 5000,
+      ),
+    ),
+    ReplyRequest(
+      id: 'demo-2',
+      requesterId: 'demo-user',
+      creatorId: 'creator-2',
+      productId: 'product-2',
+      slaId: 'sla-2',
+      status: ReplyRequestStatus.delivered,
+      requestMessage: '생일 축하 영상 부탁드려요!',
+      isAnonymous: false,
+      basePrice: 10000,
+      slaPrice: 0,
+      totalPrice: 10000,
+      escrowAmount: 10000,
+      createdAt: now.subtract(const Duration(days: 1)),
+      updatedAt: now.subtract(const Duration(hours: 12)),
+      deliveredAt: now.subtract(const Duration(hours: 12)),
+      creator: const UserInfo(
+        id: 'creator-2',
+        nickname: '뉴진스 민지',
+        profileImage: null,
+      ),
+      product: const ReplyProduct(
+        id: 'product-2',
+        idolProfileId: 'creator-2',
+        name: '영상 메시지',
+        description: '팬을 위한 특별한 영상 메시지',
+        contentType: ReplyContentType.video,
+        basePrice: 10000,
+      ),
+    ),
+  ];
+
+  // Filter by status if specified
+  final filtered = filter.status != null
+      ? mockRequests.where((r) => r.status == filter.status).toList()
+      : mockRequests;
+
+  return PaginatedResponse(
+    data: filtered,
+    total: filtered.length,
+    page: filter.page,
+    limit: filter.limit,
+  );
+}
 
 /// Single request detail provider
 final replyRequestDetailProvider = FutureProvider.autoDispose

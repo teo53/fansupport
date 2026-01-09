@@ -195,10 +195,15 @@ class AuthNotifier extends Notifier<AsyncValue<AuthState>> {
 
   Future<void> logout() async {
     try {
-      await _supabase.auth.signOut();
+      // Check if current user is demo user (skip Supabase signOut)
+      final currentToken = state.value?.token;
+      if (currentToken != 'demo-token') {
+        await _supabase.auth.signOut();
+      }
       state = const AsyncValue.data(AuthState());
     } catch (e) {
-      state = AsyncValue.data(AuthState(error: '로그아웃 중 오류가 발생했습니다.'));
+      // Even if signOut fails, clear the state
+      state = const AsyncValue.data(AuthState());
     }
   }
 
