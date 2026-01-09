@@ -1,4 +1,6 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import '../../../core/theme/design_system.dart';
 
 /// Reply request status enum matching backend
 enum ReplyRequestStatus {
@@ -66,6 +68,45 @@ extension ReplyRequestStatusExtension on ReplyRequestStatus {
       this == ReplyRequestStatus.refunded ||
       this == ReplyRequestStatus.rejected ||
       this == ReplyRequestStatus.cancelled;
+
+  Color get color {
+    switch (this) {
+      case ReplyRequestStatus.pendingPayment:
+        return PipoColors.textSecondary;
+      case ReplyRequestStatus.queued:
+        return PipoColors.info;
+      case ReplyRequestStatus.inProgress:
+        return PipoColors.warning;
+      case ReplyRequestStatus.delivered:
+        return PipoColors.success;
+      case ReplyRequestStatus.expired:
+      case ReplyRequestStatus.refunded:
+      case ReplyRequestStatus.rejected:
+      case ReplyRequestStatus.cancelled:
+        return PipoColors.error;
+    }
+  }
+
+  IconData get icon {
+    switch (this) {
+      case ReplyRequestStatus.pendingPayment:
+        return Icons.schedule_rounded;
+      case ReplyRequestStatus.queued:
+        return Icons.hourglass_empty_rounded;
+      case ReplyRequestStatus.inProgress:
+        return Icons.edit_rounded;
+      case ReplyRequestStatus.delivered:
+        return Icons.check_circle_rounded;
+      case ReplyRequestStatus.expired:
+        return Icons.timer_off_rounded;
+      case ReplyRequestStatus.refunded:
+        return Icons.replay_rounded;
+      case ReplyRequestStatus.rejected:
+        return Icons.cancel_rounded;
+      case ReplyRequestStatus.cancelled:
+        return Icons.block_rounded;
+    }
+  }
 
   static ReplyRequestStatus fromString(String value) {
     switch (value.toUpperCase()) {
