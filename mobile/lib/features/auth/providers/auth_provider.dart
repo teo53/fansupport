@@ -177,13 +177,20 @@ class AuthNotifier extends Notifier<AsyncValue<AuthState>> {
   Future<void> loginAsDemo([String? role]) async {
     state = const AsyncValue.data(AuthState(isLoading: true));
 
-    // For demo purposes, try to login with a test account
-    // In production, this would be removed
-    try {
-      await login('test@pipo.com', 'password123');
-    } catch (e) {
-      state = AsyncValue.data(AuthState(error: '데모 로그인에 실패했습니다.'));
-    }
+    // Demo mode: Create mock user without Supabase authentication
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    final demoUser = User(
+      id: 'demo-user-${DateTime.now().millisecondsSinceEpoch}',
+      email: 'demo@pipo.com',
+      nickname: '체험 사용자',
+      profileImage: null,
+      role: role ?? 'FAN',
+      isVerified: false,
+      walletBalance: 10000, // Demo balance
+    );
+
+    state = AsyncValue.data(AuthState(user: demoUser, token: 'demo-token'));
   }
 
   Future<void> logout() async {

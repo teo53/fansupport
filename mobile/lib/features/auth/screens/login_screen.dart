@@ -220,30 +220,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 ),
                         ),
                       ),
-                      SizedBox(height: isSmallScreen ? 12 : 18),
+                      SizedBox(height: isSmallScreen ? 20 : 28),
 
-                      // Demo Button
-                      SizedBox(
-                        width: double.infinity,
-                        height: isSmallScreen ? 44 : 48,
-                        child: OutlinedButton.icon(
-                          onPressed: isLoading ? null : _handleDemoLogin,
-                          icon: Icon(Icons.rocket_launch_rounded, size: 18),
-                          label: Text('체험하기'),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: AppColors.primary,
-                            side: BorderSide(color: AppColors.primary.withOpacity(0.5)),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      // Spacer to push social buttons and register link to bottom
-                      const Spacer(),
-
-                      // Divider
+                      // Divider - 간편 로그인
                       Row(
                         children: [
                           Expanded(child: Divider(color: AppColors.border)),
@@ -340,7 +319,28 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           ),
                         ],
                       ),
-                      SizedBox(height: isSmallScreen ? 16 : 24),
+                      SizedBox(height: isSmallScreen ? 20 : 28),
+
+                      // Demo Button - 체험하기
+                      SizedBox(
+                        width: double.infinity,
+                        height: isSmallScreen ? 44 : 48,
+                        child: OutlinedButton.icon(
+                          onPressed: isLoading ? null : _handleDemoLogin,
+                          icon: Icon(Icons.rocket_launch_rounded, size: 18),
+                          label: Text('체험하기'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppColors.textSecondary,
+                            side: BorderSide(color: AppColors.border),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      // Spacer to push register link to bottom
+                      const Spacer(),
 
                       // Register Link
                       Row(
