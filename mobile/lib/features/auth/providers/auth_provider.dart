@@ -11,11 +11,13 @@ class AuthState {
   final User? user;
   final bool isLoading;
   final String? error;
+  final String? token;
 
   const AuthState({
     this.user,
     this.isLoading = false,
     this.error,
+    this.token,
   });
 
   bool get isLoggedIn => user != null;
@@ -24,11 +26,13 @@ class AuthState {
     User? user,
     bool? isLoading,
     String? error,
+    String? token,
   }) {
     return AuthState(
       user: user ?? this.user,
       isLoading: isLoading ?? this.isLoading,
       error: error,
+      token: token ?? this.token,
     );
   }
 }
@@ -46,19 +50,21 @@ class AuthNotifier extends Notifier<AsyncValue<AuthState>> {
     // Listen to auth state changes
     _supabase.auth.onAuthStateChange.listen((authState) async {
       final supabaseUser = authState.session?.user;
+      final accessToken = authState.session?.accessToken;
       if (supabaseUser != null) {
         final user = await _fetchUserProfile(supabaseUser.id);
-        state = AsyncValue.data(AuthState(user: user));
+        state = AsyncValue.data(AuthState(user: user, token: accessToken));
       } else {
         state = const AsyncValue.data(AuthState());
       }
     });
 
     // Check current session
+    final currentSession = _supabase.auth.currentSession;
     final currentUser = _supabase.auth.currentUser;
     if (currentUser != null) {
       final user = await _fetchUserProfile(currentUser.id);
-      state = AsyncValue.data(AuthState(user: user));
+      state = AsyncValue.data(AuthState(user: user, token: currentSession?.accessToken));
     } else {
       state = const AsyncValue.data(AuthState());
     }
@@ -108,7 +114,7 @@ class AuthNotifier extends Notifier<AsyncValue<AuthState>> {
 
       if (response.user != null) {
         final user = await _fetchUserProfile(response.user!.id);
-        state = AsyncValue.data(AuthState(user: user));
+        state = AsyncValue.data(AuthState(user: user, token: response.session?.accessToken));
       } else {
         state = const AsyncValue.data(AuthState(error: '로그인에 실패했습니다.'));
       }
@@ -160,7 +166,7 @@ class AuthNotifier extends Notifier<AsyncValue<AuthState>> {
       await Future.delayed(const Duration(seconds: 1));
 
       final user = await _fetchUserProfile(response.user!.id);
-      state = AsyncValue.data(AuthState(user: user));
+      state = AsyncValue.data(AuthState(user: user, token: response.session?.accessToken));
     } on sb.AuthException catch (e) {
       state = AsyncValue.data(AuthState(error: _handleAuthError(e)));
     } catch (e) {
@@ -207,7 +213,7 @@ class AuthNotifier extends Notifier<AsyncValue<AuthState>> {
       final updatedUser = state.value!.user!.copyWith(
         walletBalance: newBalance,
       );
-      state = AsyncValue.data(AuthState(user: updatedUser));
+      state = AsyncValue.data(state.value!.copyWith(user: updatedUser));
     }
   }
 
@@ -240,4 +246,9 @@ final isLoggedInProvider = Provider<bool>((ref) {
 
 final walletBalanceProvider = Provider<int>((ref) {
   return ref.watch(currentUserProvider)?.walletBalance ?? 0;
+});
+
+/// Auth token provider for API calls
+final authTokenProvider = Provider<String?>((ref) {
+  return ref.watch(authStateProvider).value?.token;
 });
