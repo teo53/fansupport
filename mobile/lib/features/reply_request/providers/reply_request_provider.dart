@@ -63,135 +63,161 @@ final creatorProductsProvider = FutureProvider.autoDispose
   return repo.getCreatorProducts(creatorId);
 });
 
-/// Create request state notifier using StateProvider pattern (simpler for Riverpod 3.x)
-final createRequestStateProvider = StateProvider.autoDispose<AsyncValue<ReplyRequest?>>((ref) {
-  return const AsyncValue.data(null);
+/// Create request notifier using Notifier pattern
+class CreateRequestNotifier extends Notifier<AsyncValue<ReplyRequest?>> {
+  @override
+  AsyncValue<ReplyRequest?> build() {
+    return const AsyncValue.data(null);
+  }
+
+  Future<ReplyRequest?> createRequest(CreateReplyRequestDto dto) async {
+    final repo = ref.read(replyRequestRepositoryProvider);
+    final token = ref.read(authStateProvider).value?.token;
+
+    if (token == null) {
+      state = AsyncValue.error(Exception('Not authenticated'), StackTrace.current);
+      return null;
+    }
+
+    state = const AsyncValue.loading();
+
+    try {
+      final request = await repo.createRequest(dto, token);
+      state = AsyncValue.data(request);
+      return request;
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+      return null;
+    }
+  }
+
+  void reset() {
+    state = const AsyncValue.data(null);
+  }
+}
+
+final createRequestProvider =
+    NotifierProvider<CreateRequestNotifier, AsyncValue<ReplyRequest?>>(() {
+  return CreateRequestNotifier();
 });
 
-/// Create request action provider
-Future<ReplyRequest?> createRequest(WidgetRef ref, CreateReplyRequestDto dto) async {
-  final repo = ref.read(replyRequestRepositoryProvider);
-  final token = ref.read(authStateProvider).value?.token;
-
-  if (token == null) {
-    ref.read(createRequestStateProvider.notifier).state =
-        AsyncValue.error(Exception('Not authenticated'), StackTrace.current);
-    return null;
+/// Deliver reply notifier
+class DeliverReplyNotifier extends Notifier<AsyncValue<ReplyRequest?>> {
+  @override
+  AsyncValue<ReplyRequest?> build() {
+    return const AsyncValue.data(null);
   }
 
-  ref.read(createRequestStateProvider.notifier).state = const AsyncValue.loading();
+  Future<ReplyRequest?> deliver(String requestId, DeliverReplyDto dto) async {
+    final repo = ref.read(replyRequestRepositoryProvider);
+    final token = ref.read(authStateProvider).value?.token;
 
-  try {
-    final request = await repo.createRequest(dto, token);
-    ref.read(createRequestStateProvider.notifier).state = AsyncValue.data(request);
-    return request;
-  } catch (e, st) {
-    ref.read(createRequestStateProvider.notifier).state = AsyncValue.error(e, st);
-    return null;
+    if (token == null) {
+      state = AsyncValue.error(Exception('Not authenticated'), StackTrace.current);
+      return null;
+    }
+
+    state = const AsyncValue.loading();
+
+    try {
+      final request = await repo.deliverReply(requestId, dto, token);
+      state = AsyncValue.data(request);
+      return request;
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+      return null;
+    }
+  }
+
+  Future<ReplyRequest?> reject(String requestId, String reason) async {
+    final repo = ref.read(replyRequestRepositoryProvider);
+    final token = ref.read(authStateProvider).value?.token;
+
+    if (token == null) {
+      state = AsyncValue.error(Exception('Not authenticated'), StackTrace.current);
+      return null;
+    }
+
+    state = const AsyncValue.loading();
+
+    try {
+      final request = await repo.rejectRequest(requestId, reason, token);
+      state = AsyncValue.data(request);
+      return request;
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+      return null;
+    }
+  }
+
+  Future<ReplyRequest?> start(String requestId) async {
+    final repo = ref.read(replyRequestRepositoryProvider);
+    final token = ref.read(authStateProvider).value?.token;
+
+    if (token == null) {
+      state = AsyncValue.error(Exception('Not authenticated'), StackTrace.current);
+      return null;
+    }
+
+    state = const AsyncValue.loading();
+
+    try {
+      final request = await repo.startRequest(requestId, token);
+      state = AsyncValue.data(request);
+      return request;
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+      return null;
+    }
+  }
+
+  void reset() {
+    state = const AsyncValue.data(null);
   }
 }
 
-/// Deliver reply state provider
-final deliverReplyStateProvider = StateProvider.autoDispose<AsyncValue<ReplyRequest?>>((ref) {
-  return const AsyncValue.data(null);
+final deliverReplyProvider =
+    NotifierProvider<DeliverReplyNotifier, AsyncValue<ReplyRequest?>>(() {
+  return DeliverReplyNotifier();
 });
 
-/// Deliver reply action
-Future<ReplyRequest?> deliverReply(WidgetRef ref, String requestId, DeliverReplyDto dto) async {
-  final repo = ref.read(replyRequestRepositoryProvider);
-  final token = ref.read(authStateProvider).value?.token;
-
-  if (token == null) {
-    ref.read(deliverReplyStateProvider.notifier).state =
-        AsyncValue.error(Exception('Not authenticated'), StackTrace.current);
-    return null;
+/// Fan feedback notifier
+class FanFeedbackNotifier extends Notifier<AsyncValue<ReplyDelivery?>> {
+  @override
+  AsyncValue<ReplyDelivery?> build() {
+    return const AsyncValue.data(null);
   }
 
-  ref.read(deliverReplyStateProvider.notifier).state = const AsyncValue.loading();
+  Future<ReplyDelivery?> submitFeedback(String requestId, FanFeedbackDto dto) async {
+    final repo = ref.read(replyRequestRepositoryProvider);
+    final token = ref.read(authStateProvider).value?.token;
 
-  try {
-    final request = await repo.deliverReply(requestId, dto, token);
-    ref.read(deliverReplyStateProvider.notifier).state = AsyncValue.data(request);
-    return request;
-  } catch (e, st) {
-    ref.read(deliverReplyStateProvider.notifier).state = AsyncValue.error(e, st);
-    return null;
-  }
-}
+    if (token == null) {
+      state = AsyncValue.error(Exception('Not authenticated'), StackTrace.current);
+      return null;
+    }
 
-/// Reject request action
-Future<ReplyRequest?> rejectRequest(WidgetRef ref, String requestId, String reason) async {
-  final repo = ref.read(replyRequestRepositoryProvider);
-  final token = ref.read(authStateProvider).value?.token;
+    state = const AsyncValue.loading();
 
-  if (token == null) {
-    ref.read(deliverReplyStateProvider.notifier).state =
-        AsyncValue.error(Exception('Not authenticated'), StackTrace.current);
-    return null;
+    try {
+      final delivery = await repo.submitFeedback(requestId, dto, token);
+      state = AsyncValue.data(delivery);
+      return delivery;
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+      return null;
+    }
   }
 
-  ref.read(deliverReplyStateProvider.notifier).state = const AsyncValue.loading();
-
-  try {
-    final request = await repo.rejectRequest(requestId, reason, token);
-    ref.read(deliverReplyStateProvider.notifier).state = AsyncValue.data(request);
-    return request;
-  } catch (e, st) {
-    ref.read(deliverReplyStateProvider.notifier).state = AsyncValue.error(e, st);
-    return null;
+  void reset() {
+    state = const AsyncValue.data(null);
   }
 }
 
-/// Start request action
-Future<ReplyRequest?> startRequest(WidgetRef ref, String requestId) async {
-  final repo = ref.read(replyRequestRepositoryProvider);
-  final token = ref.read(authStateProvider).value?.token;
-
-  if (token == null) {
-    ref.read(deliverReplyStateProvider.notifier).state =
-        AsyncValue.error(Exception('Not authenticated'), StackTrace.current);
-    return null;
-  }
-
-  ref.read(deliverReplyStateProvider.notifier).state = const AsyncValue.loading();
-
-  try {
-    final request = await repo.startRequest(requestId, token);
-    ref.read(deliverReplyStateProvider.notifier).state = AsyncValue.data(request);
-    return request;
-  } catch (e, st) {
-    ref.read(deliverReplyStateProvider.notifier).state = AsyncValue.error(e, st);
-    return null;
-  }
-}
-
-/// Fan feedback state provider
-final fanFeedbackStateProvider = StateProvider.autoDispose<AsyncValue<ReplyDelivery?>>((ref) {
-  return const AsyncValue.data(null);
+final fanFeedbackProvider =
+    NotifierProvider<FanFeedbackNotifier, AsyncValue<ReplyDelivery?>>(() {
+  return FanFeedbackNotifier();
 });
-
-/// Submit feedback action
-Future<ReplyDelivery?> submitFeedback(WidgetRef ref, String requestId, FanFeedbackDto dto) async {
-  final repo = ref.read(replyRequestRepositoryProvider);
-  final token = ref.read(authStateProvider).value?.token;
-
-  if (token == null) {
-    ref.read(fanFeedbackStateProvider.notifier).state =
-        AsyncValue.error(Exception('Not authenticated'), StackTrace.current);
-    return null;
-  }
-
-  ref.read(fanFeedbackStateProvider.notifier).state = const AsyncValue.loading();
-
-  try {
-    final delivery = await repo.submitFeedback(requestId, dto, token);
-    ref.read(fanFeedbackStateProvider.notifier).state = AsyncValue.data(delivery);
-    return delivery;
-  } catch (e, st) {
-    ref.read(fanFeedbackStateProvider.notifier).state = AsyncValue.error(e, st);
-    return null;
-  }
-}
 
 /// Filter classes
 class InboxFilter {
