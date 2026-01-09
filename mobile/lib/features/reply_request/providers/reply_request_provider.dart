@@ -63,19 +63,26 @@ final creatorProductsProvider = FutureProvider.autoDispose
   return repo.getCreatorProducts(creatorId);
 });
 
-/// Create request notifier
-class CreateRequestNotifier extends StateNotifier<AsyncValue<ReplyRequest?>> {
-  final ReplyRequestRepository _repo;
-  final String _token;
+/// Create request notifier (Riverpod 3.x Notifier pattern)
+class CreateRequestNotifier extends AutoDisposeNotifier<AsyncValue<ReplyRequest?>> {
+  @override
+  AsyncValue<ReplyRequest?> build() {
+    return const AsyncValue.data(null);
+  }
 
-  CreateRequestNotifier(this._repo, this._token)
-      : super(const AsyncValue.data(null));
+  ReplyRequestRepository get _repo => ref.read(replyRequestRepositoryProvider);
+  String? get _token => ref.read(authStateProvider).value?.token;
 
   Future<ReplyRequest?> createRequest(CreateReplyRequestDto dto) async {
+    if (_token == null) {
+      state = AsyncValue.error(Exception('Not authenticated'), StackTrace.current);
+      return null;
+    }
+
     state = const AsyncValue.loading();
 
     try {
-      final request = await _repo.createRequest(dto, _token);
+      final request = await _repo.createRequest(dto, _token!);
       state = AsyncValue.data(request);
       return request;
     } catch (e, st) {
@@ -89,31 +96,31 @@ class CreateRequestNotifier extends StateNotifier<AsyncValue<ReplyRequest?>> {
   }
 }
 
-final createRequestProvider = StateNotifierProvider.autoDispose<
-    CreateRequestNotifier, AsyncValue<ReplyRequest?>>((ref) {
-  final repo = ref.watch(replyRequestRepositoryProvider);
-  final authState = ref.watch(authStateProvider).value;
-
-  if (authState == null || !authState.isLoggedIn) {
-    throw Exception('Not authenticated');
-  }
-
-  return CreateRequestNotifier(repo, authState.token!);
+final createRequestProvider =
+    NotifierProvider.autoDispose<CreateRequestNotifier, AsyncValue<ReplyRequest?>>(() {
+  return CreateRequestNotifier();
 });
 
 /// Deliver reply notifier (for creators)
-class DeliverReplyNotifier extends StateNotifier<AsyncValue<ReplyRequest?>> {
-  final ReplyRequestRepository _repo;
-  final String _token;
+class DeliverReplyNotifier extends AutoDisposeNotifier<AsyncValue<ReplyRequest?>> {
+  @override
+  AsyncValue<ReplyRequest?> build() {
+    return const AsyncValue.data(null);
+  }
 
-  DeliverReplyNotifier(this._repo, this._token)
-      : super(const AsyncValue.data(null));
+  ReplyRequestRepository get _repo => ref.read(replyRequestRepositoryProvider);
+  String? get _token => ref.read(authStateProvider).value?.token;
 
   Future<ReplyRequest?> deliver(String requestId, DeliverReplyDto dto) async {
+    if (_token == null) {
+      state = AsyncValue.error(Exception('Not authenticated'), StackTrace.current);
+      return null;
+    }
+
     state = const AsyncValue.loading();
 
     try {
-      final request = await _repo.deliverReply(requestId, dto, _token);
+      final request = await _repo.deliverReply(requestId, dto, _token!);
       state = AsyncValue.data(request);
       return request;
     } catch (e, st) {
@@ -123,10 +130,15 @@ class DeliverReplyNotifier extends StateNotifier<AsyncValue<ReplyRequest?>> {
   }
 
   Future<ReplyRequest?> reject(String requestId, String reason) async {
+    if (_token == null) {
+      state = AsyncValue.error(Exception('Not authenticated'), StackTrace.current);
+      return null;
+    }
+
     state = const AsyncValue.loading();
 
     try {
-      final request = await _repo.rejectRequest(requestId, reason, _token);
+      final request = await _repo.rejectRequest(requestId, reason, _token!);
       state = AsyncValue.data(request);
       return request;
     } catch (e, st) {
@@ -136,10 +148,15 @@ class DeliverReplyNotifier extends StateNotifier<AsyncValue<ReplyRequest?>> {
   }
 
   Future<ReplyRequest?> start(String requestId) async {
+    if (_token == null) {
+      state = AsyncValue.error(Exception('Not authenticated'), StackTrace.current);
+      return null;
+    }
+
     state = const AsyncValue.loading();
 
     try {
-      final request = await _repo.startRequest(requestId, _token);
+      final request = await _repo.startRequest(requestId, _token!);
       state = AsyncValue.data(request);
       return request;
     } catch (e, st) {
@@ -153,32 +170,31 @@ class DeliverReplyNotifier extends StateNotifier<AsyncValue<ReplyRequest?>> {
   }
 }
 
-final deliverReplyProvider = StateNotifierProvider.autoDispose<
-    DeliverReplyNotifier, AsyncValue<ReplyRequest?>>((ref) {
-  final repo = ref.watch(replyRequestRepositoryProvider);
-  final authState = ref.watch(authStateProvider).value;
-
-  if (authState == null || !authState.isLoggedIn) {
-    throw Exception('Not authenticated');
-  }
-
-  return DeliverReplyNotifier(repo, authState.token!);
+final deliverReplyProvider =
+    NotifierProvider.autoDispose<DeliverReplyNotifier, AsyncValue<ReplyRequest?>>(() {
+  return DeliverReplyNotifier();
 });
 
 /// Fan feedback notifier
-class FanFeedbackNotifier extends StateNotifier<AsyncValue<ReplyDelivery?>> {
-  final ReplyRequestRepository _repo;
-  final String _token;
+class FanFeedbackNotifier extends AutoDisposeNotifier<AsyncValue<ReplyDelivery?>> {
+  @override
+  AsyncValue<ReplyDelivery?> build() {
+    return const AsyncValue.data(null);
+  }
 
-  FanFeedbackNotifier(this._repo, this._token)
-      : super(const AsyncValue.data(null));
+  ReplyRequestRepository get _repo => ref.read(replyRequestRepositoryProvider);
+  String? get _token => ref.read(authStateProvider).value?.token;
 
-  Future<ReplyDelivery?> submitFeedback(
-      String requestId, FanFeedbackDto dto) async {
+  Future<ReplyDelivery?> submitFeedback(String requestId, FanFeedbackDto dto) async {
+    if (_token == null) {
+      state = AsyncValue.error(Exception('Not authenticated'), StackTrace.current);
+      return null;
+    }
+
     state = const AsyncValue.loading();
 
     try {
-      final delivery = await _repo.submitFeedback(requestId, dto, _token);
+      final delivery = await _repo.submitFeedback(requestId, dto, _token!);
       state = AsyncValue.data(delivery);
       return delivery;
     } catch (e, st) {
@@ -192,16 +208,9 @@ class FanFeedbackNotifier extends StateNotifier<AsyncValue<ReplyDelivery?>> {
   }
 }
 
-final fanFeedbackProvider = StateNotifierProvider.autoDispose<FanFeedbackNotifier,
-    AsyncValue<ReplyDelivery?>>((ref) {
-  final repo = ref.watch(replyRequestRepositoryProvider);
-  final authState = ref.watch(authStateProvider).value;
-
-  if (authState == null || !authState.isLoggedIn) {
-    throw Exception('Not authenticated');
-  }
-
-  return FanFeedbackNotifier(repo, authState.token!);
+final fanFeedbackProvider =
+    NotifierProvider.autoDispose<FanFeedbackNotifier, AsyncValue<ReplyDelivery?>>(() {
+  return FanFeedbackNotifier();
 });
 
 /// Filter classes
@@ -315,9 +324,11 @@ class RequestComposerState {
       requestMessage.isNotEmpty;
 }
 
-class RequestComposerNotifier extends StateNotifier<RequestComposerState> {
-  RequestComposerNotifier([String? initialCreatorId])
-      : super(RequestComposerState(creatorId: initialCreatorId));
+class RequestComposerNotifier extends AutoDisposeNotifier<RequestComposerState> {
+  @override
+  RequestComposerState build() {
+    return const RequestComposerState();
+  }
 
   void setCreatorId(String creatorId) {
     state = state.copyWith(creatorId: creatorId);
@@ -355,7 +366,6 @@ class RequestComposerNotifier extends StateNotifier<RequestComposerState> {
 }
 
 final requestComposerProvider =
-    StateNotifierProvider.autoDispose<RequestComposerNotifier, RequestComposerState>(
-        (ref) {
+    NotifierProvider.autoDispose<RequestComposerNotifier, RequestComposerState>(() {
   return RequestComposerNotifier();
 });

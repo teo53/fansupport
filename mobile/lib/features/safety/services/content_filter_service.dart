@@ -28,7 +28,7 @@ class ContentFilterService {
     r'데이트',
     r'실제로\s*만나',
     r'직접\s*만나',
-    r'let\'?s\s*meet',
+    r"let'?s\s*meet",
     r'meet\s*up',
     r'in\s*person',
     // Location disclosure

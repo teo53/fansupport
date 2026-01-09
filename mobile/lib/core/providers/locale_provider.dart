@@ -30,12 +30,14 @@ class LocaleState {
   }
 }
 
-/// Locale provider for managing app language
-class LocaleNotifier extends StateNotifier<LocaleState> {
+/// Locale provider for managing app language (Riverpod 3.x Notifier pattern)
+class LocaleNotifier extends Notifier<LocaleState> {
   static const _localeKey = 'app_locale';
 
-  LocaleNotifier() : super(const LocaleState(locale: Locale('ko', 'KR'))) {
+  @override
+  LocaleState build() {
     _loadSavedLocale();
+    return const LocaleState(locale: Locale('ko', 'KR'));
   }
 
   /// Load saved locale from shared preferences
@@ -100,7 +102,7 @@ class LocaleNotifier extends StateNotifier<LocaleState> {
 }
 
 /// Locale state provider
-final localeProvider = StateNotifierProvider<LocaleNotifier, LocaleState>((ref) {
+final localeProvider = NotifierProvider<LocaleNotifier, LocaleState>(() {
   return LocaleNotifier();
 });
 
