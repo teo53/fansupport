@@ -15,6 +15,7 @@ on:
     branches:
       - 'claude/project-review-*'
       - 'claude/enhance-*'
+      - 'claude/inbox-first-*'
 
 defaults:
   run:
