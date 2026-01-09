@@ -167,7 +167,17 @@ class _RequestComposerScreenState extends ConsumerState<RequestComposerScreen> {
 
     // For now use mock data while API is being integrated
     final creator = _getMockCreator();
-    final products = productsAsync?.asData?.value.products ?? _getMockProducts();
+    // Convert ReplyProduct to Map for consistent handling with mock data
+    final apiProducts = productsAsync?.asData?.value.products;
+    final List<Map<String, dynamic>> products = apiProducts != null
+        ? apiProducts.map((p) => {
+            'id': p.id,
+            'name': p.name,
+            'description': p.description,
+            'contentType': p.contentType.value,
+            'basePrice': p.basePrice.toStringAsFixed(0),
+          }).toList()
+        : _getMockProducts();
     final slaOptions = productsAsync?.asData?.value.slas ?? _getMockSlaOptions();
 
     return Column(
