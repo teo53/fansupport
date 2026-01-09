@@ -109,6 +109,7 @@ PaginatedResponse<ReplyRequest> _getMockInboxData(InboxFilter filter) {
     total: filtered.length,
     page: filter.page,
     limit: filter.limit,
+    totalPages: 1,
   );
 }
 
