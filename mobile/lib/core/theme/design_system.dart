@@ -103,6 +103,7 @@ class PipoColors {
   /// Surface Colors
   static const Color surface = Color(0xFFFFFFFF);
   static const Color surfaceElevated = Color(0xFFFFFFFF);
+  static const Color surfaceVariant = Color(0xFFF3F4F6);
 
   /// Border Colors
   static const Color border = Color(0xFFE5E7EB);
@@ -362,6 +363,13 @@ class PipoTypography {
     letterSpacing: 0,
     height: 1.2,
   );
+
+  // ---------------------------------------------------------------------------
+  // Aliases for backward compatibility
+  // ---------------------------------------------------------------------------
+  static const TextStyle heading1 = headlineLarge;
+  static const TextStyle heading2 = headlineMedium;
+  static const TextStyle heading3 = headlineSmall;
 }
 
 // ============================================================================

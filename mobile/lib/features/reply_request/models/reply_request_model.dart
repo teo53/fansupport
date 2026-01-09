@@ -331,6 +331,10 @@ class UserInfo {
   }
 
   bool get isAnonymous => id == 'anonymous';
+
+  /// Aliases for backward compatibility
+  String get displayName => nickname;
+  String? get profileImageUrl => profileImage;
 }
 
 /// Reply delivery model

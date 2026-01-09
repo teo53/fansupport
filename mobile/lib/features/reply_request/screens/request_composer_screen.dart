@@ -167,8 +167,8 @@ class _RequestComposerScreenState extends ConsumerState<RequestComposerScreen> {
 
     // For now use mock data while API is being integrated
     final creator = _getMockCreator();
-    final products = productsAsync?.valueOrNull?.products ?? _getMockProducts();
-    final slaOptions = productsAsync?.valueOrNull?.slas ?? _getMockSlaOptions();
+    final products = productsAsync?.asData?.value.products ?? _getMockProducts();
+    final slaOptions = productsAsync?.asData?.value.slas ?? _getMockSlaOptions();
 
     return Column(
       children: [

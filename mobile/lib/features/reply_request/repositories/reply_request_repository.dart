@@ -12,7 +12,7 @@ class ReplyRequestRepository {
     http.Client? client,
     String? baseUrl,
   })  : _client = client ?? http.Client(),
-        _baseUrl = baseUrl ?? AppConfig.apiBaseUrl;
+        _baseUrl = baseUrl ?? AppConfig.apiUrl;
 
   /// Get auth headers
   Map<String, String> _headers(String? token) {
@@ -313,6 +313,13 @@ class CreatorProductsResponse {
       todayStats: TodayStats.fromJson(json['todayStats'] as Map<String, dynamic>),
     );
   }
+
+  /// Default SLA options (fallback until API provides them)
+  List<Map<String, dynamic>> get slas => [
+    {'id': 'standard', 'name': 'Standard', 'hours': 48, 'multiplier': '1.0'},
+    {'id': 'priority', 'name': 'Priority', 'hours': 24, 'multiplier': '1.5'},
+    {'id': 'express', 'name': 'Express', 'hours': 12, 'multiplier': '2.0'},
+  ];
 }
 
 /// Slot policy
