@@ -297,52 +297,30 @@ extension AsyncValueGuardExtension<T> on AsyncValue<T> {
   }
 }
 
-/// Mixin for StateNotifiers to use guard pattern with AsyncValue state
+/// Extension for Notifiers to use guard pattern with AsyncValue state (Riverpod 3.x)
 ///
 /// Example:
 /// ```dart
-/// class UserNotifier extends StateNotifier<AsyncValue<User>>
-///     with AsyncGuardMixin<User> {
+/// class UserNotifier extends Notifier<AsyncValue<User>> {
+///   @override
+///   AsyncValue<User> build() => const AsyncValue.loading();
 ///
 ///   Future<void> fetchUser(String id) async {
-///     await guardedOperation(() => repository.getUser(id));
+///     state = const AsyncValue.loading();
+///     state = await AsyncValue.guard(() => repository.getUser(id));
 ///   }
 /// }
 /// ```
-mixin AsyncGuardMixin<T> on StateNotifier<AsyncValue<T>> {
-  /// Execute operation with loading state and error handling
-  Future<void> guardedOperation(Future<T> Function() operation) async {
-    state = const AsyncValue.loading();
+extension AsyncGuardExtension<T> on AsyncValue<T> {
+  /// Execute operation with error handling using guard pattern
+  static Future<AsyncValue<T>> guardOperation<T>(Future<T> Function() operation) async {
     try {
       final result = await operation();
-      state = AsyncValue.data(result);
+      return AsyncValue.data(result);
     } catch (e, st) {
       final appError = ErrorHandler.toAppException(e, st);
-      state = AsyncValue.error(appError, st);
+      return AsyncValue.error(appError, st);
     }
   }
 
-  /// Execute operation without changing state to loading first
-  Future<void> silentGuardedOperation(Future<T> Function() operation) async {
-    try {
-      final result = await operation();
-      state = AsyncValue.data(result);
-    } catch (e, st) {
-      final appError = ErrorHandler.toAppException(e, st);
-      state = AsyncValue.error(appError, st);
-    }
-  }
-
-  /// Execute operation and return whether it was successful
-  Future<bool> tryOperation(Future<T> Function() operation) async {
-    try {
-      final result = await operation();
-      state = AsyncValue.data(result);
-      return true;
-    } catch (e, st) {
-      final appError = ErrorHandler.toAppException(e, st);
-      state = AsyncValue.error(appError, st);
-      return false;
-    }
-  }
 }
