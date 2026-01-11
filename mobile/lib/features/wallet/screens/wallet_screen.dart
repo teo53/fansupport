@@ -7,6 +7,7 @@ import '../../../shared/widgets/custom_button.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../providers/wallet_provider.dart';
 import '../repositories/supabase_wallet_repository.dart';
+import '../services/payment_service.dart';
 
 class WalletScreen extends ConsumerStatefulWidget {
   const WalletScreen({super.key});
@@ -378,13 +379,23 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                     onPressed: _selectedPaymentMethod != null
                         ? () async {
                             final amount = _selectedChargeAmount!;
-                            final currentBalance = ref.read(currentUserProvider)?.walletBalance ?? 0;
+                            final userId = ref.read(currentUserProvider)?.id;
+
+                            if (userId == null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('로그인이 필요합니다'),
+                                  backgroundColor: AppColors.error,
+                                ),
+                              );
+                              return;
+                            }
 
                             // Show processing dialog
                             showDialog(
                               context: context,
                               barrierDismissible: false,
-                              builder: (context) => AlertDialog(
+                              builder: (dialogContext) => AlertDialog(
                                 content: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
@@ -396,23 +407,47 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                               ),
                             );
 
-                            // Simulate payment processing
-                            await Future.delayed(const Duration(seconds: 2));
+                            // Process payment with backend validation
+                            final result = await paymentService.chargeWallet(
+                              userId: userId,
+                              amount: amount,
+                              paymentMethod: _selectedPaymentMethod!,
+                            );
 
-                            // Update balance
-                            ref.read(authStateProvider.notifier).updateWalletBalance(currentBalance + amount);
-
-                            // Close dialogs
+                            // Close processing dialog
                             if (context.mounted) {
-                              Navigator.pop(context); // Close processing dialog
-                              Navigator.pop(context); // Close bottom sheet
+                              Navigator.pop(context);
+                            }
 
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('￦${_formatCurrency(amount)} 충전 완료!'),
-                                  backgroundColor: AppColors.success,
-                                ),
-                              );
+                            if (result.success) {
+                              // Update local balance with server-confirmed value
+                              if (result.newBalance != null) {
+                                ref.read(authStateProvider.notifier).updateWalletBalance(result.newBalance!);
+                              }
+
+                              // Refresh transactions
+                              ref.invalidate(transactionsProvider);
+
+                              // Close bottom sheet and show success
+                              if (context.mounted) {
+                                Navigator.pop(context);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('￦${_formatCurrency(amount)} 충전 완료!'),
+                                    backgroundColor: AppColors.success,
+                                  ),
+                                );
+                              }
+                            } else {
+                              // Show error
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(result.error ?? '결제에 실패했습니다'),
+                                    backgroundColor: AppColors.error,
+                                  ),
+                                );
+                              }
                             }
                           }
                         : null,

@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as sb;
+import '../../../core/config/app_config.dart';
 import '../../../shared/models/user_model.dart';
 
 // Supabase client provider
@@ -169,14 +171,66 @@ class AuthNotifier extends Notifier<AsyncValue<AuthState>> {
   }
 
   Future<void> loginAsDemo([String? role]) async {
+    // Demo login is only available in development/staging environments
+    if (AppConfig.isProduction) {
+      state = const AsyncValue.data(AuthState(error: '데모 로그인은 프로덕션 환경에서 사용할 수 없습니다.'));
+      return;
+    }
+
     state = const AsyncValue.data(AuthState(isLoading: true));
 
-    // For demo purposes, try to login with a test account
-    // In production, this would be removed
     try {
-      await login('test@pipo.com', 'password123');
+      // Use environment-based demo credentials (never hardcoded)
+      final demoEmail = const String.fromEnvironment(
+        'DEMO_EMAIL',
+        defaultValue: '',
+      );
+      final demoPassword = const String.fromEnvironment(
+        'DEMO_PASSWORD',
+        defaultValue: '',
+      );
+
+      if (demoEmail.isEmpty || demoPassword.isEmpty) {
+        // Create anonymous session for demo if credentials not configured
+        await _createAnonymousDemoSession(role);
+        return;
+      }
+
+      await login(demoEmail, demoPassword);
     } catch (e) {
-      state = AsyncValue.data(AuthState(error: '데모 로그인에 실패했습니다.'));
+      if (kDebugMode) {
+        print('Demo login error: $e');
+      }
+      state = const AsyncValue.data(AuthState(error: '데모 로그인에 실패했습니다.'));
+    }
+  }
+
+  /// Create anonymous demo session without real credentials
+  Future<void> _createAnonymousDemoSession(String? role) async {
+    try {
+      // Sign in anonymously (Supabase anonymous auth)
+      final response = await _supabase.auth.signInAnonymously();
+
+      if (response.user != null) {
+        // Create a temporary demo user
+        final demoUser = User(
+          id: response.user!.id,
+          email: 'demo@pipo.app',
+          nickname: '체험 사용자',
+          profileImage: null,
+          role: role ?? 'FAN',
+          isVerified: false,
+          walletBalance: 10000, // Demo balance
+        );
+        state = AsyncValue.data(AuthState(user: demoUser));
+      } else {
+        state = const AsyncValue.data(AuthState(error: '데모 세션 생성에 실패했습니다.'));
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Anonymous demo session error: $e');
+      }
+      state = const AsyncValue.data(AuthState(error: '데모 로그인에 실패했습니다.'));
     }
   }
 
@@ -211,6 +265,86 @@ class AuthNotifier extends Notifier<AsyncValue<AuthState>> {
     }
   }
 
+  /// Sign in with OAuth provider (Google, Apple, Kakao, Naver)
+  Future<void> signInWithOAuth(OAuthProvider provider) async {
+    state = const AsyncValue.data(AuthState(isLoading: true));
+
+    try {
+      final supabaseProvider = _mapToSupabaseProvider(provider);
+
+      // Start OAuth flow
+      final success = await _supabase.auth.signInWithOAuth(
+        supabaseProvider,
+        redirectTo: _getRedirectUrl(provider),
+        authScreenLaunchMode: sb.LaunchMode.externalApplication,
+      );
+
+      if (!success) {
+        state = const AsyncValue.data(
+          AuthState(error: '소셜 로그인을 시작할 수 없습니다'),
+        );
+      }
+      // Auth state will be updated via onAuthStateChange listener
+    } on sb.AuthException catch (e) {
+      state = AsyncValue.data(AuthState(error: _handleAuthError(e)));
+    } catch (e) {
+      if (kDebugMode) {
+        print('OAuth error: $e');
+      }
+      state = AsyncValue.data(
+        AuthState(error: '소셜 로그인 중 오류가 발생했습니다'),
+      );
+    }
+  }
+
+  /// Handle OAuth callback (for deep link handling)
+  Future<void> handleOAuthCallback(Uri uri) async {
+    try {
+      state = const AsyncValue.data(AuthState(isLoading: true));
+
+      // Extract tokens from callback URL
+      final session = await _supabase.auth.getSessionFromUrl(uri);
+
+      if (session.session != null) {
+        final user = await _fetchUserProfile(session.session!.user.id);
+        state = AsyncValue.data(AuthState(user: user));
+      } else {
+        state = const AsyncValue.data(
+          AuthState(error: '소셜 로그인에 실패했습니다'),
+        );
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('OAuth callback error: $e');
+      }
+      state = const AsyncValue.data(
+        AuthState(error: '로그인 처리 중 오류가 발생했습니다'),
+      );
+    }
+  }
+
+  /// Map custom provider enum to Supabase provider
+  sb.OAuthProvider _mapToSupabaseProvider(OAuthProvider provider) {
+    switch (provider) {
+      case OAuthProvider.google:
+        return sb.OAuthProvider.google;
+      case OAuthProvider.apple:
+        return sb.OAuthProvider.apple;
+      case OAuthProvider.kakao:
+        return sb.OAuthProvider.kakao;
+      case OAuthProvider.naver:
+        // Naver is not natively supported, use custom OIDC
+        throw UnsupportedError('Naver OAuth requires custom implementation');
+    }
+  }
+
+  /// Get OAuth redirect URL for the provider
+  String _getRedirectUrl(OAuthProvider provider) {
+    // Deep link scheme for the app
+    const scheme = 'com.pipo.app';
+    return '$scheme://login-callback';
+  }
+
   String _handleAuthError(sb.AuthException error) {
     switch (error.statusCode) {
       case '400':
@@ -223,6 +357,14 @@ class AuthNotifier extends Notifier<AsyncValue<AuthState>> {
         return error.message;
     }
   }
+}
+
+/// OAuth provider types
+enum OAuthProvider {
+  google,
+  apple,
+  kakao,
+  naver,
 }
 
 final authStateProvider =

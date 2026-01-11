@@ -66,15 +66,33 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     }
   }
 
-  Future<void> _handleSocialLogin(String provider) async {
+  Future<void> _handleSocialLogin(OAuthProvider provider) async {
     HapticFeedback.lightImpact();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('$provider 로그인 준비 중입니다'),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-    );
+
+    try {
+      if (provider == OAuthProvider.naver) {
+        // Naver requires custom implementation
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('네이버 로그인은 준비 중입니다'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        return;
+      }
+
+      await ref.read(authStateProvider.notifier).signInWithOAuth(provider);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('소셜 로그인에 실패했습니다'),
+            backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -282,7 +300,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 )),
                               ),
                             ),
-                            onTap: () => _handleSocialLogin('카카오'),
+                            onTap: () => _handleSocialLogin(OAuthProvider.kakao),
                           ),
                           const SizedBox(width: 16),
                           _buildSocialButton(
@@ -301,7 +319,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 )),
                               ),
                             ),
-                            onTap: () => _handleSocialLogin('네이버'),
+                            onTap: () => _handleSocialLogin(OAuthProvider.naver),
                           ),
                           const SizedBox(width: 16),
                           _buildSocialButton(
@@ -321,7 +339,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 )),
                               ),
                             ),
-                            onTap: () => _handleSocialLogin('Google'),
+                            onTap: () => _handleSocialLogin(OAuthProvider.google),
                           ),
                           const SizedBox(width: 16),
                           _buildSocialButton(
@@ -336,7 +354,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 child: Icon(Icons.apple, color: Colors.white, size: 26),
                               ),
                             ),
-                            onTap: () => _handleSocialLogin('Apple'),
+                            onTap: () => _handleSocialLogin(OAuthProvider.apple),
                           ),
                         ],
                       ),
