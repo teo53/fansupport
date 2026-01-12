@@ -18,6 +18,7 @@ import '../widgets/premium_card.dart';
 import '../widgets/section_title.dart';
 import '../widgets/live_stories_section.dart';
 import '../widgets/quick_actions_grid.dart';
+import '../../../shared/widgets/skeleton_loader.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -352,8 +353,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       },
       loading: () => SizedBox(
         height: 260,
-        child: Center(
-          child: CircularProgressIndicator(color: PipoColors.primary),
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          physics: const NeverScrollableScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: PipoSpacing.xl),
+          itemCount: 3,
+          itemBuilder: (context, index) => SkeletonLoader.creatorCard(),
         ),
       ),
       error: (error, stack) {
@@ -398,8 +403,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       },
       loading: () => SizedBox(
         height: 180,
-        child: Center(
-          child: CircularProgressIndicator(color: PipoColors.primary),
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          physics: const NeverScrollableScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: PipoSpacing.xl),
+          itemCount: 2,
+          itemBuilder: (context, index) => SkeletonLoader.fundingCard(),
         ),
       ),
       error: (error, stack) {

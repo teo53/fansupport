@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../core/mock/mock_data.dart';
+import '../../../shared/widgets/loading_widgets.dart';
+import '../providers/idol_provider.dart';
 
 class IdolListScreen extends ConsumerStatefulWidget {
   const IdolListScreen({super.key});
@@ -18,6 +21,8 @@ class _IdolListScreenState extends ConsumerState<IdolListScreen>
   late TabController _tabController;
   final _searchController = TextEditingController();
   String _searchQuery = '';
+  bool _isLoading = true;
+  bool _isRefreshing = false;
 
   final categories = [
     ('전체', null),
@@ -31,6 +36,27 @@ class _IdolListScreenState extends ConsumerState<IdolListScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: categories.length, vsync: this);
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    // Simulate initial loading
+    await Future.delayed(const Duration(milliseconds: 800));
+    if (mounted) {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _onRefresh() async {
+    HapticFeedback.mediumImpact();
+    setState(() => _isRefreshing = true);
+
+    // Simulate refresh
+    await Future.delayed(const Duration(seconds: 1));
+
+    if (mounted) {
+      setState(() => _isRefreshing = false);
+    }
   }
 
   @override
@@ -117,6 +143,11 @@ class _IdolListScreenState extends ConsumerState<IdolListScreen>
   }
 
   Widget _buildIdolGrid(String? category) {
+    // Show skeleton loader while loading
+    if (_isLoading) {
+      return _buildSkeletonGrid();
+    }
+
     final idols = _filterIdols(category);
 
     if (idols.isEmpty) {
@@ -142,6 +173,24 @@ class _IdolListScreenState extends ConsumerState<IdolListScreen>
       );
     }
 
+    return RefreshIndicator(
+      onRefresh: _onRefresh,
+      color: AppColors.primary,
+      child: GridView.builder(
+        padding: EdgeInsets.symmetric(horizontal: Responsive.wp(4)),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          childAspectRatio: 0.72,
+          crossAxisSpacing: Responsive.wp(3),
+          mainAxisSpacing: Responsive.wp(3),
+        ),
+        itemCount: idols.length,
+        itemBuilder: (context, index) => _buildIdolCard(idols[index]),
+      ),
+    );
+  }
+
+  Widget _buildSkeletonGrid() {
     return GridView.builder(
       padding: EdgeInsets.symmetric(horizontal: Responsive.wp(4)),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -150,8 +199,8 @@ class _IdolListScreenState extends ConsumerState<IdolListScreen>
         crossAxisSpacing: Responsive.wp(3),
         mainAxisSpacing: Responsive.wp(3),
       ),
-      itemCount: idols.length,
-      itemBuilder: (context, index) => _buildIdolCard(idols[index]),
+      itemCount: 6,
+      itemBuilder: (context, index) => const ShimmerGridItem(),
     );
   }
 
@@ -179,7 +228,10 @@ class _IdolListScreenState extends ConsumerState<IdolListScreen>
         borderRadius: BorderRadius.circular(16),
       ),
       child: InkWell(
-        onTap: () => context.go('/idols/${idol['id']}'),
+        onTap: () {
+          HapticFeedback.lightImpact();
+          context.go('/idols/${idol['id']}');
+        },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

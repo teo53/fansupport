@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../core/mock/mock_data.dart';
+import '../../../shared/widgets/loading_widgets.dart';
 
 class CampaignListScreen extends ConsumerStatefulWidget {
   const CampaignListScreen({super.key});
@@ -15,6 +17,25 @@ class CampaignListScreen extends ConsumerStatefulWidget {
 
 class _CampaignListScreenState extends ConsumerState<CampaignListScreen> {
   String _selectedFilter = 'all';
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    await Future.delayed(const Duration(milliseconds: 800));
+    if (mounted) {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _onRefresh() async {
+    HapticFeedback.mediumImpact();
+    await Future.delayed(const Duration(seconds: 1));
+  }
 
   String _formatNumber(int number) {
     return number.toString().replaceAllMapped(
@@ -62,32 +83,52 @@ class _CampaignListScreenState extends ConsumerState<CampaignListScreen> {
           ),
         ],
       ),
-      body: campaigns.isEmpty
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.campaign_outlined,
-                    size: Responsive.sp(60),
-                    color: AppColors.textHint,
+      body: _isLoading
+          ? _buildSkeletonList()
+          : campaigns.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.campaign_outlined,
+                        size: Responsive.sp(60),
+                        color: AppColors.textHint,
+                      ),
+                      SizedBox(height: Responsive.hp(2)),
+                      Text(
+                        '진행 중인 펀딩이 없습니다',
+                        style: TextStyle(
+                          fontSize: Responsive.sp(16),
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
                   ),
-                  SizedBox(height: Responsive.hp(2)),
-                  Text(
-                    '진행 중인 펀딩이 없습니다',
-                    style: TextStyle(
-                      fontSize: Responsive.sp(16),
-                      color: AppColors.textSecondary,
-                    ),
+                )
+              : RefreshIndicator(
+                  onRefresh: _onRefresh,
+                  color: AppColors.primary,
+                  child: ListView.builder(
+                    padding: EdgeInsets.all(Responsive.wp(4)),
+                    itemCount: campaigns.length,
+                    itemBuilder: (context, index) => _buildCampaignCard(context, campaigns[index]),
                   ),
-                ],
-              ),
-            )
-          : ListView.builder(
-              padding: EdgeInsets.all(Responsive.wp(4)),
-              itemCount: campaigns.length,
-              itemBuilder: (context, index) => _buildCampaignCard(context, campaigns[index]),
-            ),
+                ),
+    );
+  }
+
+  Widget _buildSkeletonList() {
+    return ListView.builder(
+      padding: EdgeInsets.all(Responsive.wp(4)),
+      itemCount: 4,
+      itemBuilder: (context, index) => Padding(
+        padding: EdgeInsets.only(bottom: Responsive.hp(2)),
+        child: ShimmerCard(
+          height: Responsive.hp(35),
+          borderRadius: BorderRadius.circular(16),
+        ),
+      ),
     );
   }
 
@@ -155,6 +196,7 @@ class _CampaignListScreenState extends ConsumerState<CampaignListScreen> {
           ? Icon(Icons.check, color: AppColors.primary, size: Responsive.sp(24))
           : null,
       onTap: () {
+        HapticFeedback.selectionClick();
         setState(() => _selectedFilter = value);
         Navigator.pop(context);
       },
@@ -181,7 +223,10 @@ class _CampaignListScreenState extends ConsumerState<CampaignListScreen> {
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: InkWell(
-        onTap: () => context.go('/campaigns/${campaign['id']}'),
+        onTap: () {
+          HapticFeedback.lightImpact();
+          context.go('/campaigns/${campaign['id']}');
+        },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

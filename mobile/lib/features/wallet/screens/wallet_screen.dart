@@ -8,6 +8,7 @@ import '../../auth/providers/auth_provider.dart';
 import '../providers/wallet_provider.dart';
 import '../repositories/supabase_wallet_repository.dart';
 import '../services/payment_service.dart';
+import '../../../shared/widgets/loading_widgets.dart';
 
 class WalletScreen extends ConsumerStatefulWidget {
   const WalletScreen({super.key});
@@ -781,11 +782,11 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
           }).toList(),
         );
       },
-      loading: () => Center(
-        child: Padding(
-          padding: EdgeInsets.all(Responsive.wp(4)),
-          child: CircularProgressIndicator(),
-        ),
+      loading: () => Column(
+        children: List.generate(3, (index) => Padding(
+          padding: EdgeInsets.only(bottom: Responsive.hp(1)),
+          child: ShimmerListTile(hasImage: true),
+        )),
       ),
       error: (error, stack) {
         // Fall back to mock data on error
@@ -819,42 +820,75 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
     final icon = typeIcons[tx.type] ?? Icons.monetization_on;
     final color = typeColors[tx.type] ?? AppColors.primary;
 
-    return Card(
-      margin: EdgeInsets.only(bottom: Responsive.hp(1)),
-      child: ListTile(
-        contentPadding: EdgeInsets.symmetric(
-          horizontal: Responsive.wp(4),
-          vertical: Responsive.hp(0.5),
+    return Dismissible(
+      key: Key('tx_${tx.id}'),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: EdgeInsets.only(right: Responsive.wp(4)),
+        margin: EdgeInsets.only(bottom: Responsive.hp(1)),
+        decoration: BoxDecoration(
+          color: AppColors.error.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(12),
         ),
-        leading: Container(
-          width: Responsive.wp(11),
-          height: Responsive.wp(11),
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(12),
+        child: Icon(Icons.visibility_off_outlined, color: AppColors.error),
+      ),
+      confirmDismiss: (direction) async {
+        return await showDialog<bool>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text('거래 내역 숨기기'),
+            content: const Text('이 거래 내역을 숨기시겠습니까?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: const Text('취소'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                child: Text('숨기기', style: TextStyle(color: AppColors.error)),
+              ),
+            ],
           ),
-          child: Icon(icon, color: color, size: Responsive.sp(22)),
-        ),
-        title: Text(
-          tx.description ?? '거래',
-          style: TextStyle(
-            fontSize: Responsive.sp(14),
-            fontWeight: FontWeight.w500,
+        ) ?? false;
+      },
+      child: Card(
+        margin: EdgeInsets.only(bottom: Responsive.hp(1)),
+        child: ListTile(
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: Responsive.wp(4),
+            vertical: Responsive.hp(0.5),
           ),
-        ),
-        subtitle: Text(
-          '${tx.createdAt.year}.${tx.createdAt.month.toString().padLeft(2, '0')}.${tx.createdAt.day.toString().padLeft(2, '0')}',
-          style: TextStyle(
-            fontSize: Responsive.sp(12),
-            color: AppColors.textSecondary,
+          leading: Container(
+            width: Responsive.wp(11),
+            height: Responsive.wp(11),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: color, size: Responsive.sp(22)),
           ),
-        ),
-        trailing: Text(
-          '${isPositive ? '+' : ''}￦${_formatCurrency(tx.amount.toInt().abs())}',
-          style: TextStyle(
-            fontSize: Responsive.sp(15),
-            color: isPositive ? AppColors.success : AppColors.textPrimary,
-            fontWeight: FontWeight.w600,
+          title: Text(
+            tx.description ?? '거래',
+            style: TextStyle(
+              fontSize: Responsive.sp(14),
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          subtitle: Text(
+            '${tx.createdAt.year}.${tx.createdAt.month.toString().padLeft(2, '0')}.${tx.createdAt.day.toString().padLeft(2, '0')}',
+            style: TextStyle(
+              fontSize: Responsive.sp(12),
+              color: AppColors.textSecondary,
+            ),
+          ),
+          trailing: Text(
+            '${isPositive ? '+' : ''}￦${_formatCurrency(tx.amount.toInt().abs())}',
+            style: TextStyle(
+              fontSize: Responsive.sp(15),
+              color: isPositive ? AppColors.success : AppColors.textPrimary,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
       ),
