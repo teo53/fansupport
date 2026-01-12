@@ -7,7 +7,6 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../core/mock/mock_data.dart';
 import '../../../shared/widgets/loading_widgets.dart';
-import '../providers/idol_provider.dart';
 
 class IdolListScreen extends ConsumerStatefulWidget {
   const IdolListScreen({super.key});
