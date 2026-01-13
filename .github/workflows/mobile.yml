@@ -72,10 +72,17 @@ jobs:
     name: Build Android
     runs-on: ubuntu-latest
     needs: test
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/claude/')
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Free up disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo docker image prune --all --force
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -83,28 +90,61 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Accept Android SDK licenses
+        run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
           cache: true
 
+      - name: Create environment files
+        run: |
+          cp .env.example .env
+          cp .env.example .env.development
+          cp .env.example .env.staging
+          cp .env.example .env.production
+
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Build APK
+      - name: Generate code
+        run: dart run build_runner build --delete-conflicting-outputs || echo "No code generation needed"
+        continue-on-error: true
+
+      - name: Build APK (Debug for feature branches)
+        if: startsWith(github.ref, 'refs/heads/claude/')
+        run: flutter build apk --debug
+
+      - name: Build APK (Release for main)
+        if: github.ref == 'refs/heads/main'
         run: flutter build apk --release
 
-      - name: Build App Bundle
+      - name: Build App Bundle (main only)
+        if: github.ref == 'refs/heads/main'
         run: flutter build appbundle --release
 
-      - name: Upload APK
+      - name: Upload Debug APK
+        if: startsWith(github.ref, 'refs/heads/claude/')
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-debug-apk
+          path: mobile/build/app/outputs/flutter-apk/app-debug.apk
+          retention-days: 7
+
+      - name: Upload Release APK
+        if: github.ref == 'refs/heads/main'
         uses: actions/upload-artifact@v4
         with:
           name: android-apk
           path: mobile/build/app/outputs/flutter-apk/app-release.apk
 
       - name: Upload App Bundle
+        if: github.ref == 'refs/heads/main'
         uses: actions/upload-artifact@v4
         with:
           name: android-aab
