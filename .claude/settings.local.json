@@ -20,7 +20,15 @@
       "Bash(cmd /c:*)",
       "Bash(git init:*)",
       "Bash(git remote add:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(npm:*)",
+      "Bash(npx:*)",
+      "Bash(flutter:*)",
+      "Bash(dart:*)"
     ]
+  },
+  "skills": {
+    "enabled": true,
+    "paths": [".claude/skills"]
   }
 }
