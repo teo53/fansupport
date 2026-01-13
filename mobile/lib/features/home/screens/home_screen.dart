@@ -254,21 +254,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                 children: [
                   _buildIconButton(
                     icon: Icons.search_rounded,
-                    onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('검색 기능 준비중')),
-                      );
-                    },
+                    onTap: () => context.push('/search'),
                   ),
                   const SizedBox(width: PipoSpacing.sm),
                   _buildIconButton(
                     icon: Icons.notifications_none_rounded,
                     badge: 3,
-                    onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('알림 센터 준비중')),
-                      );
-                    },
+                    onTap: () => context.push('/notifications'),
                   ),
                 ],
               ),

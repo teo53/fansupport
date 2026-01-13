@@ -24,6 +24,11 @@ import '../../features/crm/screens/idol_registration_screen.dart';
 import '../../features/agency/screens/agency_dashboard_screen.dart';
 import '../../features/idol/screens/idol_dashboard_screen.dart';
 import '../../features/message/screens/message_creation_screen.dart';
+import '../../features/notification/screens/notification_center_screen.dart';
+import '../../features/search/screens/search_screen.dart';
+import '../../features/live/screens/live_screen.dart';
+import '../../features/chat/screens/chat_screen.dart';
+import '../../features/photocard/screens/photocard_screen.dart';
 import '../../shared/models/idol_model.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -149,6 +154,29 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: '/message/create',
             builder: (context, state) =>
                 MessageCreationScreen(idol: state.extra as IdolModel),
+          ),
+          GoRoute(
+            path: '/notifications',
+            builder: (context, state) => const NotificationCenterScreen(),
+          ),
+          GoRoute(
+            path: '/search',
+            builder: (context, state) => const SearchScreen(),
+          ),
+          GoRoute(
+            path: '/live/:idolId',
+            builder: (context, state) =>
+                LiveScreen(idol: state.extra as IdolModel),
+          ),
+          GoRoute(
+            path: '/chat/:idolId',
+            builder: (context, state) => ChatScreen(
+              idol: state.extra as IdolModel,
+            ),
+          ),
+          GoRoute(
+            path: '/photocards',
+            builder: (context, state) => const PhotocardScreen(),
           ),
         ],
       ),
