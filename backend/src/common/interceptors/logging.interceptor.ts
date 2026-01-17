@@ -31,18 +31,23 @@ const SENSITIVE_FIELDS = [
 ];
 
 /**
+ * JSON 직렬화 가능한 값 타입
+ */
+type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
+
+/**
  * Sanitize an object by masking sensitive fields
  */
-function sanitizeObject(obj: any, depth = 0): any {
+function sanitizeObject(obj: unknown, depth = 0): JsonValue {
   if (depth > 5) return '[MAX_DEPTH]';
-  if (obj === null || obj === undefined) return obj;
-  if (typeof obj !== 'object') return obj;
+  if (obj === null || obj === undefined) return null;
+  if (typeof obj !== 'object') return obj as JsonValue;
 
   if (Array.isArray(obj)) {
     return obj.map((item) => sanitizeObject(item, depth + 1));
   }
 
-  const sanitized: Record<string, any> = {};
+  const sanitized: Record<string, JsonValue> = {};
 
   for (const [key, value] of Object.entries(obj)) {
     const lowerKey = key.toLowerCase();
@@ -74,7 +79,7 @@ function sanitizeObject(obj: any, depth = 0): any {
 export class LoggingInterceptor implements NestInterceptor {
   private readonly logger = new Logger('HTTP');
 
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     const request = context.switchToHttp().getRequest();
     const { method, url, body, ip } = request;
     const userAgent = request.get('user-agent') || '';

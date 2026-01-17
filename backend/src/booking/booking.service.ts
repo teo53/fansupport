@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
-import { BookingStatus } from '@prisma/client';
+import { BookingStatus, Prisma } from '@prisma/client';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
@@ -52,7 +52,7 @@ export class BookingService {
   async getMyBookings(userId: string, options: { status?: BookingStatus; page?: number; limit?: number }) {
     const { status, page = 1, limit = 20 } = options;
 
-    const where: any = { userId };
+    const where: Prisma.BookingWhereInput = { userId };
     if (status) where.status = status;
 
     const [bookings, total] = await Promise.all([

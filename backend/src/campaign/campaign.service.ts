@@ -3,7 +3,7 @@ import { PrismaService } from '../database/prisma.service';
 import { WalletService } from '../wallet/wallet.service';
 import { CreateCampaignDto } from './dto/create-campaign.dto';
 import { ContributeDto } from './dto/contribute.dto';
-import { CampaignStatus, TransactionType } from '@prisma/client';
+import { CampaignStatus, TransactionType, Prisma } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime/library';
 
 @Injectable()
@@ -48,7 +48,7 @@ export class CampaignService {
   }) {
     const { status, creatorId, page = 1, limit = 20 } = options;
 
-    const where: any = {};
+    const where: Prisma.CampaignWhereInput = {};
     if (status) where.status = status;
     if (creatorId) where.creatorId = creatorId;
 

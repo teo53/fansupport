@@ -237,41 +237,140 @@ export class VerificationService {
   }
 
   /**
-   * SMS 발송 (실제 구현 필요 - NHN Cloud, AWS SNS, Twilio 등)
+   * SMS 발송 - NHN Cloud Toast SMS / Twilio 지원
+   * 환경변수에 따라 적절한 프로바이더 선택
    */
   private async sendSms(phoneNumber: string, message: string): Promise<boolean> {
-    // TODO: 실제 SMS 발송 구현
-    // 개발 환경에서는 로그로 대체
-    const isDevelopment = this.configService.get('app.nodeEnv') === 'development';
+    const nodeEnv = this.configService.get<string>('NODE_ENV') || this.configService.get<string>('app.nodeEnv');
+    const isDevelopment = nodeEnv === 'development';
 
+    // 개발 환경에서는 로그로 대체 (실제 발송 시뮬레이션)
     if (isDevelopment) {
       this.logger.warn(`[DEV MODE] SMS to ${phoneNumber}: ${message}`);
       return true;
     }
 
-    // 실제 구현 예시 (NHN Cloud Toast SMS)
-    /*
-    const smsApiKey = this.configService.get('sms.apiKey');
-    const smsSenderId = this.configService.get('sms.senderId');
+    // SMS 프로바이더 선택
+    const smsProvider = this.configService.get<string>('SMS_PROVIDER') || 'nhn';
 
-    const response = await fetch('https://api-sms.cloud.toast.com/sms/v3.0/appKeys/{appKey}/sender/sms', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Secret-Key': smsApiKey,
+    try {
+      if (smsProvider === 'twilio') {
+        return await this.sendSmsTwilio(phoneNumber, message);
+      } else {
+        return await this.sendSmsNhn(phoneNumber, message);
+      }
+    } catch (error) {
+      this.logger.error(`SMS 발송 실패: ${error instanceof Error ? error.message : 'Unknown error'}`, error instanceof Error ? error.stack : undefined);
+      throw new BadRequestException('SMS 발송에 실패했습니다. 잠시 후 다시 시도해주세요.');
+    }
+  }
+
+  /**
+   * NHN Cloud Toast SMS 발송
+   */
+  private async sendSmsNhn(phoneNumber: string, message: string): Promise<boolean> {
+    const appKey = this.configService.get<string>('NHN_SMS_APP_KEY');
+    const secretKey = this.configService.get<string>('NHN_SMS_SECRET_KEY');
+    const sendNo = this.configService.get<string>('NHN_SMS_SENDER_NUMBER');
+
+    if (!appKey || !secretKey || !sendNo) {
+      this.logger.error('NHN Cloud SMS 설정이 누락되었습니다.');
+      throw new Error('SMS 설정 오류');
+    }
+
+    // 국제번호 형식 변환 (010xxx -> +82010xxx)
+    const internationalPhone = this.formatPhoneForKorea(phoneNumber);
+
+    const response = await fetch(
+      `https://api-sms.cloud.toast.com/sms/v3.0/appKeys/${appKey}/sender/sms`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json;charset=UTF-8',
+          'X-Secret-Key': secretKey,
+        },
+        body: JSON.stringify({
+          body: message,
+          sendNo: sendNo,
+          recipientList: [
+            {
+              recipientNo: internationalPhone,
+              countryCode: '82',
+            },
+          ],
+        }),
       },
-      body: JSON.stringify({
-        body: message,
-        sendNo: smsSenderId,
-        recipientList: [{ recipientNo: phoneNumber }],
-      }),
-    });
+    );
 
-    return response.ok;
-    */
+    const result = await response.json();
 
-    this.logger.log(`SMS sent to ${phoneNumber}`);
+    if (!response.ok || result.header?.isSuccessful === false) {
+      this.logger.error(`NHN SMS 발송 실패: ${JSON.stringify(result)}`);
+      return false;
+    }
+
+    this.logger.log(`SMS sent via NHN to ${this.maskPhoneNumber(phoneNumber)}`);
     return true;
+  }
+
+  /**
+   * Twilio SMS 발송
+   */
+  private async sendSmsTwilio(phoneNumber: string, message: string): Promise<boolean> {
+    const accountSid = this.configService.get<string>('TWILIO_ACCOUNT_SID');
+    const authToken = this.configService.get<string>('TWILIO_AUTH_TOKEN');
+    const fromNumber = this.configService.get<string>('TWILIO_PHONE_NUMBER');
+
+    if (!accountSid || !authToken || !fromNumber) {
+      this.logger.error('Twilio SMS 설정이 누락되었습니다.');
+      throw new Error('SMS 설정 오류');
+    }
+
+    // 국제번호 형식 변환
+    const internationalPhone = this.formatPhoneForKorea(phoneNumber);
+
+    const auth = Buffer.from(`${accountSid}:${authToken}`).toString('base64');
+
+    const response = await fetch(
+      `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          Authorization: `Basic ${auth}`,
+        },
+        body: new URLSearchParams({
+          To: internationalPhone,
+          From: fromNumber,
+          Body: message,
+        }).toString(),
+      },
+    );
+
+    const result = await response.json();
+
+    if (!response.ok || result.error_code) {
+      this.logger.error(`Twilio SMS 발송 실패: ${JSON.stringify(result)}`);
+      return false;
+    }
+
+    this.logger.log(`SMS sent via Twilio to ${this.maskPhoneNumber(phoneNumber)}`);
+    return true;
+  }
+
+  /**
+   * 한국 전화번호를 국제 형식으로 변환
+   * 01012345678 -> +821012345678
+   */
+  private formatPhoneForKorea(phone: string): string {
+    const normalized = this.normalizePhoneNumber(phone);
+    if (normalized.startsWith('0')) {
+      return '+82' + normalized.substring(1);
+    }
+    if (normalized.startsWith('+82')) {
+      return normalized;
+    }
+    return '+82' + normalized;
   }
 
   /**

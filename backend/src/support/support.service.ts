@@ -2,8 +2,16 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { PrismaService } from '../database/prisma.service';
 import { WalletService } from '../wallet/wallet.service';
 import { CreateSupportDto } from './dto/create-support.dto';
-import { TransactionType } from '@prisma/client';
+import { TransactionType, Prisma } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime/library';
+
+/**
+ * Prisma 트랜잭션 클라이언트 타입
+ */
+type PrismaTransactionClient = Omit<
+  PrismaService,
+  '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'
+>;
 
 @Injectable()
 export class SupportService {
@@ -100,7 +108,7 @@ export class SupportService {
     return count === 1;
   }
 
-  private async isFirstSupportInTransaction(supporterId: string, receiverId: string, tx: any): Promise<boolean> {
+  private async isFirstSupportInTransaction(supporterId: string, receiverId: string, tx: PrismaTransactionClient): Promise<boolean> {
     const count = await tx.support.count({
       where: { supporterId, receiverId },
     });

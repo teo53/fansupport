@@ -1,7 +1,15 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
-import { TransactionType, TransactionStatus } from '@prisma/client';
+import { TransactionType, TransactionStatus, Prisma } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime/library';
+
+/**
+ * Prisma 트랜잭션 클라이언트 타입
+ */
+type PrismaTransactionClient = Omit<
+  PrismaService,
+  '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'
+>;
 
 @Injectable()
 export class WalletService {
@@ -106,7 +114,7 @@ export class WalletService {
     amount: number,
     type: TransactionType,
     description?: string,
-    tx?: any,
+    tx?: PrismaTransactionClient,
   ) {
     if (amount <= 0) {
       throw new BadRequestException('Amount must be positive');
@@ -126,7 +134,7 @@ export class WalletService {
     const toBalanceBefore = toWallet.balance;
     const toBalanceAfter = new Decimal(toWallet.balance).plus(amount);
 
-    const executeTransfer = async (client: any) => {
+    const executeTransfer = async (client: PrismaTransactionClient) => {
       const result = await Promise.all([
         client.wallet.update({
           where: { id: fromWallet.id },

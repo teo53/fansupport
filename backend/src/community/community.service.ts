@@ -2,7 +2,7 @@ import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/commo
 import { PrismaService } from '../database/prisma.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { CreateCommentDto } from './dto/create-comment.dto';
-import { PostVisibility } from '@prisma/client';
+import { PostVisibility, Prisma } from '@prisma/client';
 
 @Injectable()
 export class CommunityService {
@@ -35,7 +35,7 @@ export class CommunityService {
   }) {
     const { authorId, visibility, page = 1, limit = 20 } = options;
 
-    const where: any = { deletedAt: null };
+    const where: Prisma.PostWhereInput = { deletedAt: null };
     if (authorId) where.authorId = authorId;
     if (visibility) where.visibility = visibility;
 
